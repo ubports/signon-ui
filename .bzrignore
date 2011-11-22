@@ -1,0 +1,16 @@
+*.a
+*.o
+*.moc
+*.so
+*.so.*
+*~
+.*.swp
+.moc
+.obj
+Makefile*
+builddir
+core
+debian/
+signon-ui
+signon-ui-test
+moc_*
