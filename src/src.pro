@@ -18,8 +18,16 @@ PKGCONFIG += \
     signon-plugins-common
 
 HEADERS = \
-    debug.h
+    debug.h \
+    signon-ui.h
 
 SOURCES = \
-    main.cpp
+    debug.cpp \
+    main.cpp \
+    signon-ui.cpp
+
+DBUS_ADAPTORS = \
+    signon_ui.xml
+
+DEFINES += DEBUG_ENABLED
 

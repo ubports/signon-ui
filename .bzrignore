@@ -11,6 +11,7 @@ Makefile*
 builddir
 core
 debian/
+moc_*
 signon-ui
 signon-ui-test
-moc_*
+src/signon_ui_adaptor.*

@@ -21,10 +21,21 @@
 #include "debug.h"
 
 #include <QApplication>
+#include <QProcessEnvironment>
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+
+    /* read environment variables */
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    if (environment.contains(QLatin1String("SSOUI_LOGGING_LEVEL"))) {
+        bool isOk;
+        int value = environment.value(
+            QLatin1String("SSOUI_LOGGING_LEVEL")).toInt(&isOk);
+        if (isOk)
+            setLoggingLevel(value);
+    }
 
     return app.exec();
 }

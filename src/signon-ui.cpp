@@ -17,40 +17,39 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_DEBUG_H
-#define SIGNON_UI_DEBUG_H
 
-#include <QDebug>
+#include "signon-ui.h"
+#include "signon_ui_adaptor.h"
 
-/* 0 - fatal, 1 - critical(default), 2 - info/debug */
-extern int appLoggingLevel;
-
-static inline bool debugEnabled()
+class SignOnUiPrivate
 {
-    return appLoggingLevel >= 2;
+    Q_DECLARE_PUBLIC(SignOnUi)
+
+public:
+    SignOnUiPrivate(SignOnUi *signOnUi);
+    ~SignOnUiPrivate();
+
+private:
+    mutable SignOnUi *q_ptr;
+};
+
+SignOnUiPrivate::SignOnUiPrivate(SignOnUi *signOnUi):
+    q_ptr(signOnUi)
+{
 }
 
-static inline bool criticalsEnabled()
+SignOnUiPrivate::~SignOnUiPrivate()
 {
-    return appLoggingLevel >= 1;
 }
 
-static inline int loggingLevel()
+SignOnUi::SignOnUi(QObject *parent):
+    QObject(parent),
+    d_ptr(new SignOnUiPrivate(this))
 {
-    return appLoggingLevel;
 }
 
-void setLoggingLevel(int level);
-
-#ifdef DEBUG_ENABLED
-    #define TRACE() \
-        if (debugEnabled()) qDebug() << __FILE__ << __LINE__ << __func__
-    #define BLAME() \
-        if (criticalsEnabled()) qCritical() << __FILE__ << __LINE__ << __func__
-#else
-    #define TRACE() while (0) qDebug()
-    #define BLAME() while (0) qDebug()
-#endif
-
-#endif // SIGNON_UI_DEBUG_H
+SignOnUi::~SignOnUi()
+{
+    delete d_ptr;
+}
 

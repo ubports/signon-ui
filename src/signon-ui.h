@@ -17,40 +17,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_DEBUG_H
-#define SIGNON_UI_DEBUG_H
+#ifndef SIGNON_UI_H
+#define SIGNON_UI_H
 
-#include <QDebug>
+#include <QObject>
 
-/* 0 - fatal, 1 - critical(default), 2 - info/debug */
-extern int appLoggingLevel;
+class SignOnUiPrivate;
 
-static inline bool debugEnabled()
+class SignOnUi: public QObject
 {
-    return appLoggingLevel >= 2;
-}
+    Q_OBJECT
 
-static inline bool criticalsEnabled()
-{
-    return appLoggingLevel >= 1;
-}
+public:
+    explicit SignOnUi(QObject *parent = 0);
+    ~SignOnUi();
 
-static inline int loggingLevel()
-{
-    return appLoggingLevel;
-}
+private:
+    SignOnUiPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(SignOnUi)
+};
 
-void setLoggingLevel(int level);
-
-#ifdef DEBUG_ENABLED
-    #define TRACE() \
-        if (debugEnabled()) qDebug() << __FILE__ << __LINE__ << __func__
-    #define BLAME() \
-        if (criticalsEnabled()) qCritical() << __FILE__ << __LINE__ << __func__
-#else
-    #define TRACE() while (0) qDebug()
-    #define BLAME() while (0) qDebug()
-#endif
-
-#endif // SIGNON_UI_DEBUG_H
+#endif // SIGNON_UI_H
 
