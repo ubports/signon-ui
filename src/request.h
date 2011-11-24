@@ -17,32 +17,45 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_H
-#define SIGNON_UI_H
+#ifndef SIGNON_UI_REQUEST_H
+#define SIGNON_UI_REQUEST_H
 
-#include <QDBusContext>
+#include <QDBusConnection>
+#include <QDBusMessage>
 #include <QObject>
 #include <QVariantMap>
+#include <QWidget>
 
-class SignOnUiPrivate;
-
-class SignOnUi: public QObject, protected QDBusContext
+class Request: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit SignOnUi(QObject *parent = 0);
-    ~SignOnUi();
+    explicit Request(const QDBusConnection &connection,
+                     const QDBusMessage &message,
+                     const QVariantMap &parameters,
+                     QObject *parent = 0);
+    ~Request();
+
+    static QString id(const QVariantMap &parameters);
+    QString id() const;
+
+    WId windowId() const;
+
+    bool isInProgress() const;
 
 public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
+    void start();
+
+Q_SIGNALS:
+    void completed();
 
 private:
-    SignOnUiPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(SignOnUi)
+    const QDBusConnection &m_connection;
+    const QDBusMessage &m_message;
+    QVariantMap m_parameters;
+    bool m_inProgress;
 };
 
-#endif // SIGNON_UI_H
+#endif // SIGNON_UI_REQUEST_H
 

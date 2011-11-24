@@ -19,15 +19,14 @@ PKGCONFIG += \
 
 HEADERS = \
     debug.h \
+    request.h \
     signon-ui.h
 
 SOURCES = \
     debug.cpp \
     main.cpp \
+    request.cpp \
     signon-ui.cpp
-
-DBUS_ADAPTORS = \
-    signon_ui.xml
 
 DEFINES += DEBUG_ENABLED
 
