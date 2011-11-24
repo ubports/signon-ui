@@ -21,15 +21,43 @@
 #ifndef SIGNON_UI_TEST_H
 #define SIGNON_UI_TEST_H
 
+#include <QDBusInterface>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QObject>
+#include <QVariantMap>
+
+class PendingCall: public QDBusPendingCallWatcher
+{
+    Q_OBJECT
+
+public:
+    PendingCall(const QDBusPendingCall &call, QObject *parent = 0);
+    ~PendingCall();
+
+    bool isError() const;
+    QDBusError error() const;
+    QVariantMap variantMap() const;
+
+private:
+    mutable QDBusPendingReply<QVariantMap> m_reply;
+};
 
 class SignOnUiTest: public QObject
 {
     Q_OBJECT
 
+public:
+    PendingCall *queryDialog(const QVariantMap &parameters);
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
+
+    void username();
+
+private:
+    QDBusInterface *m_interface;
 };
 
 #endif // SIGNON_UI_TEST_H

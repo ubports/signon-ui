@@ -6,11 +6,16 @@ TEMPLATE = app
 TARGET = signon-ui-test
 
 CONFIG += \
+    link_pkgconfig \
     qt \
     qtestlib
 
 QT += \
-    core
+    core \
+    dbus
+
+PKGCONFIG += \
+    signon-plugins-common
 
 HEADERS = \
     signon-ui-test.h
@@ -25,7 +30,9 @@ QMAKE_LIBDIR += \
     $${TOP_BUILD_DIR}/src
 QMAKE_RPATHDIR = $${QMAKE_LIBDIR}
 
-check.commands = "./signon-ui-test -v1"
+RUN_WITH_SIGNON_UI = "BUILDDIR=$$TOP_BUILD_DIR $$TOP_SRC_DIR/tests/run-with-signon-ui.sh"
+
+check.commands = "$$RUN_WITH_SIGNON_UI ./signon-ui-test -v1"
 check.depends = signon-ui-test
 QMAKE_EXTRA_TARGETS += check
 

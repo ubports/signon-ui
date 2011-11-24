@@ -127,6 +127,7 @@ QVariantMap SignOnUi::queryDialog(const QVariantMap &parameters)
 {
     Q_D(SignOnUi);
 
+    TRACE() << "Got request:" << parameters;
     Request *request = new Request(connection(),
                                    message(),
                                    parameters,
