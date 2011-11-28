@@ -89,7 +89,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     bool showUsername = m_queryUsername || params.contains(SSOUI_KEY_USERNAME);
     if (showUsername) {
         m_wUsername = new QLineEdit;
-        m_wPassword->setEnabled(m_queryUsername);
+        m_wUsername->setEnabled(m_queryUsername);
         m_wUsername->setAccessibleName("username");
         m_wUsername->setText(params.value(SSOUI_KEY_USERNAME).toString());
         formLayout->addRow(tr("Username:"), m_wUsername);
