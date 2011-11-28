@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef SIGNON_UI_REQUEST_H
 #define SIGNON_UI_REQUEST_H
 
@@ -26,15 +27,17 @@
 #include <QVariantMap>
 #include <QWidget>
 
+namespace SignOnUi {
+
 class Request: public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Request(const QDBusConnection &connection,
-                     const QDBusMessage &message,
-                     const QVariantMap &parameters,
-                     QObject *parent = 0);
+    static Request *newRequest(const QDBusConnection &connection,
+                               const QDBusMessage &message,
+                               const QVariantMap &parameters,
+                               QObject *parent = 0);
     ~Request();
 
     static QString id(const QVariantMap &parameters);
@@ -44,18 +47,34 @@ public:
 
     bool isInProgress() const;
 
+    const QVariantMap &parameters() const;
+
 public Q_SLOTS:
-    void start();
+    virtual void start();
 
 Q_SIGNALS:
     void completed();
 
+protected:
+    explicit Request(const QDBusConnection &connection,
+                     const QDBusMessage &message,
+                     const QVariantMap &parameters,
+                     QObject *parent = 0);
+
+    void setWidget(QWidget *widget) const;
+
+    void fail(const QString &name, const QString &message);
+    void setCanceled();
+    void setResult(const QVariantMap &result);
+
 private:
-    const QDBusConnection &m_connection;
-    const QDBusMessage &m_message;
+    QDBusConnection m_connection;
+    QDBusMessage m_message;
     QVariantMap m_parameters;
     bool m_inProgress;
 };
+
+} // namespace
 
 #endif // SIGNON_UI_REQUEST_H
 

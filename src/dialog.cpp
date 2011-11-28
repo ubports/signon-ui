@@ -17,33 +17,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_H
-#define SIGNON_UI_H
 
-#include <QDBusContext>
-#include <QObject>
-#include <QVariantMap>
+#include "dialog.h"
 
-class SignOnUiPrivate;
+#include "debug.h"
 
-class SignOnUi: public QObject, protected QDBusContext
+using namespace SignOnUi;
+
+Dialog::Dialog(QWidget *parent, Qt::WindowFlags f):
+    QDialog(parent, f)
 {
-    Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "com.nokia.singlesignonui")
+}
 
-public:
-    explicit SignOnUi(QObject *parent = 0);
-    ~SignOnUi();
+Dialog::~Dialog()
+{
+}
 
-public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
-
-private:
-    SignOnUiPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(SignOnUi)
-};
-
-#endif // SIGNON_UI_H
+void Dialog::closeEvent(QCloseEvent *e)
+{
+    reject();
+    QDialog::closeEvent(e);
+}
 

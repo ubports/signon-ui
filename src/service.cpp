@@ -18,23 +18,27 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "signon-ui.h"
+#include "service.h"
 
 #include "debug.h"
 #include "request.h"
 
 #include <QQueue>
 
+using namespace SignOnUi;
+
+namespace SignOnUi {
+
 typedef QQueue<Request*> RequestQueue;
 
-class SignOnUiPrivate: public QObject
+class ServicePrivate: public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PUBLIC(SignOnUi)
+    Q_DECLARE_PUBLIC(Service)
 
 public:
-    SignOnUiPrivate(SignOnUi *signOnUi);
-    ~SignOnUiPrivate();
+    ServicePrivate(Service *service);
+    ~ServicePrivate();
 
     RequestQueue &queueForWindowId(WId windowId);
     void enqueue(Request *request);
@@ -44,22 +48,24 @@ private Q_SLOTS:
     void onRequestCompleted();
 
 private:
-    mutable SignOnUi *q_ptr;
+    mutable Service *q_ptr;
     /* each window Id has a different queue */
     QMap<WId,RequestQueue> m_requests;
 };
 
-SignOnUiPrivate::SignOnUiPrivate(SignOnUi *signOnUi):
-    QObject(signOnUi),
-    q_ptr(signOnUi)
+} // namespace
+
+ServicePrivate::ServicePrivate(Service *service):
+    QObject(service),
+    q_ptr(service)
 {
 }
 
-SignOnUiPrivate::~SignOnUiPrivate()
+ServicePrivate::~ServicePrivate()
 {
 }
 
-RequestQueue &SignOnUiPrivate::queueForWindowId(WId windowId)
+RequestQueue &ServicePrivate::queueForWindowId(WId windowId)
 {
     if (!m_requests.contains(windowId)) {
         RequestQueue queue;
@@ -68,7 +74,7 @@ RequestQueue &SignOnUiPrivate::queueForWindowId(WId windowId)
     return m_requests[windowId];
 }
 
-void SignOnUiPrivate::enqueue(Request *request)
+void ServicePrivate::enqueue(Request *request)
 {
     WId windowId = request->windowId();
 
@@ -78,11 +84,13 @@ void SignOnUiPrivate::enqueue(Request *request)
     runQueue(queue);
 }
 
-void SignOnUiPrivate::runQueue(RequestQueue &queue)
+void ServicePrivate::runQueue(RequestQueue &queue)
 {
     Request *request = queue.head();
+    TRACE() << "Head:" << request;
 
     if (request->isInProgress()) {
+        TRACE() << "Already in progress";
         return; // Nothing to do
     }
 
@@ -91,7 +99,7 @@ void SignOnUiPrivate::runQueue(RequestQueue &queue)
     request->start();
 }
 
-void SignOnUiPrivate::onRequestCompleted()
+void ServicePrivate::onRequestCompleted()
 {
     Request *request = qobject_cast<Request*>(sender());
     WId windowId = request->windowId();
@@ -113,25 +121,25 @@ void SignOnUiPrivate::onRequestCompleted()
     }
 }
 
-SignOnUi::SignOnUi(QObject *parent):
+Service::Service(QObject *parent):
     QObject(parent),
-    d_ptr(new SignOnUiPrivate(this))
+    d_ptr(new ServicePrivate(this))
 {
 }
 
-SignOnUi::~SignOnUi()
+Service::~Service()
 {
 }
 
-QVariantMap SignOnUi::queryDialog(const QVariantMap &parameters)
+QVariantMap Service::queryDialog(const QVariantMap &parameters)
 {
-    Q_D(SignOnUi);
+    Q_D(Service);
 
     TRACE() << "Got request:" << parameters;
-    Request *request = new Request(connection(),
-                                   message(),
-                                   parameters,
-                                   this);
+    Request *request = Request::newRequest(connection(),
+                                           message(),
+                                           parameters,
+                                           this);
     d->enqueue(request);
 
     /* The following line tells QtDBus not to generate a reply now */
@@ -139,7 +147,7 @@ QVariantMap SignOnUi::queryDialog(const QVariantMap &parameters)
     return QVariantMap();
 }
 
-QVariantMap SignOnUi::refreshDialog(const QVariantMap &newParameters)
+QVariantMap Service::refreshDialog(const QVariantMap &newParameters)
 {
     QString requestId = Request::id(newParameters);
     // TODO find the request and update it
@@ -149,9 +157,9 @@ QVariantMap SignOnUi::refreshDialog(const QVariantMap &newParameters)
     return QVariantMap();
 }
 
-void SignOnUi::cancelUiRequest(const QString &requestId)
+void Service::cancelUiRequest(const QString &requestId)
 {
     Q_UNUSED(requestId); // TODO
 }
 
-#include "signon-ui.moc"
+#include "service.moc"

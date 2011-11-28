@@ -19,11 +19,13 @@
  */
 
 #include "debug.h"
-#include "signon-ui.h"
+#include "service.h"
 
 #include <QApplication>
 #include <QDBusConnection>
 #include <QProcessEnvironment>
+
+using namespace SignOnUi;
 
 /* This is where signond expects to find us */
 static const char serviceName[] = "com.nokia.singlesignonui";
@@ -32,6 +34,7 @@ static const char objectPath[] = "/SignonUi";
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     /* read environment variables */
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
@@ -43,18 +46,18 @@ int main(int argc, char **argv)
             setLoggingLevel(value);
     }
 
-    SignOnUi *signOnUi = new SignOnUi();
+    Service *service = new Service();
     QDBusConnection connection = QDBusConnection::sessionBus();
     connection.registerService(QLatin1String(serviceName));
     connection.registerObject(QLatin1String(objectPath),
-                              signOnUi,
+                              service,
                               QDBusConnection::ExportAllContents);
 
     int ret = app.exec();
 
     connection.unregisterService(QLatin1String(serviceName));
     connection.unregisterObject(QLatin1String(objectPath));
-    delete signOnUi;
+    delete service;
 
     return ret;
 }

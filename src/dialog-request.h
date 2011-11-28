@@ -18,47 +18,37 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_TEST_H
-#define SIGNON_UI_TEST_H
+#ifndef SIGNON_UI_DIALOG_REQUEST_H
+#define SIGNON_UI_DIALOG_REQUEST_H
 
-#include <QDBusInterface>
-#include <QDBusPendingCallWatcher>
-#include <QDBusPendingReply>
+#include "request.h"
+
 #include <QObject>
-#include <QVariantMap>
 
-class PendingCall: public QDBusPendingCallWatcher
+namespace SignOnUi {
+
+class DialogRequestPrivate;
+
+class DialogRequest: public Request
 {
     Q_OBJECT
 
 public:
-    PendingCall(const QDBusPendingCall &call, QObject *parent = 0);
-    ~PendingCall();
+    explicit DialogRequest(const QDBusConnection &connection,
+                           const QDBusMessage &message,
+                           const QVariantMap &parameters,
+                           QObject *parent = 0);
+    ~DialogRequest();
 
-    bool isError() const;
-    QDBusError error() const;
-    QVariantMap variantMap() const;
-
-private:
-    mutable QDBusPendingReply<QVariantMap> m_reply;
-};
-
-class SignOnUiTest: public QObject
-{
-    Q_OBJECT
-
-public:
-    PendingCall *queryDialog(const QVariantMap &parameters);
-
-private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-
-    void username();
+    // reimplemented virtual methods
+    void start();
 
 private:
-    QDBusInterface *m_interface;
+    DialogRequestPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(DialogRequest)
 };
 
-#endif // SIGNON_UI_TEST_H
+} // namespace
+
+#endif // SIGNON_UI_DIALOG_REQUEST_H
 

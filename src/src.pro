@@ -15,18 +15,25 @@ QT += \
     gui
 
 PKGCONFIG += \
-    signon-plugins-common
+    signon-plugins-common \
+    libsignon-qt
 
 HEADERS = \
     debug.h \
+    dialog-request.h \
+    dialog.h \
+    i18n.h \
     request.h \
-    signon-ui.h
+    service.h
 
 SOURCES = \
     debug.cpp \
+    dialog-request.cpp \
+    dialog.cpp \
+    i18n.cpp \
     main.cpp \
     request.cpp \
-    signon-ui.cpp
+    service.cpp
 
 DEFINES += DEBUG_ENABLED
 
