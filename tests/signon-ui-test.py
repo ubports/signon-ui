@@ -49,13 +49,24 @@ class Test(TestCase):
 
     def queryDialogReply(self, reply):
         log.debug("Signon-ui replied: %s" % reply)
-        assert reply['UserName'] == 'user@example.com'
         self.loop.quit()
+        assert reply['UserName'] == 'user@example.com'
 
     def error_cb(self, error):
         log.debug("Got error: %s" % error)
         self.loop.quit()
         assert False
+
+    def test_browser(self):
+        parameters = dict()
+        parameters['Title'] = 'Go to the "Community" tab and close the dialog'
+        parameters['OpenUrl'] = 'http://www.ubuntu.com'
+        parameters['FinalUrl'] = 'http://www.ubuntu.com/community'
+        log.debug('Calling!')
+        reply = self.signonui.queryDialog(parameters, timeout = self.timeout)
+        log.debug("Signon-ui replied: %s" % reply)
+        assert 'ResponseUrl' in reply
+        assert reply['ResponseUrl'] == 'http://www.ubuntu.com/community'
 
 if __name__ == '__main__':
     test = Test()

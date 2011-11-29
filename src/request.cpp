@@ -20,6 +20,7 @@
 
 #include "request.h"
 
+#include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
 
@@ -35,8 +36,11 @@ Request *Request::newRequest(const QDBusConnection &connection,
                              const QVariantMap &parameters,
                              QObject *parent)
 {
-    // TODO: support other types of request (webview)
-    return new DialogRequest(connection, message, parameters, parent);
+    if (parameters.contains(SSOUI_KEY_OPENURL)) {
+        return new BrowserRequest(connection, message, parameters, parent);
+    } else {
+        return new DialogRequest(connection, message, parameters, parent);
+    }
 }
 
 Request::Request(const QDBusConnection &connection,

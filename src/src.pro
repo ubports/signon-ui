@@ -12,13 +12,15 @@ CONFIG += \
 QT += \
     core \
     dbus \
-    gui
+    gui \
+    webkit
 
 PKGCONFIG += \
     signon-plugins-common \
     libsignon-qt
 
 HEADERS = \
+    browser-request.h \
     debug.h \
     dialog-request.h \
     dialog.h \
@@ -27,6 +29,7 @@ HEADERS = \
     service.h
 
 SOURCES = \
+    browser-request.cpp \
     debug.cpp \
     dialog-request.cpp \
     dialog.cpp \
