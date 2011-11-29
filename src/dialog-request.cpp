@@ -25,10 +25,13 @@
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QLabel>
 #include <QLineEdit>
+#include <SignOn/UiSessionData>
 #include <SignOn/uisessiondata_priv.h>
 
 using namespace SignOnUi;
+using namespace SignOn;
 
 namespace SignOnUi {
 
@@ -47,6 +50,9 @@ public:
 private Q_SLOTS:
     void onAccepted();
     void onRejected();
+
+private:
+    QString messageFromId(int id);
 
 private:
     mutable DialogRequest *q_ptr;
@@ -75,6 +81,19 @@ DialogRequestPrivate::~DialogRequestPrivate()
     delete m_dialog;
 }
 
+QString DialogRequestPrivate::messageFromId(int id)
+{
+    switch (id) {
+    case QUERY_MESSAGE_LOGIN:
+        return tr("Enter your credentials to login");
+    case QUERY_MESSAGE_NOT_AUTHORIZED:
+        return tr("Previous authentication attempt failed. Please try again.");
+    case QUERY_MESSAGE_EMPTY:
+    default:
+        return QString();
+    }
+}
+
 void DialogRequestPrivate::buildDialog(const QVariantMap &params)
 {
     m_dialog = new Dialog;
@@ -84,6 +103,18 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     m_dialog->setWindowTitle(title);
 
     QFormLayout *formLayout = new QFormLayout(m_dialog);
+
+    QString message = params.value(SSOUI_KEY_MESSAGE).toString();
+    if (message.isEmpty()) {
+        // Check whether a predefined message id is set
+        if (params.contains(SSOUI_KEY_MESSAGEID)) {
+            message = messageFromId(params.value(SSOUI_KEY_MESSAGEID).toInt());
+        }
+    }
+    if (!message.isEmpty()) {
+        QLabel *wMessage = new QLabel(message);
+        formLayout->addRow(wMessage);
+    }
 
     m_queryUsername = params.value(SSOUI_KEY_QUERYUSERNAME, false).toBool();
     bool showUsername = m_queryUsername || params.contains(SSOUI_KEY_USERNAME);

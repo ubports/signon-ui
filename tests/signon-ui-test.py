@@ -32,6 +32,7 @@ class Test(TestCase):
     def username_query_dialog(self):
         parameters = dict()
         parameters['QueryUserName'] = True
+        parameters['QueryMessage'] = 'Write user@example.com and press OK'
         parameters['Title'] = 'Enter your username'
         log.debug('Calling!')
         self.signonui.queryDialog(parameters,
@@ -43,16 +44,18 @@ class Test(TestCase):
         log.debug('Window appeared')
         log.debug('Objects: %s' % ldtp.getobjectlist(window))
         ldtp.wait(2)
-        ldtp.settextvalue(window, 'txtusername', 'myusername@example.com')
+        ldtp.settextvalue(window, 'txtusername', 'user@example.com')
         log.debug('Window list: %s' % ldtp.getwindowlist())
 
     def queryDialogReply(self, reply):
         log.debug("Signon-ui replied: %s" % reply)
+        assert reply['UserName'] == 'user@example.com'
         self.loop.quit()
 
     def error_cb(self, error):
         log.debug("Got error: %s" % error)
         self.loop.quit()
+        assert False
 
 if __name__ == '__main__':
     test = Test()
