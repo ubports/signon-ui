@@ -40,3 +40,6 @@ SOURCES = \
 
 DEFINES += DEBUG_ENABLED
 
+service.path = $${INSTALL_PREFIX}/share/dbus-1/services
+service.files = com.nokia.singlesignonui.service
+INSTALLS += service
