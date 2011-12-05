@@ -22,6 +22,7 @@
 
 #include "debug.h"
 #include "dialog.h"
+#include "network-access-manager.h"
 
 #include <QVBoxLayout>
 #include <QWebView>
@@ -91,6 +92,7 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     QVBoxLayout *layout = new QVBoxLayout(m_dialog);
 
     m_webView = new QWebView();
+    m_webView->page()->setNetworkAccessManager(NetworkAccessManager::instance());
     m_webView->setUrl(params.value(SSOUI_KEY_OPENURL).toString());
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));

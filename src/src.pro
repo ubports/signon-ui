@@ -13,6 +13,7 @@ QT += \
     core \
     dbus \
     gui \
+    network \
     webkit
 
 PKGCONFIG += \
@@ -25,6 +26,7 @@ HEADERS = \
     dialog-request.h \
     dialog.h \
     i18n.h \
+    network-access-manager.h \
     request.h \
     service.h
 
@@ -35,6 +37,7 @@ SOURCES = \
     dialog.cpp \
     i18n.cpp \
     main.cpp \
+    network-access-manager.cpp \
     request.cpp \
     service.cpp
 
