@@ -102,8 +102,16 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
 {
     m_dialog = new Dialog;
 
-    QString title = params.value(SSOUI_KEY_TITLE,
-                                 tr("Web authentication")).toString();
+    QString title;
+    if (params.contains(SSOUI_KEY_TITLE)) {
+        title = params[SSOUI_KEY_TITLE].toString();
+    } else if (params.contains(SSOUI_KEY_CAPTION)) {
+        title = tr("Web authentication for %1").
+            arg(params[SSOUI_KEY_CAPTION].toString());
+    } else {
+        title = tr("Web authentication");
+    }
+
     m_dialog->setWindowTitle(title);
 
     QVBoxLayout *layout = new QVBoxLayout(m_dialog);
