@@ -46,7 +46,11 @@ public:
 
 private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
+    void onLoadFinished(bool ok);
     void onFinished();
+
+private:
+    void showDialog();
 
 private:
     mutable BrowserRequest *q_ptr;
@@ -81,6 +85,19 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     }
 }
 
+void BrowserRequestPrivate::onLoadFinished(bool ok)
+{
+    TRACE() << "Load finished" << ok;
+
+    if (!m_dialog->isVisible()) {
+        if (responseUrl.isEmpty()) {
+            showDialog();
+        } else {
+            onFinished();
+        }
+    }
+}
+
 void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
 {
     m_dialog = new Dialog;
@@ -96,6 +113,8 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     m_webView->setUrl(params.value(SSOUI_KEY_OPENURL).toString());
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));
+    QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
+                     this, SLOT(onLoadFinished(bool)));
     layout->addWidget(m_webView);
 
     TRACE() << "Dialog was built";
@@ -107,7 +126,6 @@ void BrowserRequestPrivate::start()
 
     finalUrl = QUrl(q->parameters().value(SSOUI_KEY_FINALURL).toString());
     buildDialog(q->parameters());
-    q->setWidget(m_dialog);
 
     QObject::connect(m_dialog, SIGNAL(finished(int)),
                      this, SLOT(onFinished()));
@@ -124,6 +142,13 @@ void BrowserRequestPrivate::onFinished()
     reply[SSOUI_KEY_URLRESPONSE] = url.toString();
 
     q->setResult(reply);
+}
+
+void BrowserRequestPrivate::showDialog()
+{
+    Q_Q(BrowserRequest);
+
+    q->setWidget(m_dialog);
 }
 
 BrowserRequest::BrowserRequest(const QDBusConnection &connection,
