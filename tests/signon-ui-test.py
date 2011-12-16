@@ -45,6 +45,7 @@ class Test(TestCase):
         log.debug('Objects: %s' % ldtp.getobjectlist(window))
         ldtp.wait(2)
         ldtp.settextvalue(window, 'txtusername', 'user@example.com')
+        ldtp.click(window, 'btnOK')
         log.debug('Window list: %s' % ldtp.getwindowlist())
 
     def queryDialogReply(self, reply):
