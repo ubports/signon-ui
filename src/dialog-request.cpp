@@ -132,7 +132,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         m_wPassword = new QLineEdit;
         m_wPassword->setEnabled(m_queryPassword);
         m_wPassword->setEchoMode(QLineEdit::Password);
-        m_wPassword->setText(params.value(SSOUI_KEY_USERNAME).toString());
+        m_wPassword->setText(params.value(SSOUI_KEY_PASSWORD).toString());
         formLayout->addRow(tr("Password:"), m_wPassword);
     }
 
