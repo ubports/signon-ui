@@ -24,6 +24,7 @@
 #include <QApplication>
 #include <QDBusConnection>
 #include <QProcessEnvironment>
+#include <QSettings>
 
 using namespace SignOnUi;
 
@@ -45,6 +46,9 @@ int main(int argc, char **argv)
         if (isOk)
             setLoggingLevel(value);
     }
+
+    QSettings::setPath(QSettings::NativeFormat, QSettings::SystemScope,
+                       QLatin1String("/etc"));
 
     Service *service = new Service();
     QDBusConnection connection = QDBusConnection::sessionBus();

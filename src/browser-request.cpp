@@ -24,6 +24,7 @@
 #include "dialog.h"
 #include "network-access-manager.h"
 
+#include <QSettings>
 #include <QVBoxLayout>
 #include <QWebView>
 #include <SignOn/uisessiondata_priv.h>
@@ -31,6 +32,12 @@
 using namespace SignOnUi;
 
 namespace SignOnUi {
+
+static const QString keyPreferredWidth = QString("PreferredWidth");
+static const QString keyTextSizeMultiplier = QString("TextSizeMultiplier");
+static const QString keyViewportWidth = QString("ViewportWidth");
+static const QString keyViewportHeight = QString("ViewportHeight");
+static const QString keyZoomFactor = QString("ZoomFactor");
 
 class BrowserRequestPrivate: public QObject
 {
@@ -51,6 +58,7 @@ private Q_SLOTS:
 
 private:
     void showDialog();
+    void setupViewForUrl(const QUrl &url);
 
 private:
     mutable BrowserRequest *q_ptr;
@@ -58,6 +66,7 @@ private:
     QWebView *m_webView;
     QUrl finalUrl;
     QUrl responseUrl;
+    QString m_host;
 };
 
 } // namespace
@@ -83,6 +92,8 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
         url.path() == finalUrl.path()) {
         responseUrl = url;
     }
+
+    setupViewForUrl(url);
 }
 
 void BrowserRequestPrivate::onLoadFinished(bool ok)
@@ -118,7 +129,10 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
 
     m_webView = new QWebView();
     m_webView->page()->setNetworkAccessManager(NetworkAccessManager::instance());
-    m_webView->setUrl(params.value(SSOUI_KEY_OPENURL).toString());
+
+    QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
+    setupViewForUrl(url);
+    m_webView->setUrl(url);
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
@@ -157,6 +171,39 @@ void BrowserRequestPrivate::showDialog()
     Q_Q(BrowserRequest);
 
     q->setWidget(m_dialog);
+}
+
+void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
+{
+    QString host = url.host();
+    if (host == m_host) return;
+
+    m_host = host;
+
+    /* Load the host-specific configuration file */
+    QSettings settings("signon-ui/webkit-options.d/" + host);
+
+    if (settings.contains(keyViewportWidth) &&
+        settings.contains(keyViewportHeight)) {
+        QSize viewportSize(settings.value(keyViewportWidth).toInt(),
+                           settings.value(keyViewportHeight).toInt());
+        m_webView->page()->setViewportSize(viewportSize);
+        m_webView->setFixedSize(viewportSize);
+    }
+
+    if (settings.contains(keyPreferredWidth)) {
+        QSize preferredSize(settings.value(keyPreferredWidth).toInt(), 300);
+        m_webView->page()->setPreferredContentsSize(preferredSize);
+    }
+
+    if (settings.contains(keyTextSizeMultiplier)) {
+        m_webView->setTextSizeMultiplier(settings.value(keyTextSizeMultiplier).
+                                         toReal());
+    }
+
+    if (settings.contains(keyZoomFactor)) {
+        m_webView->setZoomFactor(settings.value(keyZoomFactor).toReal());
+    }
 }
 
 BrowserRequest::BrowserRequest(const QDBusConnection &connection,
