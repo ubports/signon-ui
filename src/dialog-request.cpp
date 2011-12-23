@@ -22,11 +22,16 @@
 
 #include "debug.h"
 #include "dialog.h"
+#include "network-access-manager.h"
 
 #include <QDialogButtonBox>
+#include <QEventLoop>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
 #include <SignOn/UiSessionData>
 #include <SignOn/uisessiondata_priv.h>
 
@@ -50,9 +55,11 @@ public:
 private Q_SLOTS:
     void onAccepted();
     void onRejected();
+    void onCaptchaRetrieved(QNetworkReply *reply);
 
 private:
     QString messageFromId(int id);
+    void requestCaptcha(const QUrl &url);
 
 private:
     mutable DialogRequest *q_ptr;
@@ -61,6 +68,9 @@ private:
     bool m_queryPassword;
     QLineEdit *m_wUsername;
     QLineEdit *m_wPassword;
+    QLineEdit *m_wCaptchaText;
+    QLabel *m_wCaptcha;
+    QNetworkAccessManager *m_networkAccessManager;
 };
 
 } // namespace
@@ -72,7 +82,10 @@ DialogRequestPrivate::DialogRequestPrivate(DialogRequest *request):
     m_queryUsername(false),
     m_queryPassword(false),
     m_wUsername(0),
-    m_wPassword(0)
+    m_wPassword(0),
+    m_wCaptchaText(0),
+    m_wCaptcha(0),
+    m_networkAccessManager(0)
 {
 }
 
@@ -91,6 +104,28 @@ QString DialogRequestPrivate::messageFromId(int id)
     case QUERY_MESSAGE_EMPTY:
     default:
         return QString();
+    }
+}
+
+void DialogRequestPrivate::requestCaptcha(const QUrl &url)
+{
+    TRACE() << url;
+
+    if (m_networkAccessManager == 0) {
+        m_networkAccessManager = NetworkAccessManager::instance();
+    }
+
+    QNetworkRequest request = QNetworkRequest(url);
+    QNetworkReply *reply = m_networkAccessManager->get(request);
+    if (reply->isFinished()) {
+        onCaptchaRetrieved(reply);
+    } else {
+        // FIXME: handle download asynchronously
+        QEventLoop loop;
+        QObject::connect(reply, SIGNAL(finished()),
+                         &loop, SLOT(quit()));
+        loop.exec();
+        onCaptchaRetrieved(reply);
     }
 }
 
@@ -136,6 +171,16 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         formLayout->addRow(tr("Password:"), m_wPassword);
     }
 
+    QString captchaUrl = params.value(SSOUI_KEY_CAPTCHAURL).toString();
+    if (!captchaUrl.isEmpty()) {
+        m_wCaptcha = new QLabel;
+        formLayout->addRow(m_wCaptcha);
+        m_wCaptchaText = new QLineEdit;
+        formLayout->addRow(m_wCaptchaText);
+
+        requestCaptcha(QUrl::fromEncoded(captchaUrl.toLatin1()));
+    }
+
     QDialogButtonBox *buttonBox =
         new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), m_dialog, SLOT(accept()));
@@ -174,6 +219,9 @@ void DialogRequestPrivate::onAccepted()
         Q_ASSERT(m_wPassword != 0);
         reply[SSOUI_KEY_PASSWORD] = m_wPassword->text();
     }
+    if (m_wCaptchaText != 0) {
+        reply[SSOUI_KEY_CAPTCHARESP] = m_wCaptchaText->text();
+    }
 
     q->setResult(reply);
 }
@@ -184,6 +232,31 @@ void DialogRequestPrivate::onRejected()
 
     TRACE() << "Dialog is rejected";
     q->setCanceled();
+}
+
+void DialogRequestPrivate::onCaptchaRetrieved(QNetworkReply *reply)
+{
+    TRACE() << "Got captcha";
+
+    reply->deleteLater();
+
+    if (reply->error()) {
+        // TODO handle error
+        TRACE() << "Got error:" << reply->errorString();
+        return;
+    }
+
+    QUrl newUrl =
+        reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    if (newUrl.isEmpty()) {
+        QByteArray captchaData = reply->readAll();
+        QPixmap pixmap;
+        pixmap.loadFromData(captchaData);
+        m_wCaptcha->setPixmap(pixmap);
+    } else {
+        QUrl url = reply->url().resolved(newUrl);
+        requestCaptcha(url);
+    }
 }
 
 DialogRequest::DialogRequest(const QDBusConnection &connection,
