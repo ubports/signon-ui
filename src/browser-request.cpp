@@ -35,9 +35,33 @@ namespace SignOnUi {
 
 static const QString keyPreferredWidth = QString("PreferredWidth");
 static const QString keyTextSizeMultiplier = QString("TextSizeMultiplier");
+static const QString keyUserAgent = QString("UserAgent");
 static const QString keyViewportWidth = QString("ViewportWidth");
 static const QString keyViewportHeight = QString("ViewportHeight");
 static const QString keyZoomFactor = QString("ZoomFactor");
+
+class WebPage: public QWebPage
+{
+    Q_OBJECT
+
+public:
+    WebPage(QObject *parent = 0): QWebPage(parent) {}
+    ~WebPage() {}
+
+    void setUserAgent(const QString &userAgent) { m_userAgent = userAgent; }
+
+protected:
+    // reimplemented virtual methods
+    QString userAgentForUrl(const QUrl &url) const
+    {
+        return m_userAgent.isEmpty() ?
+            QWebPage::userAgentForUrl(url) : m_userAgent;
+    }
+
+private:
+    QString m_userAgent;
+};
+
 
 class BrowserRequestPrivate: public QObject
 {
@@ -128,7 +152,9 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     QVBoxLayout *layout = new QVBoxLayout(m_dialog);
 
     m_webView = new QWebView();
-    m_webView->page()->setNetworkAccessManager(NetworkAccessManager::instance());
+    WebPage *page = new WebPage(this);
+    page->setNetworkAccessManager(NetworkAccessManager::instance());
+    m_webView->setPage(page);
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
     setupViewForUrl(url);
@@ -199,6 +225,12 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     if (settings.contains(keyTextSizeMultiplier)) {
         m_webView->setTextSizeMultiplier(settings.value(keyTextSizeMultiplier).
                                          toReal());
+    }
+
+    if (settings.contains(keyUserAgent)) {
+        WebPage *page = qobject_cast<WebPage *>(m_webView->page());
+        if (page != 0)
+            page->setUserAgent(settings.value(keyUserAgent).toString());
     }
 
     if (settings.contains(keyZoomFactor)) {
