@@ -24,6 +24,7 @@
 #include "dialog.h"
 #include "network-access-manager.h"
 
+#include <QProgressBar>
 #include <QSettings>
 #include <QVBoxLayout>
 #include <QWebView>
@@ -88,6 +89,7 @@ private:
     mutable BrowserRequest *q_ptr;
     Dialog *m_dialog;
     QWebView *m_webView;
+    QProgressBar *m_progressBar;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -99,7 +101,8 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     QObject(request),
     q_ptr(request),
     m_dialog(0),
-    m_webView(0)
+    m_webView(0),
+    m_progressBar(0)
 {
 }
 
@@ -164,6 +167,16 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
     layout->addWidget(m_webView);
+
+    m_progressBar = new QProgressBar();
+    m_progressBar->setRange(0, 100);
+    QObject::connect(m_webView, SIGNAL(loadProgress(int)),
+                     m_progressBar, SLOT(setValue(int)));
+    QObject::connect(m_webView, SIGNAL(loadStarted()),
+                     m_progressBar, SLOT(show()));
+    QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
+                     m_progressBar, SLOT(hide()));
+    layout->addWidget(m_progressBar);
 
     TRACE() << "Dialog was built";
 }
