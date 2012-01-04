@@ -24,8 +24,11 @@
 #include "dialog.h"
 #include "network-access-manager.h"
 
+#include <QLabel>
 #include <QProgressBar>
+#include <QPushButton>
 #include <QSettings>
+#include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QWebView>
 #include <SignOn/uisessiondata_priv.h>
@@ -73,6 +76,8 @@ public:
     BrowserRequestPrivate(BrowserRequest *request);
     ~BrowserRequestPrivate();
 
+    QWidget *buildWebViewPage(const QVariantMap &params);
+    QWidget *buildSuccessPage();
     void buildDialog(const QVariantMap &params);
     void start();
 
@@ -84,10 +89,14 @@ private Q_SLOTS:
 private:
     void showDialog();
     void setupViewForUrl(const QUrl &url);
+    void notifyAuthCompleted();
 
 private:
     mutable BrowserRequest *q_ptr;
     Dialog *m_dialog;
+    QStackedLayout *m_dialogLayout;
+    QWidget *m_webViewPage;
+    QWidget *m_successPage;
     QWebView *m_webView;
     QProgressBar *m_progressBar;
     QUrl finalUrl;
@@ -118,6 +127,10 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     if (url.host() == finalUrl.host() &&
         url.path() == finalUrl.path()) {
         responseUrl = url;
+        if (m_dialog->isVisible()) {
+            /* Replace the web page with an information screen */
+            notifyAuthCompleted();
+        }
     }
 
     setupViewForUrl(url);
@@ -136,23 +149,10 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
     }
 }
 
-void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
+QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 {
-    m_dialog = new Dialog;
-
-    QString title;
-    if (params.contains(SSOUI_KEY_TITLE)) {
-        title = params[SSOUI_KEY_TITLE].toString();
-    } else if (params.contains(SSOUI_KEY_CAPTION)) {
-        title = tr("Web authentication for %1").
-            arg(params[SSOUI_KEY_CAPTION].toString());
-    } else {
-        title = tr("Web authentication");
-    }
-
-    m_dialog->setWindowTitle(title);
-
-    QVBoxLayout *layout = new QVBoxLayout(m_dialog);
+    QWidget *dialogPage = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(dialogPage);
 
     m_webView = new QWebView();
     WebPage *page = new WebPage(this);
@@ -177,6 +177,53 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      m_progressBar, SLOT(hide()));
     layout->addWidget(m_progressBar);
+
+    return dialogPage;
+}
+
+QWidget *BrowserRequestPrivate::buildSuccessPage()
+{
+    QWidget *dialogPage = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(dialogPage);
+
+    QLabel *label = new QLabel(tr("The authentication process is complete.\n"
+                                  "You may now close this dialog "
+                                  "and return to the application."));
+    label->setAlignment(Qt::AlignCenter);
+    layout->addWidget(label);
+
+    QPushButton *doneButton = new QPushButton(tr("Done"));
+    doneButton->setDefault(true);
+    QObject::connect(doneButton, SIGNAL(clicked()),
+                     m_dialog, SLOT(accept()));
+    layout->addWidget(doneButton);
+
+    return dialogPage;
+}
+
+void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
+{
+    m_dialog = new Dialog;
+
+    QString title;
+    if (params.contains(SSOUI_KEY_TITLE)) {
+        title = params[SSOUI_KEY_TITLE].toString();
+    } else if (params.contains(SSOUI_KEY_CAPTION)) {
+        title = tr("Web authentication for %1").
+            arg(params[SSOUI_KEY_CAPTION].toString());
+    } else {
+        title = tr("Web authentication");
+    }
+
+    m_dialog->setWindowTitle(title);
+
+    m_dialogLayout = new QStackedLayout(m_dialog);
+
+    m_webViewPage = buildWebViewPage(params);
+    m_dialogLayout->addWidget(m_webViewPage);
+
+    m_successPage = buildSuccessPage();
+    m_dialogLayout->addWidget(m_successPage);
 
     TRACE() << "Dialog was built";
 }
@@ -249,6 +296,11 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     if (settings.contains(keyZoomFactor)) {
         m_webView->setZoomFactor(settings.value(keyZoomFactor).toReal());
     }
+}
+
+void BrowserRequestPrivate::notifyAuthCompleted()
+{
+    m_dialogLayout->setCurrentWidget(m_successPage);
 }
 
 BrowserRequest::BrowserRequest(const QDBusConnection &connection,
