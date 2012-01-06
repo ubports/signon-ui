@@ -66,6 +66,43 @@ private:
     QString m_userAgent;
 };
 
+class WebView: public QWebView
+{
+    Q_OBJECT
+
+public:
+    WebView(QWidget *parent = 0):
+        QWebView(parent)
+    {
+        setSizePolicy(QSizePolicy::MinimumExpanding,
+                      QSizePolicy::MinimumExpanding);
+        setAttribute(Qt::WA_OpaquePaintEvent, true);
+    }
+    ~WebView() {};
+
+    void setPreferredSize(const QSize &size) {
+        m_preferredSize = size;
+        updateGeometry();
+    }
+
+protected:
+    QSize sizeHint() const {
+        if (m_preferredSize.isValid()) {
+            return m_preferredSize;
+        } else {
+            return QSize(400, 300);
+        }
+    }
+
+    void paintEvent(QPaintEvent *event) {
+        QPainter painter(this);
+        painter.fillRect(rect(), palette().window());
+        QWebView::paintEvent(event);
+    }
+
+private:
+    QSize m_preferredSize;
+};
 
 class BrowserRequestPrivate: public QObject
 {
@@ -97,7 +134,7 @@ private:
     QStackedLayout *m_dialogLayout;
     QWidget *m_webViewPage;
     QWidget *m_successPage;
-    QWebView *m_webView;
+    WebView *m_webView;
     QProgressBar *m_progressBar;
     QUrl finalUrl;
     QUrl responseUrl;
@@ -154,7 +191,7 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     QWidget *dialogPage = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(dialogPage);
 
-    m_webView = new QWebView();
+    m_webView = new WebView();
     WebPage *page = new WebPage(this);
     page->setNetworkAccessManager(NetworkAccessManager::instance());
     m_webView->setPage(page);
@@ -184,6 +221,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 QWidget *BrowserRequestPrivate::buildSuccessPage()
 {
     QWidget *dialogPage = new QWidget;
+    dialogPage->setSizePolicy(QSizePolicy::Ignored,
+                              QSizePolicy::MinimumExpanding);
     QVBoxLayout *layout = new QVBoxLayout(dialogPage);
 
     QLabel *label = new QLabel(tr("The authentication process is complete.\n"
@@ -273,8 +312,7 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
         settings.contains(keyViewportHeight)) {
         QSize viewportSize(settings.value(keyViewportWidth).toInt(),
                            settings.value(keyViewportHeight).toInt());
-        m_webView->page()->setViewportSize(viewportSize);
-        m_webView->setFixedSize(viewportSize);
+        m_webView->setPreferredSize(viewportSize);
     }
 
     if (settings.contains(keyPreferredWidth)) {
