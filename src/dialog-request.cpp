@@ -177,10 +177,17 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
 
     QString captchaUrl = params.value(SSOUI_KEY_CAPTCHAURL).toString();
     if (!captchaUrl.isEmpty()) {
+        QLabel *wCaptchaMsg = new QLabel(QString::fromLatin1("<i>%1</i>").
+            arg(tr("As an additional security measure, please "
+                   "fill in the text from the picture below:")));
+        wCaptchaMsg->setWordWrap(true);
+        formLayout->addRow(wCaptchaMsg);
+
         m_wCaptcha = new QLabel;
+        m_wCaptcha->setAlignment(Qt::AlignCenter);
         formLayout->addRow(m_wCaptcha);
         m_wCaptchaText = new QLineEdit;
-        formLayout->addRow(m_wCaptchaText);
+        formLayout->addRow(tr("Text from the picture:"), m_wCaptchaText);
 
         requestCaptcha(QUrl::fromEncoded(captchaUrl.toLatin1()));
     }
