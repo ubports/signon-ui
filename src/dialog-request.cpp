@@ -135,6 +135,7 @@ void DialogRequestPrivate::requestCaptcha(const QUrl &url)
 void DialogRequestPrivate::buildDialog(const QVariantMap &params)
 {
     m_dialog = new Dialog;
+    m_dialog->setMinimumWidth(400);
 
     QString title = params.value(SSOUI_KEY_TITLE,
                                  tr("Enter your credentials")).toString();
