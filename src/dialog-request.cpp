@@ -96,11 +96,14 @@ DialogRequestPrivate::~DialogRequestPrivate()
 
 QString DialogRequestPrivate::messageFromId(int id)
 {
+    static QString error = QLatin1String("<font color='red'>%1</font>");
+    static QString msg = QLatin1String("<i>%1</i>");
+
     switch (id) {
     case QUERY_MESSAGE_LOGIN:
-        return tr("Enter your credentials to login");
+        return msg.arg(tr("Enter your credentials to login"));
     case QUERY_MESSAGE_NOT_AUTHORIZED:
-        return tr("Previous authentication attempt failed. Please try again.");
+        return error.arg(tr("Previous authentication attempt failed. Please try again."));
     case QUERY_MESSAGE_EMPTY:
     default:
         return QString();
