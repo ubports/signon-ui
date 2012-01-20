@@ -139,6 +139,7 @@ private:
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
+    QSettings *m_settings;
 };
 
 } // namespace
@@ -306,33 +307,34 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     m_host = host;
 
     /* Load the host-specific configuration file */
-    QSettings settings("signon-ui/webkit-options.d/" + host);
+    delete m_settings;
+    m_settings = new QSettings("signon-ui/webkit-options.d/" + host, QString(), this);
 
-    if (settings.contains(keyViewportWidth) &&
-        settings.contains(keyViewportHeight)) {
-        QSize viewportSize(settings.value(keyViewportWidth).toInt(),
-                           settings.value(keyViewportHeight).toInt());
+    if (m_settings->contains(keyViewportWidth) &&
+        m_settings->contains(keyViewportHeight)) {
+        QSize viewportSize(m_settings->value(keyViewportWidth).toInt(),
+                           m_settings->value(keyViewportHeight).toInt());
         m_webView->setPreferredSize(viewportSize);
     }
 
-    if (settings.contains(keyPreferredWidth)) {
-        QSize preferredSize(settings.value(keyPreferredWidth).toInt(), 300);
+    if (m_settings->contains(keyPreferredWidth)) {
+        QSize preferredSize(m_settings->value(keyPreferredWidth).toInt(), 300);
         m_webView->page()->setPreferredContentsSize(preferredSize);
     }
 
-    if (settings.contains(keyTextSizeMultiplier)) {
-        m_webView->setTextSizeMultiplier(settings.value(keyTextSizeMultiplier).
+    if (m_settings->contains(keyTextSizeMultiplier)) {
+        m_webView->setTextSizeMultiplier(m_settings->value(keyTextSizeMultiplier).
                                          toReal());
     }
 
-    if (settings.contains(keyUserAgent)) {
+    if (m_settings->contains(keyUserAgent)) {
         WebPage *page = qobject_cast<WebPage *>(m_webView->page());
         if (page != 0)
-            page->setUserAgent(settings.value(keyUserAgent).toString());
+            page->setUserAgent(m_settings->value(keyUserAgent).toString());
     }
 
-    if (settings.contains(keyZoomFactor)) {
-        m_webView->setZoomFactor(settings.value(keyZoomFactor).toReal());
+    if (m_settings->contains(keyZoomFactor)) {
+        m_webView->setZoomFactor(m_settings->value(keyZoomFactor).toReal());
     }
 }
 
