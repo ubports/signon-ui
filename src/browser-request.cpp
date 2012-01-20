@@ -126,6 +126,7 @@ private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
     void onLoadFinished(bool ok);
     void onFinished();
+    void onContentsChanged();
 
 private:
     void showDialog();
@@ -149,6 +150,8 @@ private:
     QSettings *m_settings;
     QWebElement m_usernameField;
     QWebElement m_passwordField;
+    QString m_username;
+    QString m_password;
 };
 
 } // namespace
@@ -207,6 +210,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     m_webView = new WebView();
     WebPage *page = new WebPage(this);
     page->setNetworkAccessManager(NetworkAccessManager::instance());
+    QObject::connect(page, SIGNAL(contentsChanged()),
+                     this, SLOT(onContentsChanged()));
     m_webView->setPage(page);
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
@@ -301,7 +306,27 @@ void BrowserRequestPrivate::onFinished()
     QUrl url = responseUrl.isEmpty() ? m_webView->url() : responseUrl;
     reply[SSOUI_KEY_URLRESPONSE] = url.toString();
 
+    if (!m_username.isEmpty())
+        reply[SSOUI_KEY_USERNAME] = m_username;
+    if (!m_password.isEmpty())
+        reply[SSOUI_KEY_PASSWORD] = m_password;
+
     q->setResult(reply);
+}
+
+void BrowserRequestPrivate::onContentsChanged()
+{
+    /* See https://bugs.webkit.org/show_bug.cgi?id=32865 for the reason why
+     * we are not simply calling m_usernameField.attribute("value")
+     */
+    if (!m_usernameField.isNull()) {
+        m_username =
+            m_usernameField.evaluateJavaScript("this.value").toString();
+    }
+    if (!m_passwordField.isNull()) {
+        m_password =
+            m_passwordField.evaluateJavaScript("this.value").toString();
+    }
 }
 
 void BrowserRequestPrivate::showDialog()
