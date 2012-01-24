@@ -30,6 +30,8 @@
 #include <QSettings>
 #include <QStackedLayout>
 #include <QVBoxLayout>
+#include <QWebElement>
+#include <QWebFrame>
 #include <QWebView>
 #include <SignOn/uisessiondata_priv.h>
 
@@ -43,6 +45,8 @@ static const QString keyUserAgent = QString("UserAgent");
 static const QString keyViewportWidth = QString("ViewportWidth");
 static const QString keyViewportHeight = QString("ViewportHeight");
 static const QString keyZoomFactor = QString("ZoomFactor");
+static const QString keyUsernameField = QString("UsernameField");
+static const QString keyPasswordField = QString("PasswordField");
 
 class WebPage: public QWebPage
 {
@@ -122,11 +126,15 @@ private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
     void onLoadFinished(bool ok);
     void onFinished();
+    void onContentsChanged();
 
 private:
     void showDialog();
     void setupViewForUrl(const QUrl &url);
     void notifyAuthCompleted();
+    QWebElement initializeField(const QString &settingsKey,
+                                const QString &paramKey);
+    void initializeFields();
 
 private:
     mutable BrowserRequest *q_ptr;
@@ -139,6 +147,11 @@ private:
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
+    QSettings *m_settings;
+    QWebElement m_usernameField;
+    QWebElement m_passwordField;
+    QString m_username;
+    QString m_password;
 };
 
 } // namespace
@@ -148,7 +161,8 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     q_ptr(request),
     m_dialog(0),
     m_webView(0),
-    m_progressBar(0)
+    m_progressBar(0),
+    m_settings(0)
 {
 }
 
@@ -177,6 +191,8 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
 {
     TRACE() << "Load finished" << ok;
 
+    initializeFields();
+
     if (!m_dialog->isVisible()) {
         if (responseUrl.isEmpty()) {
             showDialog();
@@ -194,6 +210,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     m_webView = new WebView();
     WebPage *page = new WebPage(this);
     page->setNetworkAccessManager(NetworkAccessManager::instance());
+    QObject::connect(page, SIGNAL(contentsChanged()),
+                     this, SLOT(onContentsChanged()));
     m_webView->setPage(page);
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
@@ -288,7 +306,27 @@ void BrowserRequestPrivate::onFinished()
     QUrl url = responseUrl.isEmpty() ? m_webView->url() : responseUrl;
     reply[SSOUI_KEY_URLRESPONSE] = url.toString();
 
+    if (!m_username.isEmpty())
+        reply[SSOUI_KEY_USERNAME] = m_username;
+    if (!m_password.isEmpty())
+        reply[SSOUI_KEY_PASSWORD] = m_password;
+
     q->setResult(reply);
+}
+
+void BrowserRequestPrivate::onContentsChanged()
+{
+    /* See https://bugs.webkit.org/show_bug.cgi?id=32865 for the reason why
+     * we are not simply calling m_usernameField.attribute("value")
+     */
+    if (!m_usernameField.isNull()) {
+        m_username =
+            m_usernameField.evaluateJavaScript("this.value").toString();
+    }
+    if (!m_passwordField.isNull()) {
+        m_password =
+            m_passwordField.evaluateJavaScript("this.value").toString();
+    }
 }
 
 void BrowserRequestPrivate::showDialog()
@@ -306,39 +344,79 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     m_host = host;
 
     /* Load the host-specific configuration file */
-    QSettings settings("signon-ui/webkit-options.d/" + host);
+    delete m_settings;
+    m_settings = new QSettings("signon-ui/webkit-options.d/" + host, QString(), this);
 
-    if (settings.contains(keyViewportWidth) &&
-        settings.contains(keyViewportHeight)) {
-        QSize viewportSize(settings.value(keyViewportWidth).toInt(),
-                           settings.value(keyViewportHeight).toInt());
+    if (m_settings->contains(keyViewportWidth) &&
+        m_settings->contains(keyViewportHeight)) {
+        QSize viewportSize(m_settings->value(keyViewportWidth).toInt(),
+                           m_settings->value(keyViewportHeight).toInt());
         m_webView->setPreferredSize(viewportSize);
     }
 
-    if (settings.contains(keyPreferredWidth)) {
-        QSize preferredSize(settings.value(keyPreferredWidth).toInt(), 300);
+    if (m_settings->contains(keyPreferredWidth)) {
+        QSize preferredSize(m_settings->value(keyPreferredWidth).toInt(), 300);
         m_webView->page()->setPreferredContentsSize(preferredSize);
     }
 
-    if (settings.contains(keyTextSizeMultiplier)) {
-        m_webView->setTextSizeMultiplier(settings.value(keyTextSizeMultiplier).
+    if (m_settings->contains(keyTextSizeMultiplier)) {
+        m_webView->setTextSizeMultiplier(m_settings->value(keyTextSizeMultiplier).
                                          toReal());
     }
 
-    if (settings.contains(keyUserAgent)) {
+    if (m_settings->contains(keyUserAgent)) {
         WebPage *page = qobject_cast<WebPage *>(m_webView->page());
         if (page != 0)
-            page->setUserAgent(settings.value(keyUserAgent).toString());
+            page->setUserAgent(m_settings->value(keyUserAgent).toString());
     }
 
-    if (settings.contains(keyZoomFactor)) {
-        m_webView->setZoomFactor(settings.value(keyZoomFactor).toReal());
+    if (m_settings->contains(keyZoomFactor)) {
+        m_webView->setZoomFactor(m_settings->value(keyZoomFactor).toReal());
     }
 }
 
 void BrowserRequestPrivate::notifyAuthCompleted()
 {
     m_dialogLayout->setCurrentWidget(m_successPage);
+}
+
+QWebElement BrowserRequestPrivate::initializeField(const QString &settingsKey,
+                                                   const QString &paramKey)
+{
+    Q_Q(BrowserRequest);
+
+    QWebElement element;
+
+    if (!m_settings->contains(settingsKey)) return element;
+
+    QString selector = m_settings->value(settingsKey).toString();
+    if (selector.isEmpty()) return element;
+
+    QWebFrame *frame = m_webView->page()->mainFrame();
+    element = frame->findFirstElement(selector);
+    if (!element.isNull()) {
+        const QVariantMap &params = q->parameters();
+        if (params.contains(paramKey)) {
+            QString value = params.value(paramKey).toString();
+            element.setAttribute("value", value);
+        }
+    } else {
+        BLAME() << "Couldn't find element:" << selector;
+    }
+
+    return element;
+}
+
+void BrowserRequestPrivate::initializeFields()
+{
+    /* If the configuration file contains a "UsernameField" or a
+     * "PasswordField" key whose value is set to a valid CSS selector, we get
+     * the QWebElement to these fields.
+     * Also, if the username or password are present in the input parameters,
+     * we prefill the respective fields.
+     */
+    m_usernameField = initializeField(keyUsernameField, SSOUI_KEY_USERNAME);
+    m_passwordField = initializeField(keyPasswordField, SSOUI_KEY_PASSWORD);
 }
 
 BrowserRequest::BrowserRequest(const QDBusConnection &connection,
