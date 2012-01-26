@@ -25,6 +25,7 @@ HEADERS = \
     debug.h \
     dialog-request.h \
     dialog.h \
+    errors.h \
     i18n.h \
     network-access-manager.h \
     request.h \
