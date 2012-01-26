@@ -23,7 +23,10 @@
 #include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
+#include "errors.h"
 
+#include <QDBusArgument>
+#include <QX11EmbedWidget>
 #include <QX11Info>
 #include <SignOn/uisessiondata.h>
 #include <SignOn/uisessiondata_priv.h>
@@ -53,6 +56,10 @@ Request::Request(const QDBusConnection &connection,
     m_parameters(parameters),
     m_inProgress(false)
 {
+    if (parameters.contains(SSOUI_KEY_CLIENT_DATA)) {
+        QVariant variant = parameters[SSOUI_KEY_CLIENT_DATA];
+        m_clientData = qdbus_cast<QVariantMap>(variant.value<QDBusArgument>());
+    }
 }
 
 Request::~Request()
@@ -71,6 +78,22 @@ QString Request::id() const
 
 void Request::setWidget(QWidget *widget) const
 {
+    if (embeddedUi() && windowId() != 0) {
+        TRACE() << "Requesting widget embedding";
+        QX11EmbedWidget *embed = new QX11EmbedWidget;
+        QObject::connect(embed, SIGNAL(error(QX11EmbedWidget::Error)),
+                         this, SLOT(onEmbedError()));
+        QObject::connect(embed, SIGNAL(containerClosed()),
+                         widget, SLOT(close()));
+        QObject::connect(embed, SIGNAL(containerClosed()),
+                         embed, SLOT(deleteLater()));
+        embed->embedInto(windowId());
+        widget->setParent(embed);
+        widget->show();
+        embed->show();
+        return;
+    }
+
     widget->setWindowModality(Qt::WindowModal);
     widget->show();
     if (windowId() != 0) {
@@ -83,7 +106,12 @@ void Request::setWidget(QWidget *widget) const
 
 WId Request::windowId() const
 {
-    return m_parameters[SSOUI_KEY_WINDOWID].toUInt();
+    return m_clientData[SSOUI_KEY_WINDOWID].toUInt();
+}
+
+bool Request::embeddedUi() const
+{
+    return m_clientData[SSOUI_KEY_EMBEDDED].toBool();
 }
 
 bool Request::isInProgress() const
@@ -94,6 +122,11 @@ bool Request::isInProgress() const
 const QVariantMap &Request::parameters() const
 {
     return m_parameters;
+}
+
+const QVariantMap &Request::clientData() const
+{
+    return m_clientData;
 }
 
 void Request::start()
@@ -127,5 +160,14 @@ void Request::setResult(const QVariantMap &result)
     m_connection.send(reply);
 
     Q_EMIT completed();
+}
+
+void Request::onEmbedError()
+{
+    QX11EmbedWidget *embed = qobject_cast<QX11EmbedWidget*>(sender());
+    TRACE() << "Embed error:" << embed->error();
+
+    fail(SIGNON_UI_ERROR_EMBEDDING_FAILED,
+         QString("Embedding signon UI failed: %1").arg(embed->error()));
 }
 

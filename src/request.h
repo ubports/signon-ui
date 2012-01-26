@@ -44,10 +44,12 @@ public:
     QString id() const;
 
     WId windowId() const;
+    bool embeddedUi() const;
 
     bool isInProgress() const;
 
     const QVariantMap &parameters() const;
+    const QVariantMap &clientData() const;
 
 public Q_SLOTS:
     virtual void start();
@@ -67,10 +69,14 @@ protected:
     void setCanceled();
     void setResult(const QVariantMap &result);
 
+private Q_SLOTS:
+    void onEmbedError();
+
 private:
     QDBusConnection m_connection;
     QDBusMessage m_message;
     QVariantMap m_parameters;
+    QVariantMap m_clientData;
     bool m_inProgress;
 };
 
