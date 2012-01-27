@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2011 Canonical Ltd.
+ * Copyright (C) 2012 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,34 +18,36 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "network-access-manager.h"
+#ifndef SIGNON_UI_COOKIE_JAR_MANAGER_H
+#define SIGNON_UI_COOKIE_JAR_MANAGER_H
 
-#include "debug.h"
+#include <QNetworkCookieJar>
+#include <QObject>
 
-using namespace SignOnUi;
+namespace SignOnUi {
 
-static NetworkAccessManager *m_instance = 0;
+class CookieJarManagerPrivate;
 
-/* At the moment the only reason for using this class is reusing the NAM across
- * network requests.
- * We might want to add here proxy settings, or specialized cookie jars
- * integrated with the user's desktop browser.
- */
-NetworkAccessManager::NetworkAccessManager(QObject *parent):
-    QNetworkAccessManager(parent)
+class CookieJarManager: public QObject
 {
-}
+    Q_OBJECT
 
-NetworkAccessManager::~NetworkAccessManager()
-{
-}
+public:
+    ~CookieJarManager();
 
-NetworkAccessManager *NetworkAccessManager::instance()
-{
-    if (m_instance == 0) {
-        m_instance = new NetworkAccessManager();
-    }
+    static CookieJarManager *instance();
 
-    return m_instance;
-}
+    QNetworkCookieJar *cookieJarForIdentity(uint id);
+
+protected:
+    explicit CookieJarManager(QObject *parent = 0);
+
+private:
+    CookieJarManagerPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(CookieJarManager)
+};
+
+} // namespace
+
+#endif // SIGNON_UI_COOKIE_JAR_MANAGER_H
 

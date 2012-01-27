@@ -20,9 +20,9 @@
 
 #include "browser-request.h"
 
+#include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
-#include "network-access-manager.h"
 
 #include <QLabel>
 #include <QProgressBar>
@@ -209,10 +209,22 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 
     m_webView = new WebView();
     WebPage *page = new WebPage(this);
-    page->setNetworkAccessManager(NetworkAccessManager::instance());
     QObject::connect(page, SIGNAL(contentsChanged()),
                      this, SLOT(onContentsChanged()));
     m_webView->setPage(page);
+
+    /* set a per-identity cookie jar on the page */
+    uint identity = 0;
+    if (params.contains(SSOUI_KEY_IDENTITY)) {
+        identity = params.value(SSOUI_KEY_IDENTITY).toUInt();
+    }
+    CookieJarManager *cookieJarManager = CookieJarManager::instance();
+    QNetworkCookieJar *cookieJar =
+        cookieJarManager->cookieJarForIdentity(identity);
+    page->networkAccessManager()->setCookieJar(cookieJar);
+    /* NetworkAccessManager takes ownership of the cookieJar; we don't want
+     * this */
+    cookieJar->setParent(cookieJarManager);
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
     setupViewForUrl(url);

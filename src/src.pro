@@ -22,6 +22,7 @@ PKGCONFIG += \
 
 HEADERS = \
     browser-request.h \
+    cookie-jar-manager.h \
     debug.h \
     dialog-request.h \
     dialog.h \
@@ -33,6 +34,7 @@ HEADERS = \
 
 SOURCES = \
     browser-request.cpp \
+    cookie-jar-manager.cpp \
     debug.cpp \
     dialog-request.cpp \
     dialog.cpp \
