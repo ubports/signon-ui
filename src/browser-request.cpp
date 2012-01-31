@@ -47,6 +47,7 @@ static const QString keyViewportHeight = QString("ViewportHeight");
 static const QString keyZoomFactor = QString("ZoomFactor");
 static const QString keyUsernameField = QString("UsernameField");
 static const QString keyPasswordField = QString("PasswordField");
+static const QString keyLoginButton = QString("LoginButton");
 
 class WebPage: public QWebPage
 {
@@ -133,8 +134,9 @@ private:
     void setupViewForUrl(const QUrl &url);
     void notifyAuthCompleted();
     QWebElement initializeField(const QString &settingsKey,
-                                const QString &paramKey);
+                                const QString &paramKey = QString());
     void initializeFields();
+    bool tryAutoLogin();
 
 private:
     mutable BrowserRequest *q_ptr;
@@ -150,6 +152,7 @@ private:
     QSettings *m_settings;
     QWebElement m_usernameField;
     QWebElement m_passwordField;
+    QWebElement m_loginButton;
     QString m_username;
     QString m_password;
 };
@@ -195,7 +198,8 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
 
     if (!m_dialog->isVisible()) {
         if (responseUrl.isEmpty()) {
-            showDialog();
+            if (!tryAutoLogin())
+                showDialog();
         } else {
             onFinished();
         }
@@ -406,7 +410,7 @@ QWebElement BrowserRequestPrivate::initializeField(const QString &settingsKey,
 
     QWebFrame *frame = m_webView->page()->mainFrame();
     element = frame->findFirstElement(selector);
-    if (!element.isNull()) {
+    if (!element.isNull() && !paramKey.isEmpty()) {
         const QVariantMap &params = q->parameters();
         if (params.contains(paramKey)) {
             QString value = params.value(paramKey).toString();
@@ -429,6 +433,23 @@ void BrowserRequestPrivate::initializeFields()
      */
     m_usernameField = initializeField(keyUsernameField, SSOUI_KEY_USERNAME);
     m_passwordField = initializeField(keyPasswordField, SSOUI_KEY_PASSWORD);
+    m_loginButton = initializeField(keyLoginButton);
+}
+
+bool BrowserRequestPrivate::tryAutoLogin()
+{
+    if (m_loginButton.isNull()) return false;
+
+    if (m_usernameField.isNull() ||
+        m_usernameField.evaluateJavaScript("this.value").isNull())
+        return false;
+
+    if (m_passwordField.isNull() ||
+        m_passwordField.evaluateJavaScript("this.value").isNull())
+        return false;
+
+    m_loginButton.evaluateJavaScript("this.click()");
+    return true;
 }
 
 BrowserRequest::BrowserRequest(const QDBusConnection &connection,
