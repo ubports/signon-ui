@@ -5,13 +5,14 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-import gobject
+import glib
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 
 from mago import TestCase
 import ldtp
+from WebServer import BasicLogin
 
 class Test(TestCase):
     launcher = None
@@ -22,7 +23,7 @@ class Test(TestCase):
         self.signonui = dbus.Interface(self.proxy,
             dbus_interface='com.nokia.singlesignonui')
         self.timeout = 3600
-        self.loop = gobject.MainLoop()
+        self.loop = glib.MainLoop()
         super(Test, self).setUp()
 
     def test_username(self):
@@ -68,6 +69,37 @@ class Test(TestCase):
         log.debug("Signon-ui replied: %s" % reply)
         assert 'ResponseUrl' in reply
         assert reply['ResponseUrl'] == 'http://www.ubuntu.com/community'
+
+    def test_browser_autologin(self):
+        self.webserver = BasicLogin.Server()
+        glib.io_add_watch(self.webserver.fileno(),
+                glib.IO_IN | glib.IO_OUT,
+                self.browserAutologinIOCb)
+        glib.idle_add(self.browserAutologinStart)
+        self.loop.run()
+
+    def browserAutologinStart(self):
+        parameters = dict()
+        parameters['OpenUrl'] = 'http://localhost:8000/'
+        parameters['FinalUrl'] = 'http://localhost:8000/logged'
+        parameters['UserName'] = 'user'
+        parameters['Secret'] = 'pwd'
+        log.debug('Calling!')
+        self.signonui.queryDialog(parameters,
+                reply_handler = self.queryDialogReplyBrowserAutologin,
+                error_handler = self.error_cb,
+                timeout = self.timeout)
+
+    def browserAutologinIOCb(self, condition, user_data):
+        self.webserver.handle_request()
+        return True
+
+    def queryDialogReplyBrowserAutologin(self, reply):
+        log.debug("Signon-ui replied: %s" % reply)
+        self.server_running = False
+        assert 'UrlResponse' in reply
+        assert reply['UrlResponse'] == 'http://localhost:8000/logged#userpwd'
+        self.loop.quit()
 
 if __name__ == '__main__':
     test = Test()
