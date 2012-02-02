@@ -5,7 +5,7 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-import gobject
+import glib
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
@@ -22,11 +22,11 @@ class Test(TestCase):
         self.signonui = dbus.Interface(self.proxy,
             dbus_interface='com.nokia.singlesignonui')
         self.timeout = 3600
-        self.loop = gobject.MainLoop()
+        self.loop = glib.MainLoop()
         super(Test, self).setUp()
 
     def test_username(self):
-        gobject.timeout_add(500, self.username_query_dialog)
+        glib.timeout_add(500, self.username_query_dialog)
         self.loop.run()
 
     def username_query_dialog(self):
@@ -43,7 +43,6 @@ class Test(TestCase):
         assert ldtp.waittillguiexist(window) == 1
         log.debug('Window appeared')
         log.debug('Objects: %s' % ldtp.getobjectlist(window))
-        ldtp.wait(2)
         ldtp.settextvalue(window, 'txtusername', 'user@example.com')
         ldtp.click(window, 'btnOK')
         log.debug('Window list: %s' % ldtp.getwindowlist())
@@ -57,17 +56,6 @@ class Test(TestCase):
         log.debug("Got error: %s" % error)
         self.loop.quit()
         assert False
-
-    def test_browser(self):
-        parameters = dict()
-        parameters['Title'] = 'Go to the "Community" tab and close the dialog'
-        parameters['OpenUrl'] = 'http://www.ubuntu.com'
-        parameters['FinalUrl'] = 'http://www.ubuntu.com/community'
-        log.debug('Calling!')
-        reply = self.signonui.queryDialog(parameters, timeout = self.timeout)
-        log.debug("Signon-ui replied: %s" % reply)
-        assert 'ResponseUrl' in reply
-        assert reply['ResponseUrl'] == 'http://www.ubuntu.com/community'
 
 if __name__ == '__main__':
     test = Test()
