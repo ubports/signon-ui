@@ -410,9 +410,9 @@ QWebElement BrowserRequestPrivate::initializeField(const QString &settingsKey,
 
     QWebFrame *frame = m_webView->page()->mainFrame();
     element = frame->findFirstElement(selector);
-    if (!element.isNull() && !paramKey.isEmpty()) {
+    if (!element.isNull()) {
         const QVariantMap &params = q->parameters();
-        if (params.contains(paramKey)) {
+        if (!paramKey.isEmpty() && params.contains(paramKey)) {
             QString value = params.value(paramKey).toString();
             element.setAttribute("value", value);
         }
