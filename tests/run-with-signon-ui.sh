@@ -10,7 +10,7 @@ trap "pkill -9 signon-ui" EXIT
 # start a local signon-ui
 
 export SSOUI_LOGGING_LEVEL=2
-${BUILDDIR}/src/signon-ui &
+${SSOUI_WRAPPER} ${BUILDDIR}/src/signon-ui &
 sleep 2
 
 ${CLIENT_WRAPPER} $@
