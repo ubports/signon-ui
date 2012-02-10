@@ -29,6 +29,8 @@
 
 namespace SignOnUi {
 
+class RequestPrivate;
+
 class Request: public QObject
 {
     Q_OBJECT
@@ -69,15 +71,9 @@ protected:
     void setCanceled();
     void setResult(const QVariantMap &result);
 
-private Q_SLOTS:
-    void onEmbedError();
-
 private:
-    QDBusConnection m_connection;
-    QDBusMessage m_message;
-    QVariantMap m_parameters;
-    QVariantMap m_clientData;
-    bool m_inProgress;
+    RequestPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(Request)
 };
 
 } // namespace

@@ -34,23 +34,51 @@
 
 using namespace SignOnUi;
 
-Request *Request::newRequest(const QDBusConnection &connection,
-                             const QDBusMessage &message,
-                             const QVariantMap &parameters,
-                             QObject *parent)
-{
-    if (parameters.contains(SSOUI_KEY_OPENURL)) {
-        return new BrowserRequest(connection, message, parameters, parent);
-    } else {
-        return new DialogRequest(connection, message, parameters, parent);
-    }
-}
+namespace SignOnUi {
 
-Request::Request(const QDBusConnection &connection,
-                 const QDBusMessage &message,
-                 const QVariantMap &parameters,
-                 QObject *parent):
-    QObject(parent),
+class RequestPrivate: public QObject
+{
+    Q_OBJECT
+    Q_DECLARE_PUBLIC(Request)
+
+public:
+    RequestPrivate(const QDBusConnection &connection,
+                   const QDBusMessage &message,
+                   const QVariantMap &parameters,
+                   Request *request);
+    ~RequestPrivate();
+
+    WId windowId() const {
+        return m_clientData[SSOUI_KEY_WINDOWID].toUInt();
+    }
+
+    bool embeddedUi() const {
+        return m_clientData[SSOUI_KEY_EMBEDDED].toBool();
+    }
+
+private Q_SLOTS:
+    void onEmbedError();
+
+private:
+    void setWidget(QWidget *widget) const;
+
+private:
+    mutable Request *q_ptr;
+    QDBusConnection m_connection;
+    QDBusMessage m_message;
+    QVariantMap m_parameters;
+    QVariantMap m_clientData;
+    bool m_inProgress;
+};
+
+} // namespace
+
+RequestPrivate::RequestPrivate(const QDBusConnection &connection,
+                               const QDBusMessage &message,
+                               const QVariantMap &parameters,
+                               Request *request):
+    QObject(request),
+    q_ptr(request),
     m_connection(connection),
     m_message(message),
     m_parameters(parameters),
@@ -62,21 +90,11 @@ Request::Request(const QDBusConnection &connection,
     }
 }
 
-Request::~Request()
+RequestPrivate::~RequestPrivate()
 {
 }
 
-QString Request::id(const QVariantMap &parameters)
-{
-    return parameters[SSOUI_KEY_REQUESTID].toString();
-}
-
-QString Request::id() const
-{
-    return Request::id(m_parameters);
-}
-
-void Request::setWidget(QWidget *widget) const
+void RequestPrivate::setWidget(QWidget *widget) const
 {
     if (embeddedUi() && windowId() != 0) {
         TRACE() << "Requesting widget embedding";
@@ -104,44 +122,104 @@ void Request::setWidget(QWidget *widget) const
     }
 }
 
+void RequestPrivate::onEmbedError()
+{
+    Q_Q(Request);
+
+    QX11EmbedWidget *embed = qobject_cast<QX11EmbedWidget*>(sender());
+    TRACE() << "Embed error:" << embed->error();
+
+    q->fail(SIGNON_UI_ERROR_EMBEDDING_FAILED,
+            QString("Embedding signon UI failed: %1").arg(embed->error()));
+}
+
+Request *Request::newRequest(const QDBusConnection &connection,
+                             const QDBusMessage &message,
+                             const QVariantMap &parameters,
+                             QObject *parent)
+{
+    if (parameters.contains(SSOUI_KEY_OPENURL)) {
+        return new BrowserRequest(connection, message, parameters, parent);
+    } else {
+        return new DialogRequest(connection, message, parameters, parent);
+    }
+}
+
+Request::Request(const QDBusConnection &connection,
+                 const QDBusMessage &message,
+                 const QVariantMap &parameters,
+                 QObject *parent):
+    QObject(parent),
+    d_ptr(new RequestPrivate(connection, message, parameters, this))
+{
+}
+
+Request::~Request()
+{
+}
+
+QString Request::id(const QVariantMap &parameters)
+{
+    return parameters[SSOUI_KEY_REQUESTID].toString();
+}
+
+QString Request::id() const
+{
+    Q_D(const Request);
+    return Request::id(d->m_parameters);
+}
+
+void Request::setWidget(QWidget *widget) const
+{
+    Q_D(const Request);
+    d->setWidget(widget);
+}
+
 WId Request::windowId() const
 {
-    return m_clientData[SSOUI_KEY_WINDOWID].toUInt();
+    Q_D(const Request);
+    return d->windowId();
 }
 
 bool Request::embeddedUi() const
 {
-    return m_clientData[SSOUI_KEY_EMBEDDED].toBool();
+    Q_D(const Request);
+    return d->embeddedUi();
 }
 
 bool Request::isInProgress() const
 {
-    return m_inProgress;
+    Q_D(const Request);
+    return d->m_inProgress;
 }
 
 const QVariantMap &Request::parameters() const
 {
-    return m_parameters;
+    Q_D(const Request);
+    return d->m_parameters;
 }
 
 const QVariantMap &Request::clientData() const
 {
-    return m_clientData;
+    Q_D(const Request);
+    return d->m_clientData;
 }
 
 void Request::start()
 {
-    if (m_inProgress) {
+    Q_D(Request);
+    if (d->m_inProgress) {
         BLAME() << "Request already started!";
         return;
     }
-    m_inProgress = true;
+    d->m_inProgress = true;
 }
 
 void Request::fail(const QString &name, const QString &message)
 {
-    QDBusMessage reply = m_message.createErrorReply(name, message);
-    m_connection.send(reply);
+    Q_D(Request);
+    QDBusMessage reply = d->m_message.createErrorReply(name, message);
+    d->m_connection.send(reply);
 
     Q_EMIT completed();
 }
@@ -156,18 +234,11 @@ void Request::setCanceled()
 
 void Request::setResult(const QVariantMap &result)
 {
-    QDBusMessage reply = m_message.createReply(result);
-    m_connection.send(reply);
+    Q_D(Request);
+    QDBusMessage reply = d->m_message.createReply(result);
+    d->m_connection.send(reply);
 
     Q_EMIT completed();
 }
 
-void Request::onEmbedError()
-{
-    QX11EmbedWidget *embed = qobject_cast<QX11EmbedWidget*>(sender());
-    TRACE() << "Embed error:" << embed->error();
-
-    fail(SIGNON_UI_ERROR_EMBEDDING_FAILED,
-         QString("Embedding signon UI failed: %1").arg(embed->error()));
-}
-
+#include "request.moc"
