@@ -65,7 +65,7 @@ protected:
                      const QVariantMap &parameters,
                      QObject *parent = 0);
 
-    void setWidget(QWidget *widget) const;
+    void setWidget(QWidget *widget);
 
     void fail(const QString &name, const QString &message);
     void setCanceled();
