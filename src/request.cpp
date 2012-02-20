@@ -24,7 +24,11 @@
 #include "debug.h"
 #include "dialog-request.h"
 #include "errors.h"
+#ifndef UNIT_TESTS
 #include "webcredentials_interface.h"
+#else
+#include "fake-webcredentials-interface.h"
+#endif
 
 #include <Accounts/Account>
 #include <Accounts/Manager>
@@ -101,7 +105,9 @@ RequestPrivate::RequestPrivate(const QDBusConnection &connection,
 {
     if (parameters.contains(SSOUI_KEY_CLIENT_DATA)) {
         QVariant variant = parameters[SSOUI_KEY_CLIENT_DATA];
-        m_clientData = qdbus_cast<QVariantMap>(variant.value<QDBusArgument>());
+        m_clientData = (variant.type() == QVariant::Map) ?
+            variant.toMap() :
+            qdbus_cast<QVariantMap>(variant.value<QDBusArgument>());
     }
 }
 
