@@ -17,6 +17,7 @@ QT += \
     webkit
 
 PKGCONFIG += \
+    accounts-qt \
     signon-plugins-common \
     libsignon-qt
 
@@ -45,6 +46,9 @@ SOURCES = \
     service.cpp
 
 DEFINES += DEBUG_ENABLED
+
+DBUS_INTERFACES += \
+    com.canonical.indicators.webcredentials.xml
 
 service.path = $${INSTALL_PREFIX}/share/dbus-1/services
 service.files = com.nokia.singlesignonui.service

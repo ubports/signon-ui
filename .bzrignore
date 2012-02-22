@@ -17,3 +17,6 @@ moc_*
 signon-ui
 signon-ui-test
 src/signon_ui_adaptor.*
+tests/unit/signon-ui-unittest
+tests/.config/Trolltech.conf
+tests/functional/.config/Trolltech.conf
