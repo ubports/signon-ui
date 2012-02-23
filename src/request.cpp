@@ -33,6 +33,7 @@
 #include <Accounts/Account>
 #include <Accounts/Manager>
 #include <QDBusArgument>
+#include <QVBoxLayout>
 #include <QX11EmbedWidget>
 #include <QX11Info>
 #include <SignOn/uisessiondata.h>
@@ -134,8 +135,10 @@ void RequestPrivate::setWidget(QWidget *widget)
         QObject::connect(embed, SIGNAL(containerClosed()),
                          embed, SLOT(deleteLater()));
         embed->embedInto(windowId());
-        widget->setParent(embed);
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->addWidget(widget);
         widget->show();
+        embed->setLayout(layout);
         embed->show();
         return;
     }
