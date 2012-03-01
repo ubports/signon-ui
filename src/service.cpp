@@ -43,6 +43,7 @@ public:
     RequestQueue &queueForWindowId(WId windowId);
     void enqueue(Request *request);
     void runQueue(RequestQueue &queue);
+    void cancelUiRequest(const QString &requestId);
 
 private Q_SLOTS:
     void onRequestCompleted();
@@ -121,6 +122,27 @@ void ServicePrivate::onRequestCompleted()
     }
 }
 
+void ServicePrivate::cancelUiRequest(const QString &requestId)
+{
+    Request *request = 0;
+
+    /* Find the request; we don't know in which queue it is, so we must search
+     * all queues. */
+    foreach (RequestQueue queue, m_requests) {
+        foreach (Request *r, queue) {
+            if (r->id() == requestId) {
+                request = r;
+                break;
+            }
+        }
+    }
+
+    TRACE() << "Cancelling request" << request;
+    if (request != 0) {
+        request->cancel();
+    }
+}
+
 Service::Service(QObject *parent):
     QObject(parent),
     d_ptr(new ServicePrivate(this))
@@ -159,7 +181,8 @@ QVariantMap Service::refreshDialog(const QVariantMap &newParameters)
 
 void Service::cancelUiRequest(const QString &requestId)
 {
-    Q_UNUSED(requestId); // TODO
+    Q_D(Service);
+    d->cancelUiRequest(requestId);
 }
 
 #include "service.moc"
