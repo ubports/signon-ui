@@ -340,6 +340,11 @@ void Request::start()
     d->m_inProgress = true;
 }
 
+void Request::cancel()
+{
+    setCanceled();
+}
+
 void Request::fail(const QString &name, const QString &message)
 {
     Q_D(Request);

@@ -55,6 +55,7 @@ public:
 
 public Q_SLOTS:
     virtual void start();
+    void cancel();
 
 Q_SIGNALS:
     void completed();
