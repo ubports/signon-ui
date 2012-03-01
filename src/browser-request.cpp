@@ -176,12 +176,17 @@ BrowserRequestPrivate::~BrowserRequestPrivate()
 
 void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
 {
+    Q_Q(BrowserRequest);
+
     TRACE() << "Url changed:" << url;
 
     if (url.host() == finalUrl.host() &&
         url.path() == finalUrl.path()) {
         responseUrl = url;
-        if (m_dialog->isVisible()) {
+        if (q->embeddedUi()) {
+            /* Do not show the notification page. */
+            m_dialog->accept();
+        } else if (m_dialog->isVisible()) {
             /* Replace the web page with an information screen */
             notifyAuthCompleted();
         }
