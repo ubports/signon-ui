@@ -19,6 +19,8 @@
  */
 
 #include "debug.h"
+#include "fake-libnotify.h"
+#include "indicator-service.h"
 #include "test.h"
 #include "request.h"
 #include "fake-webcredentials-interface.h"
@@ -139,6 +141,61 @@ void SignOnUiTest::testRequestWithIndicator()
 
     delete request;
     delete manager;
+}
+
+void SignOnUiTest::testIndicatorService()
+{
+    const uint firstFailure = 413;
+
+    QVERIFY(IndicatorService::instance() == 0);
+
+    IndicatorService *service = new IndicatorService();
+    QVERIFY(service != 0);
+    QCOMPARE(IndicatorService::instance(), service);
+
+    // Check initial status
+    QVERIFY(service->failures().isEmpty());
+    QCOMPARE(service->errorStatus(), false);
+
+    // Report the first failure
+    service->reportFailure(firstFailure, QVariantMap());
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
+    QCOMPARE(service->errorStatus(), true);
+    QCOMPARE(service->failures().count(), 1);
+    QVERIFY(service->failures().contains(firstFailure));
+
+    // Report more failures
+    QList<uint> moreFailures;
+    moreFailures << 89 << 412 << 1 << 4 << 144;
+    foreach (uint id, moreFailures) {
+        service->reportFailure(id, QVariantMap());
+    }
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
+    QCOMPARE(service->errorStatus(), true);
+    QCOMPARE(service->failures().count(), 1 + moreFailures.count());
+
+    // Remove some failures
+    QSet<uint> removedFailures;
+    removedFailures << 4 << firstFailure << 89;
+    service->removeFailures(removedFailures);
+    QSet<uint> remainingFailures;
+    remainingFailures << 412 << 1 << 144;
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
+    QCOMPARE(service->errorStatus(), true);
+    QCOMPARE(service->failures(), remainingFailures);
+
+    // Clear the error status
+    service->clearErrorStatus();
+    QCOMPARE(service->errorStatus(), false);
+    QCOMPARE(service->failures(), remainingFailures);
+
+    // Send one more failure
+    service->reportFailure(3, QVariantMap());
+    QCOMPARE(FakeLibNotify::notificationCount(), 2);
+    QCOMPARE(service->errorStatus(), true);
+
+    delete service;
+    QVERIFY(IndicatorService::instance() == 0);
 }
 
 QTEST_MAIN(SignOnUiTest);

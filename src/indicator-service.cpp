@@ -205,11 +205,35 @@ QObject *IndicatorService::serviceObject() const
     return d_ptr;
 }
 
+void IndicatorService::clearErrorStatus()
+{
+    Q_D(IndicatorService);
+    d->ClearErrorStatus();
+}
+
+void IndicatorService::removeFailures(const QSet<uint> &accountIds)
+{
+    Q_D(IndicatorService);
+    d->RemoveFailures(accountIds);
+}
+
 void IndicatorService::reportFailure(uint accountId,
                                      const QVariantMap &notification)
 {
     Q_D(IndicatorService);
     d->ReportFailure(accountId, notification);
+}
+
+QSet<uint> IndicatorService::failures() const
+{
+    Q_D(const IndicatorService);
+    return d->m_failures;
+}
+
+bool IndicatorService::errorStatus() const
+{
+    Q_D(const IndicatorService);
+    return d->m_errorStatus;
 }
 
 #include "indicator-service.moc"

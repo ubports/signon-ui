@@ -46,7 +46,12 @@ public:
 
     QObject *serviceObject() const;
 
+    void clearErrorStatus();
+    void removeFailures(const QSet<uint> &accountIds);
     void reportFailure(uint accountId, const QVariantMap &notification);
+
+    QSet<uint> failures() const;
+    bool errorStatus() const;
 
 private:
     IndicatorServicePrivate *d_ptr;
