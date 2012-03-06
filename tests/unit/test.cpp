@@ -152,6 +152,7 @@ void SignOnUiTest::testIndicatorService()
     IndicatorService *service = new IndicatorService();
     QVERIFY(service != 0);
     QCOMPARE(IndicatorService::instance(), service);
+    QVERIFY(service->serviceObject() != 0);
 
     // Check initial status
     QVERIFY(service->failures().isEmpty());
