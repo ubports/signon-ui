@@ -31,7 +31,7 @@ void initTr(const char *domain, const char *localeDir)
     textdomain(domain);
 }
 
-QString tr(const char *text, const char *domain)
+QString _(const char *text, const char *domain)
 {
     return QString::fromUtf8(dgettext(domain, text));
 }

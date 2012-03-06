@@ -22,6 +22,7 @@
 
 #include "debug.h"
 #include "dialog.h"
+#include "i18n.h"
 #include "network-access-manager.h"
 
 #include <QDialogButtonBox>
@@ -101,9 +102,9 @@ QString DialogRequestPrivate::messageFromId(int id)
 
     switch (id) {
     case QUERY_MESSAGE_LOGIN:
-        return msg.arg(tr("Enter your credentials to login"));
+        return msg.arg(_("Enter your credentials to login"));
     case QUERY_MESSAGE_NOT_AUTHORIZED:
-        return error.arg(tr("Previous authentication attempt failed. Please try again."));
+        return error.arg(_("Previous authentication attempt failed. Please try again."));
     case QUERY_MESSAGE_EMPTY:
     default:
         return QString();
@@ -138,7 +139,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     m_dialog->setMinimumWidth(400);
 
     QString title = params.value(SSOUI_KEY_TITLE,
-                                 tr("Enter your credentials")).toString();
+                                 _("Enter your credentials")).toString();
     m_dialog->setWindowTitle(title);
 
     QFormLayout *formLayout = new QFormLayout(m_dialog);
@@ -162,7 +163,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         m_wUsername->setEnabled(m_queryUsername);
         m_wUsername->setAccessibleName("username");
         m_wUsername->setText(params.value(SSOUI_KEY_USERNAME).toString());
-        formLayout->addRow(tr("Username:"), m_wUsername);
+        formLayout->addRow(_("Username:"), m_wUsername);
     }
 
     m_queryPassword = params.value(SSOUI_KEY_QUERYPASSWORD, false).toBool();
@@ -172,14 +173,14 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         m_wPassword->setEnabled(m_queryPassword);
         m_wPassword->setEchoMode(QLineEdit::Password);
         m_wPassword->setText(params.value(SSOUI_KEY_PASSWORD).toString());
-        formLayout->addRow(tr("Password:"), m_wPassword);
+        formLayout->addRow(_("Password:"), m_wPassword);
     }
 
     QString captchaUrl = params.value(SSOUI_KEY_CAPTCHAURL).toString();
     if (!captchaUrl.isEmpty()) {
         QLabel *wCaptchaMsg = new QLabel(QString::fromLatin1("<i>%1</i>").
-            arg(tr("As an additional security measure, please "
-                   "fill in the text from the picture below:")));
+            arg(_("As an additional security measure, please "
+                  "fill in the text from the picture below:")));
         wCaptchaMsg->setWordWrap(true);
         formLayout->addRow(wCaptchaMsg);
 
@@ -187,7 +188,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         m_wCaptcha->setAlignment(Qt::AlignCenter);
         formLayout->addRow(m_wCaptcha);
         m_wCaptchaText = new QLineEdit;
-        formLayout->addRow(tr("Text from the picture:"), m_wCaptchaText);
+        formLayout->addRow(_("Text from the picture:"), m_wCaptchaText);
 
         requestCaptcha(QUrl::fromEncoded(captchaUrl.toLatin1()));
     }

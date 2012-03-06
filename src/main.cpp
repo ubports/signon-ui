@@ -19,6 +19,7 @@
  */
 
 #include "debug.h"
+#include "indicator-service.h"
 #include "service.h"
 
 #include <QApplication>
@@ -57,7 +58,16 @@ int main(int argc, char **argv)
                               service,
                               QDBusConnection::ExportAllContents);
 
+    IndicatorService *indicatorService = new IndicatorService();
+    connection.registerService(QLatin1String(WEBCREDENTIALS_BUS_NAME));
+    connection.registerObject(QLatin1String(WEBCREDENTIALS_OBJECT_PATH),
+                              indicatorService->serviceObject());
+
     int ret = app.exec();
+
+    connection.unregisterService(QLatin1String(WEBCREDENTIALS_BUS_NAME));
+    connection.unregisterObject(QLatin1String(WEBCREDENTIALS_OBJECT_PATH));
+    delete indicatorService;
 
     connection.unregisterService(QLatin1String(serviceName));
     connection.unregisterObject(QLatin1String(objectPath));

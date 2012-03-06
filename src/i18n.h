@@ -26,14 +26,9 @@
 namespace SignOnUi {
 
 void initTr(const char *domain, const char *localeDir);
-QString tr(const char *text, const char *domain = 0);
+QString _(const char *text, const char *domain = 0);
 
 } // namespace
-
-// Make sure that our tr() is used, and not QObject::tr:
-#ifndef NO_TR_OVERRIDE
-#define tr  SignOnUi::tr
-#endif
 
 #endif // SIGNON_UI_I18N_H
 

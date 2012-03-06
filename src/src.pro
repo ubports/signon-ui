@@ -19,6 +19,7 @@ QT += \
 PKGCONFIG += \
     accounts-qt \
     signon-plugins-common \
+    libnotify \
     libsignon-qt
 
 HEADERS = \
@@ -29,9 +30,11 @@ HEADERS = \
     dialog.h \
     errors.h \
     i18n.h \
+    indicator-service.h \
     network-access-manager.h \
     request.h \
-    service.h
+    service.h \
+    webcredentials_interface.h
 
 SOURCES = \
     browser-request.cpp \
@@ -40,16 +43,24 @@ SOURCES = \
     dialog-request.cpp \
     dialog.cpp \
     i18n.cpp \
+    indicator-service.cpp \
     main.cpp \
     network-access-manager.cpp \
     request.cpp \
-    service.cpp
+    service.cpp \
+    webcredentials_interface.cpp
 
 DEFINES += DEBUG_ENABLED
 
-DBUS_INTERFACES += \
+SIGNONUI_DBUS_ADAPTORS += \
     com.canonical.indicators.webcredentials.xml
+SIGNONUI_DBUS_INCLUDES += \
+    indicator-service.h
+
+include(signonui_dbus_adaptor.pri)
 
 service.path = $${INSTALL_PREFIX}/share/dbus-1/services
-service.files = com.nokia.singlesignonui.service
+service.files = \
+    com.canonical.indicators.webcredentials.service \
+    com.nokia.singlesignonui.service
 INSTALLS += service

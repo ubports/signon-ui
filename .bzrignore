@@ -17,7 +17,7 @@ moc_*
 signon-ui
 signon-ui-test
 src/signon_ui_adaptor.*
-src/webcredentials_interface.*
+src/webcredentials_adaptor.*
 tests/unit/signon-ui-unittest
 tests/.config/Trolltech.conf
 tests/functional/.config/Trolltech.conf
