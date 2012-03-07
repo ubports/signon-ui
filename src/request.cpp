@@ -188,7 +188,7 @@ Accounts::Account *RequestPrivate::findAccount()
         if (account == 0) continue;
 
         QVariant value(QVariant::UInt);
-        if (account->value("signon-id", value) != Accounts::NONE &&
+        if (account->value("CredentialsId", value) != Accounts::NONE &&
             value.toUInt() == identity) {
             return account;
         }
