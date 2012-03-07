@@ -20,9 +20,11 @@ QT += \
 PKGCONFIG += \
     accounts-qt \
     signon-plugins-common \
+    libnotify \
     libsignon-qt
 
 SOURCES += \
+    fake-libnotify.cpp \
     fake-webcredentials-interface.cpp \
     test.cpp \
     $$TOP_SRC_DIR/src/browser-request.cpp \
@@ -30,9 +32,13 @@ SOURCES += \
     $$TOP_SRC_DIR/src/debug.cpp \
     $$TOP_SRC_DIR/src/dialog-request.cpp \
     $$TOP_SRC_DIR/src/dialog.cpp \
+    $$TOP_SRC_DIR/src/i18n.cpp \
+    $$TOP_SRC_DIR/src/indicator-service.cpp \
     $$TOP_SRC_DIR/src/network-access-manager.cpp \
-    $$TOP_SRC_DIR/src/request.cpp
+    $$TOP_SRC_DIR/src/request.cpp \
+    $$TOP_SRC_DIR/src/webcredentials_adaptor.cpp
 HEADERS += \
+    fake-libnotify.h \
     fake-webcredentials-interface.h \
     test.h \
     $$TOP_SRC_DIR/src/browser-request.h \
@@ -40,8 +46,10 @@ HEADERS += \
     $$TOP_SRC_DIR/src/cookie-jar-manager.h \
     $$TOP_SRC_DIR/src/dialog-request.h \
     $$TOP_SRC_DIR/src/dialog.h \
+    $$TOP_SRC_DIR/src/indicator-service.h \
     $$TOP_SRC_DIR/src/network-access-manager.h \
-    $$TOP_SRC_DIR/src/request.h
+    $$TOP_SRC_DIR/src/request.h \
+    $$TOP_SRC_DIR/src/webcredentials_adaptor.h
 INCLUDEPATH += \
     . \
     $$TOP_SRC_DIR/src

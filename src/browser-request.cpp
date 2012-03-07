@@ -23,6 +23,7 @@
 #include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
+#include "i18n.h"
 
 #include <QLabel>
 #include <QProgressBar>
@@ -259,13 +260,13 @@ QWidget *BrowserRequestPrivate::buildSuccessPage()
                               QSizePolicy::MinimumExpanding);
     QVBoxLayout *layout = new QVBoxLayout(dialogPage);
 
-    QLabel *label = new QLabel(tr("The authentication process is complete.\n"
-                                  "You may now close this dialog "
-                                  "and return to the application."));
+    QLabel *label = new QLabel(_("The authentication process is complete.\n"
+                                 "You may now close this dialog "
+                                 "and return to the application."));
     label->setAlignment(Qt::AlignCenter);
     layout->addWidget(label);
 
-    QPushButton *doneButton = new QPushButton(tr("Done"));
+    QPushButton *doneButton = new QPushButton(_("Done"));
     doneButton->setDefault(true);
     QObject::connect(doneButton, SIGNAL(clicked()),
                      m_dialog, SLOT(accept()));
@@ -282,10 +283,10 @@ void BrowserRequestPrivate::buildDialog(const QVariantMap &params)
     if (params.contains(SSOUI_KEY_TITLE)) {
         title = params[SSOUI_KEY_TITLE].toString();
     } else if (params.contains(SSOUI_KEY_CAPTION)) {
-        title = tr("Web authentication for %1").
+        title = _("Web authentication for %1").
             arg(params[SSOUI_KEY_CAPTION].toString());
     } else {
-        title = tr("Web authentication");
+        title = _("Web authentication");
     }
 
     m_dialog->setWindowTitle(title);

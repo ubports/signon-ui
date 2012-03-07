@@ -18,30 +18,30 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_TEST_H
-#define SIGNON_UI_TEST_H
+#include "fake-libnotify.h"
 
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QTest>
+#undef signals
+#include <libnotify/notification.h>
+#include <libnotify/notify.h>
 
-class SignOnUiTest: public QObject
+static int m_notificationCount = 0;
+
+int FakeLibNotify::notificationCount()
 {
-    Q_OBJECT
+    return m_notificationCount;
+}
 
-public:
-    SignOnUiTest();
+void FakeLibNotify::clearNotificationCount()
+{
+    m_notificationCount = 0;
+}
 
-private Q_SLOTS:
-    void initTestCase();
-    void testRequestObjects();
-    void testRequestWithIndicator();
+gboolean notify_notification_show(NotifyNotification *notification,
+                                  GError **error)
+{
+    g_return_val_if_fail(NOTIFY_IS_NOTIFICATION(notification), FALSE);
+    *error = NULL;
+    m_notificationCount++;
+    return TRUE;
+}
 
-    void testIndicatorService();
-
-private:
-    QDBusConnection m_dbusConnection;
-    QDBusMessage m_dbusMessage;
-};
-
-#endif // SIGNON_UI_TEST_H

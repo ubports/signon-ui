@@ -18,30 +18,14 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_TEST_H
-#define SIGNON_UI_TEST_H
+#ifndef SIGNON_UI_FAKE_LIBNOTIFY
+#define SIGNON_UI_FAKE_LIBNOTIFY
 
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QTest>
+namespace FakeLibNotify {
 
-class SignOnUiTest: public QObject
-{
-    Q_OBJECT
+int notificationCount();
+void clearNotificationCount();
 
-public:
-    SignOnUiTest();
-
-private Q_SLOTS:
-    void initTestCase();
-    void testRequestObjects();
-    void testRequestWithIndicator();
-
-    void testIndicatorService();
-
-private:
-    QDBusConnection m_dbusConnection;
-    QDBusMessage m_dbusMessage;
 };
 
-#endif // SIGNON_UI_TEST_H
+#endif // SIGNON_UI_FAKE_LIBNOTIFY

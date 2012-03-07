@@ -24,6 +24,7 @@
 #include "debug.h"
 #include "dialog-request.h"
 #include "errors.h"
+#include "indicator-service.h"
 #ifndef UNIT_TESTS
 #include "webcredentials_interface.h"
 #else
@@ -39,9 +40,6 @@
 #include <SignOn/uisessiondata.h>
 #include <SignOn/uisessiondata_priv.h>
 #include <X11/Xlib.h>
-
-#define WEBCREDENTIALS_OBJECT_PATH "/com/canonical/indicators/webcredentials"
-#define WEBCREDENTIALS_BUS_NAME "com.canonical.indicators.webcredentials"
 
 using namespace SignOnUi;
 using namespace com::canonical;
@@ -190,7 +188,7 @@ Accounts::Account *RequestPrivate::findAccount()
         if (account == 0) continue;
 
         QVariant value(QVariant::UInt);
-        if (account->value("signon-id", value) != Accounts::NONE &&
+        if (account->value("CredentialsId", value) != Accounts::NONE &&
             value.toUInt() == identity) {
             return account;
         }
