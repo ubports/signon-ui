@@ -33,6 +33,7 @@
 
 #include <Accounts/Account>
 #include <Accounts/Manager>
+#include <QApplication>
 #include <QDBusArgument>
 #include <QVBoxLayout>
 #include <QX11EmbedWidget>
@@ -138,6 +139,7 @@ void RequestPrivate::setWidget(QWidget *widget)
         widget->show();
         embed->setLayout(layout);
         embed->show();
+        QApplication::setActiveWindow(embed);
         return;
     }
 
