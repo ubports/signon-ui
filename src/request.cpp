@@ -40,6 +40,7 @@
 #include <QX11Info>
 #include <SignOn/uisessiondata.h>
 #include <SignOn/uisessiondata_priv.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 
 using namespace SignOnUi;
@@ -90,6 +91,49 @@ private:
 
 } // namespace
 
+/* Workaround for https://bugreports.qt-project.org/browse/QTBUG-3617
+ * Send XEMBED_REQUEST_FOCUS manually.
+ */
+#define XEMBED_REQUEST_FOCUS 3
+
+// Sends an XEmbed message.
+static void sendXEmbedMessage(WId window, Display *display, long message,
+                  long detail = 0, long data1 = 0, long data2 = 0)
+{
+    XClientMessageEvent c;
+    memset(&c, 0, sizeof(c));
+    c.type = ClientMessage;
+    c.message_type = XInternAtom(display, "_XEMBED", false);
+    c.format = 32;
+    c.display = display;
+    c.window = window;
+
+    c.data.l[0] = QX11Info::appTime();
+    c.data.l[1] = message;
+    c.data.l[2] = detail;
+    c.data.l[3] = data1;
+    c.data.l[4] = data2;
+
+    XSendEvent(display, window, false, NoEventMask, (XEvent *) &c);
+}
+
+static bool x11EventFilter(void *message, long *)
+{
+    XEvent *event = reinterpret_cast<XEvent*>(message);
+    if (event->type == ButtonPress)
+    {
+        QWidget *w = QWidget::find(event->xbutton.window);
+        if (w && w->window()->objectName() == "request-widget") {
+            QX11EmbedWidget *embed = static_cast<QX11EmbedWidget*>(w->window());
+            QApplication::setActiveWindow(w->window());
+            sendXEmbedMessage(embed->containerWinId(),
+                              w->x11Info().display(),
+                              XEMBED_REQUEST_FOCUS);
+        }
+    }
+    return false;
+}
+
 RequestPrivate::RequestPrivate(const QDBusConnection &connection,
                                const QDBusMessage &message,
                                const QVariantMap &parameters,
@@ -103,6 +147,13 @@ RequestPrivate::RequestPrivate(const QDBusConnection &connection,
     m_accountManager(0),
     m_widget(0)
 {
+    static bool filterInstalled = false;
+
+    if (!filterInstalled) {
+        QCoreApplication::instance()->setEventFilter(x11EventFilter);
+        filterInstalled = true;
+    }
+
     if (parameters.contains(SSOUI_KEY_CLIENT_DATA)) {
         QVariant variant = parameters[SSOUI_KEY_CLIENT_DATA];
         m_clientData = (variant.type() == QVariant::Map) ?
@@ -136,10 +187,10 @@ void RequestPrivate::setWidget(QWidget *widget)
         embed->embedInto(windowId());
         QVBoxLayout *layout = new QVBoxLayout;
         layout->addWidget(widget);
+        embed->setObjectName("request-widget");
         widget->show();
         embed->setLayout(layout);
         embed->show();
-        QApplication::setActiveWindow(embed);
         return;
     }
 
