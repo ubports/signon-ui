@@ -5,6 +5,8 @@ include($${TOP_SRC_DIR}/common-installs-config.pri)
 TEMPLATE = app
 TARGET = signon-ui
 
+I18N_DOMAIN = signon-ui
+
 CONFIG += \
     link_pkgconfig \
     qt
@@ -50,7 +52,9 @@ SOURCES = \
     service.cpp \
     webcredentials_interface.cpp
 
-DEFINES += DEBUG_ENABLED
+DEFINES += \
+    DEBUG_ENABLED \
+    I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
 SIGNONUI_DBUS_ADAPTORS += \
     com.canonical.indicators.webcredentials.xml
@@ -58,6 +62,13 @@ SIGNONUI_DBUS_INCLUDES += \
     indicator-service.h
 
 include(signonui_dbus_adaptor.pri)
+
+po.target = ../po/signon-ui.pot
+po.depends = $${SOURCES}
+po.commands = xgettext -o $@ -d $${I18N_DOMAIN} --keyword=_ $^
+
+QMAKE_EXTRA_TARGETS += \
+    po
 
 service.path = $${INSTALL_PREFIX}/share/dbus-1/services
 service.files = \

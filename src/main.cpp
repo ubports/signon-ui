@@ -19,6 +19,7 @@
  */
 
 #include "debug.h"
+#include "i18n.h"
 #include "indicator-service.h"
 #include "service.h"
 
@@ -50,6 +51,8 @@ int main(int argc, char **argv)
 
     QSettings::setPath(QSettings::NativeFormat, QSettings::SystemScope,
                        QLatin1String("/etc"));
+
+    initTr(I18N_DOMAIN, NULL);
 
     Service *service = new Service();
     QDBusConnection connection = QDBusConnection::sessionBus();
