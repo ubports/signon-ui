@@ -4,6 +4,7 @@ include(common-project-config.pri)
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS = \
+    po \
     src \
     tests
 
