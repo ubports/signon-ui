@@ -238,12 +238,12 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
     setupViewForUrl(url);
-    m_webView->setUrl(url);
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
     layout->addWidget(m_webView);
+    m_webView->setUrl(url);
 
     m_progressBar = new QProgressBar();
     m_progressBar->setRange(0, 100);
