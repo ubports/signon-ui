@@ -105,12 +105,12 @@ void SignOnUiTest::testRequestWithIndicator()
     account->setEnabled(true);
     account->syncAndBlock();
     account = manager->createAccount(0);
-    account->setValue("signon-id", 0xdeadbeef);
+    account->setValue("CredentialsId", 0xdeadbeef);
     account->setEnabled(true);
     account->syncAndBlock();
     /* now create the "good" account */
     account = manager->createAccount(0);
-    account->setValue("signon-id", signonId);
+    account->setValue("CredentialsId", signonId);
     account->setEnabled(true);
     account->setDisplayName(displayName);
     account->syncAndBlock();
