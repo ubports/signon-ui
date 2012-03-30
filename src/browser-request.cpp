@@ -324,6 +324,8 @@ void BrowserRequestPrivate::onFinished()
 
     TRACE() << "Browser dialog closed";
 
+    QObject::disconnect(m_webView, 0, this, 0);
+
     QVariantMap reply;
     QUrl url = responseUrl.isEmpty() ? m_webView->url() : responseUrl;
     reply[SSOUI_KEY_URLRESPONSE] = url.toString();
