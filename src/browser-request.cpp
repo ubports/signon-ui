@@ -200,6 +200,11 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
 {
     TRACE() << "Load finished" << ok;
 
+    if (loggingLevel() > 2) {
+        /* Dump the HTML */
+        TRACE() << m_webView->page()->mainFrame()->toHtml();
+    }
+
     initializeFields();
 
     if (!m_dialog->isVisible()) {
