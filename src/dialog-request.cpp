@@ -136,6 +136,7 @@ void DialogRequestPrivate::requestCaptcha(const QUrl &url)
 void DialogRequestPrivate::buildDialog(const QVariantMap &params)
 {
     m_dialog = new Dialog;
+    m_dialog->setObjectName("LoginDialog");
     m_dialog->setMinimumWidth(400);
 
     QString title = params.value(SSOUI_KEY_TITLE,
@@ -153,6 +154,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     }
     if (!message.isEmpty()) {
         QLabel *wMessage = new QLabel(message);
+        wMessage->setObjectName("Message");
         formLayout->addRow(wMessage);
     }
 
@@ -160,6 +162,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     bool showUsername = m_queryUsername || params.contains(SSOUI_KEY_USERNAME);
     if (showUsername) {
         m_wUsername = new QLineEdit;
+        m_wUsername->setObjectName("UsernameField");
         m_wUsername->setEnabled(m_queryUsername);
         m_wUsername->setAccessibleName("username");
         m_wUsername->setText(params.value(SSOUI_KEY_USERNAME).toString());
@@ -170,6 +173,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     bool showPassword = m_queryPassword || params.contains(SSOUI_KEY_PASSWORD);
     if (showPassword) {
         m_wPassword = new QLineEdit;
+        m_wUsername->setObjectName("PasswordField");
         m_wPassword->setEnabled(m_queryPassword);
         m_wPassword->setEchoMode(QLineEdit::Password);
         m_wPassword->setText(params.value(SSOUI_KEY_PASSWORD).toString());
@@ -185,6 +189,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         formLayout->addRow(wCaptchaMsg);
 
         m_wCaptcha = new QLabel;
+        m_wUsername->setObjectName("CaptchaField");
         m_wCaptcha->setAlignment(Qt::AlignCenter);
         formLayout->addRow(m_wCaptcha);
         m_wCaptchaText = new QLineEdit;
