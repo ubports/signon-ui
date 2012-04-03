@@ -49,17 +49,27 @@ int main(int argc, char **argv)
             setLoggingLevel(value);
     }
 
+    int daemonTimeout =
+        environment.value(QLatin1String("SSOUI_DAEMON_TIMEOUT")).toInt();
+
     QSettings::setPath(QSettings::NativeFormat, QSettings::SystemScope,
                        QLatin1String("/etc"));
 
     initTr(I18N_DOMAIN, NULL);
 
     Service *service = new Service();
+    if (daemonTimeout > 0)
+        service->setTimeout(daemonTimeout);
     QDBusConnection connection = QDBusConnection::sessionBus();
     connection.registerService(QLatin1String(serviceName));
     connection.registerObject(QLatin1String(objectPath),
                               service,
                               QDBusConnection::ExportAllContents);
+    /* FIXME: before quitting we should check if the IndicatorService is idle
+     * too. However, since this feature is used for unit tests only, for the
+     * time being this is fine.
+     */
+    QObject::connect(service, SIGNAL(idleTimeout()), &app, SLOT(quit()));
 
     IndicatorService *indicatorService = new IndicatorService();
     connection.registerService(QLatin1String(WEBCREDENTIALS_BUS_NAME));

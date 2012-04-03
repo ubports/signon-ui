@@ -38,10 +38,15 @@ public:
     explicit Service(QObject *parent = 0);
     ~Service();
 
+    void setTimeout(int timeout);
+
 public Q_SLOTS:
     QVariantMap queryDialog(const QVariantMap &parameters);
     QVariantMap refreshDialog(const QVariantMap &newParameters);
     Q_NOREPLY void cancelUiRequest(const QString &requestId);
+
+Q_SIGNALS:
+    void idleTimeout();
 
 private:
     ServicePrivate *d_ptr;
