@@ -1,13 +1,21 @@
 #! /bin/sh
 
-if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-	echo "No D-Bus session active; skipping functional tests"
+if test -z "$DISPLAY" ; then
+	echo "No X11 display; skipping functional tests"
 	exit 0
 fi
 
-export QT_ACCESSIBILITY=1
 export LC_ALL=C
 export HOME="$SRCDIR/tests/functional"
+export SSOUI_DAEMON_TIMEOUT=10
 
 "$SRCDIR/tests/functional/run-with-signon-ui.sh" \
-	mago --nologcapture ./signon-ui-test.py
+	./dialog.rb
+
+# Web tests
+./server.rb &
+SERVER_PID="$!"
+"$SRCDIR/tests/functional/run-with-signon-ui.sh" \
+	./webpage.rb
+kill "$SERVER_PID"
+
