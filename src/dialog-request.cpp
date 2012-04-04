@@ -173,7 +173,7 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
     bool showPassword = m_queryPassword || params.contains(SSOUI_KEY_PASSWORD);
     if (showPassword) {
         m_wPassword = new QLineEdit;
-        m_wUsername->setObjectName("PasswordField");
+        m_wPassword->setObjectName("PasswordField");
         m_wPassword->setEnabled(m_queryPassword);
         m_wPassword->setEchoMode(QLineEdit::Password);
         m_wPassword->setText(params.value(SSOUI_KEY_PASSWORD).toString());
@@ -189,10 +189,10 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         formLayout->addRow(wCaptchaMsg);
 
         m_wCaptcha = new QLabel;
-        m_wUsername->setObjectName("CaptchaField");
         m_wCaptcha->setAlignment(Qt::AlignCenter);
         formLayout->addRow(m_wCaptcha);
         m_wCaptchaText = new QLineEdit;
+        m_wCaptchaText->setObjectName("CaptchaField");
         formLayout->addRow(_("Text from the picture:"), m_wCaptchaText);
 
         requestCaptcha(QUrl::fromEncoded(captchaUrl.toLatin1()));
