@@ -159,6 +159,7 @@ private:
     QWebElement m_loginButton;
     QString m_username;
     QString m_password;
+    int m_loginCount;
 };
 
 } // namespace
@@ -169,7 +170,8 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_dialog(0),
     m_webView(0),
     m_progressBar(0),
-    m_settings(0)
+    m_settings(0),
+    m_loginCount(0)
 {
 }
 
@@ -491,6 +493,11 @@ bool BrowserRequestPrivate::tryAutoLogin()
 
     if (m_passwordField.isNull() ||
         m_passwordField.evaluateJavaScript("this.value").isNull())
+        return false;
+
+    /* Avoid falling in a failed login loop */
+    m_loginCount++;
+    if (m_loginCount > 1)
         return false;
 
     m_loginButton.evaluateJavaScript("this.click()");
