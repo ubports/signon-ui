@@ -1,17 +1,10 @@
 #! /bin/sh
 
-# If there's already an instance of signon-ui running, kill it
-pkill signon-ui
-
 set -e
 
-trap "pkill -9 signon-ui" EXIT
+qttasserver &
 
 # start a local signon-ui
-
-export SSOUI_LOGGING_LEVEL=2
-${SSOUI_WRAPPER} ${BUILDDIR}/src/signon-ui &
-sleep 2
-
-${CLIENT_WRAPPER} $@
-
+dbus-test-runner -m 180 \
+	-t ${SRCDIR}/tests/functional/signon-ui.sh \
+	-t "$@" -f com.nokia.singlesignonui
