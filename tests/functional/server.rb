@@ -29,6 +29,15 @@ class Simple < WEBrick::HTTPServlet::AbstractServlet
     def do_POST(request, response)
         username = request.query['username']
         password = request.query['password']
+        if username.empty? or password.empty?
+            puts "Missing data"
+            status, content_type, body = print_login_form(request)
+            response.status = status
+            response['Content-Type'] = content_type
+            response.body = body
+            return
+        end
+
         response.status = 301
         response['Location'] = "/logged\##{username}#{password}"
     end
