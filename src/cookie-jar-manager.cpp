@@ -22,6 +22,7 @@
 
 #include "debug.h"
 
+#include <QDBusMetaType>
 #include <QHash>
 
 using namespace SignOnUi;
@@ -30,13 +31,26 @@ static CookieJarManager *m_instance = 0;
 
 namespace SignOnUi {
 
+QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl &url) const
+{
+    return QNetworkCookieJar::cookiesForUrl(url);
+}
+
+bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie> &cookieList,
+                                  const QUrl &url)
+{
+    TRACE() << "Setting cookies for url:" << url;
+    TRACE() << cookieList;
+    return QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
+}
+
 class CookieJarManagerPrivate
 {
     Q_DECLARE_PUBLIC(CookieJarManager)
 
 private:
     mutable CookieJarManager *q_ptr;
-    QHash<quint32, QNetworkCookieJar*> cookieJars;
+    QHash<quint32, CookieJar*> cookieJars;
 };
 
 } // namespace
@@ -45,6 +59,7 @@ CookieJarManager::CookieJarManager(QObject *parent):
     QObject(parent),
     d_ptr(new CookieJarManagerPrivate)
 {
+    qDBusRegisterMetaType<RawCookies>();
 }
 
 CookieJarManager::~CookieJarManager()
@@ -61,14 +76,14 @@ CookieJarManager *CookieJarManager::instance()
     return m_instance;
 }
 
-QNetworkCookieJar *CookieJarManager::cookieJarForIdentity(uint id)
+CookieJar *CookieJarManager::cookieJarForIdentity(uint id)
 {
     Q_D(CookieJarManager);
 
     if (d->cookieJars.contains(id)) {
         return d->cookieJars[id];
     } else {
-        QNetworkCookieJar *cookieJar = new QNetworkCookieJar(this);
+        CookieJar *cookieJar = new CookieJar(this);
         d->cookieJars.insert(id, cookieJar);
         return cookieJar;
     }

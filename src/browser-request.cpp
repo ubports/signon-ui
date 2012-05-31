@@ -25,6 +25,7 @@
 #include "dialog.h"
 #include "i18n.h"
 
+#include <QDBusArgument>
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
@@ -49,6 +50,9 @@ static const QString keyZoomFactor = QString("ZoomFactor");
 static const QString keyUsernameField = QString("UsernameField");
 static const QString keyPasswordField = QString("PasswordField");
 static const QString keyLoginButton = QString("LoginButton");
+
+/* Additional session-data keys we support. */
+static const QString keyCookies = QString("Cookies");
 
 class WebPage: public QWebPage
 {
@@ -140,6 +144,7 @@ private:
                                 const QString &paramKey = QString());
     void initializeFields();
     bool tryAutoLogin();
+    void addBrowserCookies(CookieJar *cookieJar);
 
 private:
     mutable BrowserRequest *q_ptr;
@@ -227,6 +232,50 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
     }
 }
 
+void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
+{
+    Q_Q(BrowserRequest);
+
+    const QVariantMap &clientData = q->clientData();
+    if (!clientData.contains(keyCookies)) return;
+
+    RawCookies rawCookies;
+    QDBusArgument arg = clientData[keyCookies].value<QDBusArgument>();
+    if (arg.currentSignature() == "a{sv}") {
+        /* The signature of the argument should be "a{ss}", not "a{sv}";
+         * however, ruby-dbus is rather primitive and there seems to be no way
+         * to speficy a different signature than "a{sv}" when marshalling Hash
+         * into a variant.
+         * Therefore, just for our functional tests, also support "a{sv}".
+         */
+        QVariantMap cookieMap = qdbus_cast<QVariantMap>(arg);
+        QVariantMap::const_iterator i;
+        for (i = cookieMap.constBegin(); i != cookieMap.constEnd(); i++) {
+            rawCookies.insert(i.key(), i.value().toString());
+        }
+    } else {
+        rawCookies = qdbus_cast<RawCookies>(arg);
+    }
+
+    QList<QNetworkCookie> cookies;
+    RawCookies::const_iterator i;
+    for (i = rawCookies.constBegin(); i != rawCookies.constEnd(); i++) {
+        const QString &host = i.key();
+        QStringList cookieList = i.value().split(";");
+        foreach (const QString &cookieSpec, cookieList) {
+            int semicolon = cookieSpec.indexOf("=");
+            QNetworkCookie cookie(cookieSpec.left(semicolon).toUtf8(),
+                                  cookieSpec.mid(semicolon + 1).toUtf8());
+            cookie.setDomain(host);
+            cookie.setPath("/");
+            cookies.append(cookie);
+        }
+    }
+
+    TRACE() << "cookies:" << cookies;
+    cookieJar->setCookies(cookies);
+}
+
 QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 {
     QWidget *dialogPage = new QWidget;
@@ -244,8 +293,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
         identity = params.value(SSOUI_KEY_IDENTITY).toUInt();
     }
     CookieJarManager *cookieJarManager = CookieJarManager::instance();
-    QNetworkCookieJar *cookieJar =
-        cookieJarManager->cookieJarForIdentity(identity);
+    CookieJar *cookieJar = cookieJarManager->cookieJarForIdentity(identity);
+    addBrowserCookies(cookieJar);
     page->networkAccessManager()->setCookieJar(cookieJar);
     /* NetworkAccessManager takes ownership of the cookieJar; we don't want
      * this */

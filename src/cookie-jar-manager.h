@@ -21,10 +21,32 @@
 #ifndef SIGNON_UI_COOKIE_JAR_MANAGER_H
 #define SIGNON_UI_COOKIE_JAR_MANAGER_H
 
+#include <QMap>
 #include <QNetworkCookieJar>
 #include <QObject>
+#include <QString>
 
 namespace SignOnUi {
+
+typedef QMap<QString,QString> RawCookies;
+
+class CookieJar: public QNetworkCookieJar
+{
+    Q_OBJECT
+
+public:
+    CookieJar(QObject *parent = 0):
+        QNetworkCookieJar(parent) {
+    }
+    ~CookieJar() {}
+
+    QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const;
+    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList,
+                           const QUrl &url);
+    void setCookies(const QList<QNetworkCookie> &cookieList) {
+        setAllCookies(cookieList);
+    }
+};
 
 class CookieJarManagerPrivate;
 
@@ -37,7 +59,7 @@ public:
 
     static CookieJarManager *instance();
 
-    QNetworkCookieJar *cookieJarForIdentity(uint id);
+    CookieJar *cookieJarForIdentity(uint id);
 
 protected:
     explicit CookieJarManager(QObject *parent = 0);
@@ -48,6 +70,8 @@ private:
 };
 
 } // namespace
+
+Q_DECLARE_METATYPE(SignOnUi::RawCookies)
 
 #endif // SIGNON_UI_COOKIE_JAR_MANAGER_H
 

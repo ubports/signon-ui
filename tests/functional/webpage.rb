@@ -72,4 +72,34 @@ class TestDialog < Test::Unit::TestCase
         loop.run
     end
 
+    def test_cookies
+        # Prepare a request
+        cookies = {}
+        cookies['Primo'] = 'primo biscottino'
+        cookies['Secondo'] = 'secondo biscottino'
+        client_data = {}
+        client_data['Cookies'] = cookies
+        parameters = {}
+        parameters['OpenUrl'] = 'http://localhost:8000/'
+        parameters['FinalUrl'] = 'http://localhost:8000/logged'
+        parameters['UserName'] = 'user'
+        parameters['Secret'] = 'pwd'
+        parameters['ClientData'] = client_data
+        loop = DBus::Main.new
+        loop << @bus
+        @proxy.queryDialog(parameters) do |msg, resp|
+            verify_equal('http://localhost:8000/logged#userpwd') {
+                resp['UrlResponse']
+            }
+            loop.quit
+        end
+
+        # The UI should not appear in this test
+        @app.force_refresh()
+        verify_not(2, "Unrequested dialog appeared!") {
+            @app.SignOnUi__Dialog()
+        }
+        loop.run
+    end
+
 end
