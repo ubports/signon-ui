@@ -35,6 +35,7 @@ SOURCES += \
     $$TOP_SRC_DIR/src/i18n.cpp \
     $$TOP_SRC_DIR/src/indicator-service.cpp \
     $$TOP_SRC_DIR/src/network-access-manager.cpp \
+    $$TOP_SRC_DIR/src/qanimationlabel.cpp \
     $$TOP_SRC_DIR/src/request.cpp \
     $$TOP_SRC_DIR/src/webcredentials_adaptor.cpp
 HEADERS += \
@@ -48,6 +49,7 @@ HEADERS += \
     $$TOP_SRC_DIR/src/dialog.h \
     $$TOP_SRC_DIR/src/indicator-service.h \
     $$TOP_SRC_DIR/src/network-access-manager.h \
+    $$TOP_SRC_DIR/src/qanimationlabel.h \
     $$TOP_SRC_DIR/src/request.h \
     $$TOP_SRC_DIR/src/webcredentials_adaptor.h
 INCLUDEPATH += \
@@ -62,6 +64,7 @@ DEFINES += \
     DEBUG_ENABLED \
     UNIT_TESTS
 
+RESOURCES += $$TOP_SRC_DIR/src/animationlabel.qrc
+
 check.commands = "./signon-ui-unittest"
 QMAKE_EXTRA_TARGETS += check
-

@@ -34,6 +34,7 @@ HEADERS = \
     i18n.h \
     indicator-service.h \
     network-access-manager.h \
+    qanimationlabel.h \
     request.h \
     service.h \
     webcredentials_interface.h
@@ -48,6 +49,7 @@ SOURCES = \
     indicator-service.cpp \
     main.cpp \
     network-access-manager.cpp \
+    qanimationlabel.cpp \
     request.cpp \
     service.cpp \
     webcredentials_interface.cpp
@@ -55,6 +57,8 @@ SOURCES = \
 DEFINES += \
     DEBUG_ENABLED \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
+
+RESOURCES += animationlabel.qrc
 
 SIGNONUI_DBUS_ADAPTORS += \
     com.canonical.indicators.webcredentials.xml
