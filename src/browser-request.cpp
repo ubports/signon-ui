@@ -20,6 +20,7 @@
 
 #include "browser-request.h"
 
+#include "animation-label.h"
 #include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
@@ -133,6 +134,8 @@ private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
     void onLoadFinished(bool ok);
     void onFinished();
+    void startProgress();
+    void stopProgress();
     void onContentsChanged();
 
 private:
@@ -153,8 +156,9 @@ private:
     QWidget *m_webViewPage;
     QWidget *m_successPage;
     QWidget *m_loadFailurePage;
+    QStackedLayout *m_webViewLayout;
     WebView *m_webView;
-    QProgressBar *m_progressBar;
+    AnimationLabel *m_animationLabel;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -173,8 +177,9 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     QObject(request),
     q_ptr(request),
     m_dialog(0),
+    m_webViewLayout(0),
     m_webView(0),
-    m_progressBar(0),
+    m_animationLabel(0),
     m_settings(0),
     m_loginCount(0)
 {
@@ -276,10 +281,22 @@ void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
     cookieJar->setCookies(cookies);
 }
 
+void BrowserRequestPrivate::startProgress()
+{
+    m_animationLabel->start();
+    m_webViewLayout->setCurrentWidget(m_animationLabel);
+}
+
+void BrowserRequestPrivate::stopProgress()
+{
+    m_animationLabel->stop();
+    m_webViewLayout->setCurrentWidget(m_webView);
+}
+
 QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 {
     QWidget *dialogPage = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(dialogPage);
+    m_webViewLayout = new QStackedLayout(dialogPage);
 
     m_webView = new WebView();
     WebPage *page = new WebPage(this);
@@ -306,18 +323,15 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onUrlChanged(const QUrl&)));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
-    layout->addWidget(m_webView);
-    m_webView->setUrl(url);
+    m_webViewLayout->addWidget(m_webView);
 
-    m_progressBar = new QProgressBar();
-    m_progressBar->setRange(0, 100);
-    QObject::connect(m_webView, SIGNAL(loadProgress(int)),
-                     m_progressBar, SLOT(setValue(int)));
+    m_animationLabel = new AnimationLabel(":/spinner-26.gif", 0);
     QObject::connect(m_webView, SIGNAL(loadStarted()),
-                     m_progressBar, SLOT(show()));
+                     this, SLOT(startProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
-                     m_progressBar, SLOT(hide()));
-    layout->addWidget(m_progressBar);
+                     this, SLOT(stopProgress()));
+    m_webViewLayout->addWidget(m_animationLabel);
+    m_webView->setUrl(url);
 
     return dialogPage;
 }
@@ -398,6 +412,10 @@ void BrowserRequestPrivate::start()
 
     QObject::connect(m_dialog, SIGNAL(finished(int)),
                      this, SLOT(onFinished()));
+
+    if (q->embeddedUi()) {
+        showDialog();
+    }
 }
 
 void BrowserRequestPrivate::onFinished()

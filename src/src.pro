@@ -25,6 +25,7 @@ PKGCONFIG += \
     libsignon-qt
 
 HEADERS = \
+    animation-label.h \
     browser-request.h \
     cookie-jar-manager.h \
     debug.h \
@@ -39,6 +40,7 @@ HEADERS = \
     webcredentials_interface.h
 
 SOURCES = \
+    animation-label.cpp \
     browser-request.cpp \
     cookie-jar-manager.cpp \
     debug.cpp \
@@ -55,6 +57,8 @@ SOURCES = \
 DEFINES += \
     DEBUG_ENABLED \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
+
+RESOURCES += animationlabel.qrc
 
 SIGNONUI_DBUS_ADAPTORS += \
     com.canonical.indicators.webcredentials.xml

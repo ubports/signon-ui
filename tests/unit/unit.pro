@@ -27,6 +27,7 @@ SOURCES += \
     fake-libnotify.cpp \
     fake-webcredentials-interface.cpp \
     test.cpp \
+    $$TOP_SRC_DIR/src/animation-label.cpp \
     $$TOP_SRC_DIR/src/browser-request.cpp \
     $$TOP_SRC_DIR/src/cookie-jar-manager.cpp \
     $$TOP_SRC_DIR/src/debug.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     fake-libnotify.h \
     fake-webcredentials-interface.h \
     test.h \
+    $$TOP_SRC_DIR/src/animation-label.h \
     $$TOP_SRC_DIR/src/browser-request.h \
     $$TOP_SRC_DIR/src/debug.h \
     $$TOP_SRC_DIR/src/cookie-jar-manager.h \
@@ -62,6 +64,7 @@ DEFINES += \
     DEBUG_ENABLED \
     UNIT_TESTS
 
+RESOURCES += $$TOP_SRC_DIR/src/animationlabel.qrc
+
 check.commands = "./signon-ui-unittest"
 QMAKE_EXTRA_TARGETS += check
-
