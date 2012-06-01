@@ -154,7 +154,6 @@ private:
     QWidget *m_successPage;
     QWidget *m_loadFailurePage;
     WebView *m_webView;
-    QProgressBar *m_progressBar;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -174,7 +173,6 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     q_ptr(request),
     m_dialog(0),
     m_webView(0),
-    m_progressBar(0),
     m_settings(0),
     m_loginCount(0)
 {
@@ -308,16 +306,6 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onLoadFinished(bool)));
     layout->addWidget(m_webView);
     m_webView->setUrl(url);
-
-    m_progressBar = new QProgressBar();
-    m_progressBar->setRange(0, 100);
-    QObject::connect(m_webView, SIGNAL(loadProgress(int)),
-                     m_progressBar, SLOT(setValue(int)));
-    QObject::connect(m_webView, SIGNAL(loadStarted()),
-                     m_progressBar, SLOT(show()));
-    QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
-                     m_progressBar, SLOT(hide()));
-    layout->addWidget(m_progressBar);
 
     return dialogPage;
 }
