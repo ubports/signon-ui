@@ -25,6 +25,7 @@ PKGCONFIG += \
     libsignon-qt
 
 HEADERS = \
+    animation-label.h \
     browser-request.h \
     cookie-jar-manager.h \
     debug.h \
@@ -34,12 +35,12 @@ HEADERS = \
     i18n.h \
     indicator-service.h \
     network-access-manager.h \
-    qanimationlabel.h \
     request.h \
     service.h \
     webcredentials_interface.h
 
 SOURCES = \
+    animation-label.cpp \
     browser-request.cpp \
     cookie-jar-manager.cpp \
     debug.cpp \
@@ -49,7 +50,6 @@ SOURCES = \
     indicator-service.cpp \
     main.cpp \
     network-access-manager.cpp \
-    qanimationlabel.cpp \
     request.cpp \
     service.cpp \
     webcredentials_interface.cpp

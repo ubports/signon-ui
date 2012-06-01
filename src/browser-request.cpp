@@ -20,11 +20,11 @@
 
 #include "browser-request.h"
 
+#include "animation-label.h"
 #include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
 #include "i18n.h"
-#include "qanimationlabel.h"
 
 #include <QDBusArgument>
 #include <QLabel>
@@ -158,7 +158,7 @@ private:
     QWidget *m_loadFailurePage;
     QStackedLayout *m_webViewLayout;
     WebView *m_webView;
-    QAnimationLabel *m_animationLabel;
+    AnimationLabel *m_animationLabel;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -325,16 +325,13 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onLoadFinished(bool)));
     m_webViewLayout->addWidget(m_webView);
 
-    m_animationLabel = new QAnimationLabel(":/spinner-26.gif", 0);
+    m_animationLabel = new AnimationLabel(":/spinner-26.gif", 0);
     QObject::connect(m_webView, SIGNAL(loadStarted()),
                      this, SLOT(startProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(stopProgress()));
     m_webViewLayout->addWidget(m_animationLabel);
     m_webView->setUrl(url);
-
-    // FIXME: Force progress indicator for the initial page laod.
-    startProgress();
 
     return dialogPage;
 }

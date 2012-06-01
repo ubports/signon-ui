@@ -27,6 +27,7 @@ SOURCES += \
     fake-libnotify.cpp \
     fake-webcredentials-interface.cpp \
     test.cpp \
+    $$TOP_SRC_DIR/src/animation-label.cpp \
     $$TOP_SRC_DIR/src/browser-request.cpp \
     $$TOP_SRC_DIR/src/cookie-jar-manager.cpp \
     $$TOP_SRC_DIR/src/debug.cpp \
@@ -35,13 +36,13 @@ SOURCES += \
     $$TOP_SRC_DIR/src/i18n.cpp \
     $$TOP_SRC_DIR/src/indicator-service.cpp \
     $$TOP_SRC_DIR/src/network-access-manager.cpp \
-    $$TOP_SRC_DIR/src/qanimationlabel.cpp \
     $$TOP_SRC_DIR/src/request.cpp \
     $$TOP_SRC_DIR/src/webcredentials_adaptor.cpp
 HEADERS += \
     fake-libnotify.h \
     fake-webcredentials-interface.h \
     test.h \
+    $$TOP_SRC_DIR/src/animation-label.h \
     $$TOP_SRC_DIR/src/browser-request.h \
     $$TOP_SRC_DIR/src/debug.h \
     $$TOP_SRC_DIR/src/cookie-jar-manager.h \
@@ -49,7 +50,6 @@ HEADERS += \
     $$TOP_SRC_DIR/src/dialog.h \
     $$TOP_SRC_DIR/src/indicator-service.h \
     $$TOP_SRC_DIR/src/network-access-manager.h \
-    $$TOP_SRC_DIR/src/qanimationlabel.h \
     $$TOP_SRC_DIR/src/request.h \
     $$TOP_SRC_DIR/src/webcredentials_adaptor.h
 INCLUDEPATH += \
