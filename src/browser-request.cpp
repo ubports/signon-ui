@@ -27,6 +27,7 @@
 #include "i18n.h"
 
 #include <QDBusArgument>
+#include <QDesktopServices>
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
@@ -71,6 +72,16 @@ protected:
     {
         return m_userAgent.isEmpty() ?
             QWebPage::userAgentForUrl(url) : m_userAgent;
+    }
+
+    bool acceptNavigationRequest(QWebFrame *frame,
+                                 const QNetworkRequest &request,
+                                 NavigationType type)
+    {
+        /* open all new window requests (identified by "frame == 0") in the
+         * external browser; handle all other requests internally. */
+        return (frame == 0) ?
+            QWebPage::acceptNavigationRequest(frame, request, type) : true;
     }
 
 private:
@@ -137,6 +148,7 @@ private Q_SLOTS:
     void startProgress();
     void stopProgress();
     void onContentsChanged();
+    void onLinkClicked(const QUrl &url);
 
 private:
     void showDialog();
@@ -302,6 +314,9 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     WebPage *page = new WebPage(this);
     QObject::connect(page, SIGNAL(contentsChanged()),
                      this, SLOT(onContentsChanged()));
+    QObject::connect(page, SIGNAL(linkClicked(const QUrl&)),
+                     this, SLOT(onLinkClicked(const QUrl&)));
+    page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     m_webView->setPage(page);
 
     /* set a per-identity cookie jar on the page */
@@ -451,6 +466,11 @@ void BrowserRequestPrivate::onContentsChanged()
         m_password =
             m_passwordField.evaluateJavaScript("this.value").toString();
     }
+}
+
+void BrowserRequestPrivate::onLinkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
 }
 
 void BrowserRequestPrivate::showDialog()
