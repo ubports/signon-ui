@@ -12,3 +12,4 @@ QMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
 TOP_SRC_DIR     = $$PWD
 TOP_BUILD_DIR   = $${TOP_SRC_DIR}/$(BUILD_DIR)
 
+include( coverage.pri )
