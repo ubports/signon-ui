@@ -37,6 +37,7 @@ static const char objectPath[] = "/SignonUi";
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    app.setApplicationName("signon-ui");
     app.setQuitOnLastWindowClosed(false);
 
     /* read environment variables */
