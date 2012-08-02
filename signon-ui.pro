@@ -13,7 +13,6 @@ include(common-installs-config.pri)
 DISTNAME = $${PROJECT_NAME}-$${PROJECT_VERSION}
 EXCLUDES = \
     --exclude-vcs \
-    --exclude=.* \
     --exclude-from .bzrignore
     --exclude=$${DISTNAME}.tar.bz2
 dist.commands = "tar -cvjf $${DISTNAME}.tar.bz2 $$EXCLUDES --transform='s,^,$$DISTNAME/,' *"

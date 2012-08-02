@@ -9,13 +9,11 @@
 .*.swp
 .moc
 .obj
-Makefile*
 builddir
 core
 debian/
 moc_*
 qrc_*.cpp
-signon-ui
 signon-ui-test
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*
