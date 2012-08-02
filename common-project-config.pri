@@ -2,6 +2,7 @@
 # Common configuration for all projects.
 #-----------------------------------------------------------------------------
 
+PKGCONFIG      += x11
 CONFIG         += link_pkgconfig
 
 # we don't like warnings...
