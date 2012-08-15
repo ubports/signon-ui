@@ -25,6 +25,7 @@
 #include <QNetworkCookieJar>
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 namespace SignOnUi {
 
@@ -35,17 +36,26 @@ class CookieJar: public QNetworkCookieJar
     Q_OBJECT
 
 public:
-    CookieJar(QObject *parent = 0):
-        QNetworkCookieJar(parent) {
-    }
+    CookieJar(QString cookiePath, QObject *parent = 0);
     ~CookieJar() {}
 
     QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const;
     bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList,
                            const QUrl &url);
     void setCookies(const QList<QNetworkCookie> &cookieList) {
+        queueSave();
         setAllCookies(cookieList);
     }
+
+public Q_SLOTS:
+    void save();
+
+private:
+    void queueSave();
+
+private:
+    QString m_cookiePath;
+    QTimer m_saveTimer;
 };
 
 class CookieJarManagerPrivate;
@@ -60,6 +70,9 @@ public:
     static CookieJarManager *instance();
 
     CookieJar *cookieJarForIdentity(uint id);
+
+public Q_SLOTS:
+    void saveAll();
 
 protected:
     explicit CookieJarManager(QObject *parent = 0);
