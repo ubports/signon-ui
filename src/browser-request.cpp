@@ -29,8 +29,10 @@
 #include <QDBusArgument>
 #include <QDesktopServices>
 #include <QLabel>
+#include <QNetworkRequest>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QRegExp>
 #include <QSettings>
 #include <QStackedLayout>
 #include <QVBoxLayout>
@@ -52,6 +54,8 @@ static const QString keyZoomFactor = QString("ZoomFactor");
 static const QString keyUsernameField = QString("UsernameField");
 static const QString keyPasswordField = QString("PasswordField");
 static const QString keyLoginButton = QString("LoginButton");
+static const QString keyInternalLinksPattern = QString("InternalLinksPattern");
+static const QString keyExternalLinksPattern = QString("ExternalLinksPattern");
 
 /* Additional session-data keys we support. */
 static const QString keyCookies = QString("Cookies");
@@ -66,6 +70,16 @@ public:
 
     void setUserAgent(const QString &userAgent) { m_userAgent = userAgent; }
 
+    void setExternalLinksPattern(const QString &pattern) {
+        m_externalLinksPattern =
+            QRegExp(pattern, Qt::CaseInsensitive, QRegExp::RegExp2);
+    }
+
+    void setInternalLinksPattern(const QString &pattern) {
+        m_internalLinksPattern =
+            QRegExp(pattern, Qt::CaseInsensitive, QRegExp::RegExp2);
+    }
+
 protected:
     // reimplemented virtual methods
     QString userAgentForUrl(const QUrl &url) const
@@ -78,15 +92,48 @@ protected:
                                  const QNetworkRequest &request,
                                  NavigationType type)
     {
+        Q_UNUSED(type);
+
+        TRACE() << request.url();
         /* open all new window requests (identified by "frame == 0") in the
-         * external browser; handle all other requests internally. */
-        return (frame == 0) ?
-            QWebPage::acceptNavigationRequest(frame, request, type) : true;
+         * external browser, as well as other links according to the
+         * ExternalLinksPattern and InternalLinksPattern rules. */
+        if (frame == 0 || urlIsBlocked(request.url())) {
+            QDesktopServices::openUrl(request.url());
+            return false;
+        }
+        /* Handle all other requests internally. */
+        return true;
     }
 
 private:
+    bool urlIsBlocked(QUrl url) const;
+
+private:
     QString m_userAgent;
+    QRegExp m_externalLinksPattern;
+    QRegExp m_internalLinksPattern;
 };
+
+bool WebPage::urlIsBlocked(QUrl url) const {
+    QString urlText = url.toString(QUrl::RemoveScheme |
+                                   QUrl::RemoveUserInfo |
+                                   QUrl::RemoveFragment |
+                                   QUrl::StripTrailingSlash);
+    if (urlText.startsWith("//")) {
+        urlText = urlText.mid(2);
+    }
+
+    if (!m_internalLinksPattern.isEmpty()) {
+        return !m_internalLinksPattern.exactMatch(urlText);
+    }
+
+    if (!m_externalLinksPattern.isEmpty()) {
+        return m_externalLinksPattern.exactMatch(urlText);
+    }
+
+    return false;
+}
 
 class WebView: public QWebView
 {
@@ -148,7 +195,6 @@ private Q_SLOTS:
     void startProgress();
     void stopProgress();
     void onContentsChanged();
-    void onLinkClicked(const QUrl &url);
 
 private:
     void showDialog();
@@ -314,9 +360,6 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     WebPage *page = new WebPage(this);
     QObject::connect(page, SIGNAL(contentsChanged()),
                      this, SLOT(onContentsChanged()));
-    QObject::connect(page, SIGNAL(linkClicked(const QUrl&)),
-                     this, SLOT(onLinkClicked(const QUrl&)));
-    page->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     m_webView->setPage(page);
 
     /* set a per-identity cookie jar on the page */
@@ -468,11 +511,6 @@ void BrowserRequestPrivate::onContentsChanged()
     }
 }
 
-void BrowserRequestPrivate::onLinkClicked(const QUrl &url)
-{
-    QDesktopServices::openUrl(url);
-}
-
 void BrowserRequestPrivate::showDialog()
 {
     Q_Q(BrowserRequest);
@@ -491,6 +529,8 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     delete m_settings;
     m_settings = new QSettings("signon-ui/webkit-options.d/" + host, QString(), this);
 
+    WebPage *page = qobject_cast<WebPage *>(m_webView->page());
+
     if (m_settings->contains(keyViewportWidth) &&
         m_settings->contains(keyViewportHeight)) {
         QSize viewportSize(m_settings->value(keyViewportWidth).toInt(),
@@ -500,7 +540,7 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
 
     if (m_settings->contains(keyPreferredWidth)) {
         QSize preferredSize(m_settings->value(keyPreferredWidth).toInt(), 300);
-        m_webView->page()->setPreferredContentsSize(preferredSize);
+        page->setPreferredContentsSize(preferredSize);
     }
 
     if (m_settings->contains(keyTextSizeMultiplier)) {
@@ -509,14 +549,17 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
     }
 
     if (m_settings->contains(keyUserAgent)) {
-        WebPage *page = qobject_cast<WebPage *>(m_webView->page());
-        if (page != 0)
-            page->setUserAgent(m_settings->value(keyUserAgent).toString());
+        page->setUserAgent(m_settings->value(keyUserAgent).toString());
     }
 
     if (m_settings->contains(keyZoomFactor)) {
         m_webView->setZoomFactor(m_settings->value(keyZoomFactor).toReal());
     }
+
+    page->setExternalLinksPattern(m_settings->value(keyExternalLinksPattern).
+                                  toString());
+    page->setInternalLinksPattern(m_settings->value(keyInternalLinksPattern).
+                                  toString());
 }
 
 void BrowserRequestPrivate::notifyAuthCompleted()
