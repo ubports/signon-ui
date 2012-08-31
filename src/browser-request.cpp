@@ -59,6 +59,7 @@ static const QString keyExternalLinksPattern = QString("ExternalLinksPattern");
 
 /* Additional session-data keys we support. */
 static const QString keyCookies = QString("Cookies");
+static const QString keyAllowedSchemes = QString("AllowedSchemes");
 
 class WebPage: public QWebPage
 {
@@ -78,6 +79,10 @@ public:
     void setInternalLinksPattern(const QString &pattern) {
         m_internalLinksPattern =
             QRegExp(pattern, Qt::CaseInsensitive, QRegExp::RegExp2);
+    }
+
+    void setAllowedSchemes(const QStringList &schemes) {
+        m_allowedSchemes = schemes;
     }
 
 protected:
@@ -113,9 +118,15 @@ private:
     QString m_userAgent;
     QRegExp m_externalLinksPattern;
     QRegExp m_internalLinksPattern;
+    QStringList m_allowedSchemes;
 };
 
 bool WebPage::urlIsBlocked(QUrl url) const {
+    if (!m_allowedSchemes.contains(url.scheme())) {
+        TRACE() << "Scheme not allowed:" << url.scheme();
+        return true;
+    }
+
     QString urlText = url.toString(QUrl::RemoveScheme |
                                    QUrl::RemoveUserInfo |
                                    QUrl::RemoveFragment |
@@ -353,6 +364,8 @@ void BrowserRequestPrivate::stopProgress()
 
 QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
 {
+    Q_Q(BrowserRequest);
+
     QWidget *dialogPage = new QWidget;
     m_webViewLayout = new QStackedLayout(dialogPage);
 
@@ -374,6 +387,14 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     /* NetworkAccessManager takes ownership of the cookieJar; we don't want
      * this */
     cookieJar->setParent(cookieJarManager);
+
+    const QVariantMap &clientData = q->clientData();
+    if (clientData.contains(keyAllowedSchemes)) {
+        page->setAllowedSchemes(clientData[keyAllowedSchemes].toStringList());
+    } else {
+        /* by default, allow only https */
+        page->setAllowedSchemes(QStringList("https"));
+    }
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
     setupViewForUrl(url);
