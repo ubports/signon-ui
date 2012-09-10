@@ -85,6 +85,8 @@ public:
         m_allowedSchemes = schemes;
     }
 
+    void setFinalUrl(const QUrl &url) { m_finalUrl = url; }
+
 protected:
     // reimplemented virtual methods
     QString userAgentForUrl(const QUrl &url) const
@@ -99,17 +101,31 @@ protected:
     {
         Q_UNUSED(type);
 
-        TRACE() << request.url();
+        QUrl url = request.url();
+        TRACE() << url;
+
+        /* We generally don't need to load the final URL, so skip loading it.
+         * If this behaviour is not desired for some requests, then just avoid
+         * calling setFinalUrl() */
+        if (url.host() == m_finalUrl.host() &&
+            url.path() == m_finalUrl.path()) {
+            Q_EMIT finalUrlReached(url);
+            return false;
+        }
+
         /* open all new window requests (identified by "frame == 0") in the
          * external browser, as well as other links according to the
          * ExternalLinksPattern and InternalLinksPattern rules. */
-        if (frame == 0 || urlIsBlocked(request.url())) {
-            QDesktopServices::openUrl(request.url());
+        if (frame == 0 || urlIsBlocked(url)) {
+            QDesktopServices::openUrl(url);
             return false;
         }
         /* Handle all other requests internally. */
         return true;
     }
+
+Q_SIGNALS:
+    void finalUrlReached(const QUrl &url);
 
 private:
     bool urlIsBlocked(QUrl url) const;
@@ -119,6 +135,7 @@ private:
     QRegExp m_externalLinksPattern;
     QRegExp m_internalLinksPattern;
     QStringList m_allowedSchemes;
+    QUrl m_finalUrl;
 };
 
 bool WebPage::urlIsBlocked(QUrl url) const {
@@ -374,6 +391,14 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     QObject::connect(page, SIGNAL(contentsChanged()),
                      this, SLOT(onContentsChanged()));
     m_webView->setPage(page);
+
+    /* The following couple of lines serve to instruct the QWebPage not to load
+     * the final URL, but to block it and emit the finalUrlReached() signal
+     * instead.
+     */
+    page->setFinalUrl(finalUrl);
+    QObject::connect(page, SIGNAL(finalUrlReached(const QUrl&)),
+                     this, SLOT(onUrlChanged(const QUrl&)));
 
     /* set a per-identity cookie jar on the page */
     uint identity = 0;
