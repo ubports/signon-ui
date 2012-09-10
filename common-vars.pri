@@ -14,7 +14,7 @@ PROJECT_NAME = signon-ui
 # Project version
 # remember to update debian/* files if you changes this
 #-----------------------------------------------------------------------------
-PROJECT_VERSION = 0.7
+PROJECT_VERSION = 0.8
 
 # End of File
 
