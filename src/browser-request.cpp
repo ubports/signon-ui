@@ -285,10 +285,10 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     if (url.host() == finalUrl.host() &&
         url.path() == finalUrl.path()) {
         responseUrl = url;
-        if (q->embeddedUi()) {
+        if (q->embeddedUi() || !m_dialog->isVisible()) {
             /* Do not show the notification page. */
             m_dialog->accept();
-        } else if (m_dialog->isVisible()) {
+        } else {
             /* Replace the web page with an information screen */
             notifyAuthCompleted();
         }
