@@ -610,6 +610,12 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
 
 void BrowserRequestPrivate::notifyAuthCompleted()
 {
+    /* Ignore any webview signals from now on.
+     * This is needed because QWebView might still emit loadFinished(false)
+     * (which we would interpret as an error) on the final URL, which we don't
+     * care about anymore. */
+    QObject::disconnect(m_webView, 0, this, 0);
+
     m_dialogLayout->setCurrentWidget(m_successPage);
 }
 
