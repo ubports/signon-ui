@@ -23,6 +23,9 @@ PKGCONFIG += \
     signon-plugins-common \
     libsignon-qt
 
+LIBS += \
+    -lproxy
+
 HEADERS = \
     animation-label.h \
     browser-request.h \
@@ -48,6 +51,7 @@ SOURCES = \
     i18n.cpp \
     indicator-service.cpp \
     main.cpp \
+    my-network-proxy-factory.cpp \
     network-access-manager.cpp \
     request.cpp \
     service.cpp \
