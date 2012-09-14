@@ -21,7 +21,6 @@ QT += \
 PKGCONFIG += \
     accounts-qt \
     signon-plugins-common \
-    libnotify \
     libsignon-qt
 
 HEADERS = \
