@@ -21,10 +21,8 @@ QT += \
 PKGCONFIG += \
     accounts-qt \
     signon-plugins-common \
+    libproxy-1.0 \
     libsignon-qt
-
-LIBS += \
-    -lproxy
 
 HEADERS = \
     animation-label.h \
