@@ -56,6 +56,5 @@ ComCanonicalIndicatorsWebcredentialsInterface::ReportFailure(uint account_id,
 {
     Q_ASSERT(IndicatorService::instance() != 0);
     IndicatorService::instance()->reportFailure(account_id, notification);
-    QDBusMessage message;
-    return QDBusPendingCall::fromCompletedCall(message.createReply());
+    return QDBusPendingReply<>();
 }

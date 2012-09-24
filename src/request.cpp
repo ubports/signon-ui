@@ -268,7 +268,10 @@ bool RequestPrivate::dispatchToIndicator()
     QDBusPendingReply<> reply =
         webcredentialsIf->ReportFailure(account->id(), notification);
     if (reply.isFinished()) {
-        if (reply.isError()) {
+        if (reply.isError() &&
+            /* if this is a fake D-Bus interface, we get the
+             * "Disconnected" error. */
+            reply.error().type() != QDBusError::Disconnected) {
             BLAME() << "Error dispatching to indicator:" <<
                 reply.error().message();
             return false;
