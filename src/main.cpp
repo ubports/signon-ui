@@ -62,8 +62,8 @@ int main(int argc, char **argv)
     /* Use a libproxy-based proxy factory; this code will no longer be
      * needed when https://bugreports.qt-project.org/browse/QTBUG-26295
      * is fixed. */
-    MyNetworkProxyFactory proxyFactory;
-    QNetworkProxyFactory::setApplicationProxyFactory(&proxyFactory);
+    MyNetworkProxyFactory *proxyFactory = new MyNetworkProxyFactory();
+    QNetworkProxyFactory::setApplicationProxyFactory(proxyFactory);
 
     Service *service = new Service();
     if (daemonTimeout > 0)
