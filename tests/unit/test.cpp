@@ -22,6 +22,7 @@
 #include "fake-libnotify.h"
 #include "indicator-service.h"
 #include "test.h"
+#include "reauthenticator.h"
 #include "request.h"
 #include "fake-webcredentials-interface.h"
 
@@ -143,6 +144,72 @@ void SignOnUiTest::testRequestWithIndicator()
     delete manager;
 }
 
+static void prepareAuthData(AuthData &authData, int identity)
+{
+    QVariantMap sessionData;
+    sessionData["Int"] = identity;
+
+    authData.identity = identity;
+    authData.sessionData = sessionData;
+    authData.method = QString::fromLatin1("method%1").arg(identity);
+    authData.mechanism = QString::fromLatin1("mechanism%1").arg(identity);
+}
+
+void SignOnUiTest::testReauthenticator()
+{
+    QList<AuthData> failuresData;
+
+    for (int i = 1; i < 8; i++) {
+        AuthData authData;
+        prepareAuthData(authData, i);
+
+        failuresData.append(authData);
+    }
+
+    QVariantMap extraParameters;
+    extraParameters["Greeting"] = QString::fromLatin1("Hello!");
+
+    Reauthenticator *reauthenticator =
+        new Reauthenticator(failuresData, extraParameters);
+    QSignalSpy finished(reauthenticator, SIGNAL(finished(bool)));
+    reauthenticator->start();
+
+    QTest::qWait(200);
+
+    QCOMPARE(finished.count(), 1);
+    QList<QVariant> arguments = finished.takeFirst(); // first signal
+
+    /* The reauthentication failed because of some invalid identities
+     * created by the fake libsignon.*/
+    QCOMPARE(arguments.at(0).toBool(), false);
+
+    delete reauthenticator;
+
+    /* Now create the AuthData for the identities which are known to work */
+    failuresData.clear();
+    AuthData authData;
+    prepareAuthData(authData, 1);
+    failuresData.append(authData);
+    prepareAuthData(authData, 2);
+    failuresData.append(authData);
+    prepareAuthData(authData, 4);
+    failuresData.append(authData);
+
+    reauthenticator =
+        new Reauthenticator(failuresData, extraParameters);
+    QSignalSpy finished2(reauthenticator, SIGNAL(finished(bool)));
+    reauthenticator->start();
+
+    QTest::qWait(200);
+
+    QCOMPARE(finished2.count(), 1);
+    arguments = finished2.takeFirst(); // first signal
+
+    QCOMPARE(arguments.at(0).toBool(), true);
+
+    delete reauthenticator;
+}
+
 void SignOnUiTest::testIndicatorService()
 {
     const uint firstFailure = 413;
@@ -197,6 +264,10 @@ void SignOnUiTest::testIndicatorService()
 
     delete service;
     QVERIFY(IndicatorService::instance() == 0);
+}
+
+void SignOnUiTest::testIndicatorServiceReauthentication()
+{
 }
 
 QTEST_MAIN(SignOnUiTest);

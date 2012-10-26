@@ -12,9 +12,11 @@
 builddir
 core
 debian/
+Makefile
 moc_*
 qrc_*.cpp
 signon-ui-test
+src/signon-ui
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*
 tests/unit/signon-ui-unittest

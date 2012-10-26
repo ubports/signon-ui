@@ -22,7 +22,10 @@
 
 #include "debug.h"
 #include "i18n.h"
+#include "reauthenticator.h"
 #include "webcredentials_adaptor.h"
+
+#include <QDBusContext>
 
 using namespace SignOnUi;
 
@@ -53,7 +56,7 @@ namespace SignOnUi {
 
 static IndicatorService *m_instance = 0;
 
-class IndicatorServicePrivate: public QObject
+class IndicatorServicePrivate: public QObject, QDBusContext
 {
     Q_OBJECT
     Q_DECLARE_PUBLIC(IndicatorService)
@@ -72,15 +75,22 @@ public Q_SLOTS:
     void ClearErrorStatus();
     void RemoveFailures(const QSet<uint> &accountIds);
     void ReportFailure(uint accountId, const QVariantMap &notification);
+    bool ReauthenticateAccount(uint accountId,
+                               const QVariantMap &extraParameters);
 
 private:
     void setErrorStatus();
     void notifyPropertyChanged(const char *propertyName);
 
+private Q_SLOTS:
+    void onReauthenticatorFinished(bool success);
+
 private:
     mutable IndicatorService *q_ptr;
     WebcredentialsAdaptor *m_adaptor;
     QSet<uint> m_failures;
+    QMap<uint, QList<AuthData> > m_failureClientData;
+    QMap<uint, Reauthenticator*> m_reauthenticators;
     bool m_errorStatus;
 };
 
@@ -112,12 +122,66 @@ void IndicatorServicePrivate::RemoveFailures(const QSet<uint> &accountIds)
 void IndicatorServicePrivate::ReportFailure(uint accountId,
                                             const QVariantMap &notification)
 {
-    Q_UNUSED(notification);
-
     m_failures.insert(accountId);
+
+    /* If the original client data is provided, we remember it: it can
+     * be used to replay the authentication later.
+     */
+    if (notification.contains("ClientData")) {
+        /* If the key is not found, the QMap's [] operator inserts an empty
+         * element in the map and return a reference to it. So the following
+         * line of code returns a valid QList even if the account never failed
+         * before.
+         */
+        QList<AuthData> &failedAuthentications =
+            m_failureClientData[accountId];
+
+        AuthData authData;
+        authData.sessionData = notification["ClientData"].toMap();
+        authData.identity = quint32(notification["Identity"].toUInt());
+        authData.method = notification["Method"].toString();
+        authData.mechanism = notification["Mechanism"].toString();
+        failedAuthentications.append(authData);
+    }
+
     notifyPropertyChanged("Failures");
 
     setErrorStatus();
+}
+
+bool IndicatorServicePrivate::ReauthenticateAccount(uint accountId,
+                                   const QVariantMap &extraParameters)
+{
+    if (!m_failureClientData.contains(accountId)) {
+        /* Nothing we can do about this account */
+        TRACE() << "No reauthentication data for account" << accountId;
+        return false;
+    }
+
+    if (m_reauthenticators.contains(accountId)) {
+        /* A reauthenticator for this account is already at work. This
+         * shouldn't happen in a real world scenario. */
+        qWarning() << "Reauthenticator already active on" << accountId;
+        return false;
+    }
+
+    /* If we need to reauthenticate, we are delivering the result
+     * after iterating the event loop, so we must inform QtDBus that
+     * it shouldn't use this method's return value as a result.
+     */
+    setDelayedReply(true);
+    QList<AuthData> &failedAuthentications = m_failureClientData[accountId];
+
+    Reauthenticator *reauthenticator =
+        new Reauthenticator(failedAuthentications, extraParameters, this);
+    m_reauthenticators[accountId] = reauthenticator;
+
+    QObject::connect(reauthenticator, SIGNAL(finished(bool)),
+                     this, SLOT(onReauthenticatorFinished(bool)),
+                     Qt::QueuedConnection);
+    reauthenticator->start();
+
+    return true; // ignored, see setDelayedReply() above.
 }
 
 void IndicatorServicePrivate::setErrorStatus()
@@ -143,6 +207,39 @@ void IndicatorServicePrivate::notifyPropertyChanged(const char *propertyName)
     signal << changedProps;
     signal << QStringList();
     QDBusConnection::sessionBus().send(signal);
+}
+
+void IndicatorServicePrivate::onReauthenticatorFinished(bool success)
+{
+    Reauthenticator *reauthenticator =
+        qobject_cast<Reauthenticator*>(sender());
+
+    /* Find the account; searching a map by value is inefficient, but
+     * in this case it's extremely likely that the map contains just
+     * one element. :-) */
+    uint accountId = 0;
+    QMap<uint,Reauthenticator*>::const_iterator i;
+    for (i = m_reauthenticators.constBegin();
+         i != m_reauthenticators.constEnd();
+         i++) {
+        if (i.value() == reauthenticator) {
+            accountId = i.key();
+            break;
+        }
+    }
+    Q_ASSERT (accountId != 0);
+
+    QDBusMessage reply = message().createReply(success);
+    connection().send(reply);
+
+    if (success) {
+        m_failureClientData.remove(accountId);
+        m_failures.remove(accountId);
+        notifyPropertyChanged("Failures");
+    }
+
+    m_reauthenticators.remove(accountId);
+    reauthenticator->deleteLater();
 }
 
 IndicatorService::IndicatorService(QObject *parent):

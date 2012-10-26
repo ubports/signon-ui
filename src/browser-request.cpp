@@ -401,10 +401,7 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onUrlChanged(const QUrl&)));
 
     /* set a per-identity cookie jar on the page */
-    uint identity = 0;
-    if (params.contains(SSOUI_KEY_IDENTITY)) {
-        identity = params.value(SSOUI_KEY_IDENTITY).toUInt();
-    }
+    uint identity = q->identity();
     CookieJarManager *cookieJarManager = CookieJarManager::instance();
     CookieJar *cookieJar = cookieJarManager->cookieJarForIdentity(identity);
     addBrowserCookies(cookieJar);
