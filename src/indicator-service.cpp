@@ -91,6 +91,7 @@ private:
     QSet<uint> m_failures;
     QMap<uint, QList<AuthData> > m_failureClientData;
     QMap<uint, Reauthenticator*> m_reauthenticators;
+    QDBusMessage m_clientMessage;
     bool m_errorStatus;
 };
 
@@ -165,11 +166,14 @@ bool IndicatorServicePrivate::ReauthenticateAccount(uint accountId,
         return false;
     }
 
+    TRACE() << "Reauthenticating account" << accountId;
+
     /* If we need to reauthenticate, we are delivering the result
      * after iterating the event loop, so we must inform QtDBus that
      * it shouldn't use this method's return value as a result.
      */
     setDelayedReply(true);
+    m_clientMessage = message();
     QList<AuthData> &failedAuthentications = m_failureClientData[accountId];
 
     Reauthenticator *reauthenticator =
@@ -229,13 +233,17 @@ void IndicatorServicePrivate::onReauthenticatorFinished(bool success)
     }
     Q_ASSERT (accountId != 0);
 
-    QDBusMessage reply = message().createReply(success);
-    connection().send(reply);
+    QDBusMessage reply = m_clientMessage.createReply(success);
+    QDBusConnection::sessionBus().send(reply);
 
     if (success) {
         m_failureClientData.remove(accountId);
         m_failures.remove(accountId);
         notifyPropertyChanged("Failures");
+
+        if (m_failures.isEmpty()) {
+            ClearErrorStatus();
+        }
     }
 
     m_reauthenticators.remove(accountId);
