@@ -266,8 +266,4 @@ void SignOnUiTest::testIndicatorService()
     QVERIFY(IndicatorService::instance() == 0);
 }
 
-void SignOnUiTest::testIndicatorServiceReauthentication()
-{
-}
-
 QTEST_MAIN(SignOnUiTest);

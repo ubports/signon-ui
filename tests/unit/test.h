@@ -39,7 +39,6 @@ private Q_SLOTS:
 
     void testReauthenticator();
     void testIndicatorService();
-    void testIndicatorServiceReauthentication();
 
 private:
     QDBusConnection m_dbusConnection;
