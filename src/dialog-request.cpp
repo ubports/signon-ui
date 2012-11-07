@@ -164,7 +164,9 @@ void DialogRequestPrivate::buildDialog(const QVariantMap &params)
         m_wUsername = new QLineEdit;
         m_wUsername->setObjectName("UsernameField");
         m_wUsername->setEnabled(m_queryUsername);
+#ifndef QT_NO_ACCESSIBILITY
         m_wUsername->setAccessibleName("username");
+#endif
         m_wUsername->setText(params.value(SSOUI_KEY_USERNAME).toString());
         formLayout->addRow(_("Username:"), m_wUsername);
     }
