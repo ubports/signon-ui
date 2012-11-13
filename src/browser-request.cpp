@@ -29,6 +29,7 @@
 #include <QDBusArgument>
 #include <QDesktopServices>
 #include <QLabel>
+#include <QNetworkCookie>
 #include <QNetworkRequest>
 #include <QProgressBar>
 #include <QPushButton>

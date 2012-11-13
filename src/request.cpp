@@ -18,12 +18,15 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define HAS_XEMBED (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include "request.h"
 
 #include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
+#if HAS_XEMBED
 #include "embed-manager.h"
+#endif
 #include "errors.h"
 #include "indicator-service.h"
 #ifndef UNIT_TESTS
@@ -37,8 +40,9 @@
 #include <QApplication>
 #include <QDBusArgument>
 #include <QVBoxLayout>
-#include <QX11EmbedWidget>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QX11Info>
+#endif
 #include <SignOn/uisessiondata.h>
 #include <SignOn/uisessiondata_priv.h>
 #include <X11/Xlib.h>
@@ -69,7 +73,9 @@ public:
     }
 
 private Q_SLOTS:
+#if HAS_XEMBED
     void onEmbedError();
+#endif
     void onIndicatorCallFinished(QDBusPendingCallWatcher *watcher);
 
 private:
@@ -125,6 +131,7 @@ void RequestPrivate::setWidget(QWidget *widget)
 
     m_widget = widget;
 
+#if HAS_XEMBED
     if (embeddedUi() && windowId() != 0) {
         TRACE() << "Requesting widget embedding";
         QX11EmbedWidget *embed =
@@ -143,6 +150,7 @@ void RequestPrivate::setWidget(QWidget *widget)
         embed->show();
         return;
     }
+#endif
 
     /* If the window has no parent and the webcredentials indicator service is
      * up, dispatch the request to it. */
@@ -152,14 +160,17 @@ void RequestPrivate::setWidget(QWidget *widget)
 
     widget->setWindowModality(Qt::WindowModal);
     widget->show();
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     if (windowId() != 0) {
         TRACE() << "Setting" << widget->effectiveWinId() << "transient for" << windowId();
         XSetTransientForHint(QX11Info::display(),
                              widget->effectiveWinId(),
                              windowId());
     }
+#endif
 }
 
+#if HAS_XEMBED
 void RequestPrivate::onEmbedError()
 {
     Q_Q(Request);
@@ -170,6 +181,7 @@ void RequestPrivate::onEmbedError()
     q->fail(SIGNON_UI_ERROR_EMBEDDING_FAILED,
             QString("Embedding signon UI failed: %1").arg(embed->error()));
 }
+#endif
 
 Accounts::Account *RequestPrivate::findAccount()
 {

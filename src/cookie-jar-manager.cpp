@@ -18,6 +18,8 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define QT_DISABLE_DEPRECATED_BEFORE QT_VERSION_CHECK(4, 0, 0)
+
 #include "cookie-jar-manager.h"
 
 #include "debug.h"
@@ -29,6 +31,7 @@
 #include <QDir>
 #include <QFile>
 #include <QHash>
+#include <QNetworkCookie>
 
 using namespace SignOnUi;
 

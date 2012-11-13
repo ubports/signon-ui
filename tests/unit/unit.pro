@@ -34,7 +34,6 @@ SOURCES += \
     $$TOP_SRC_DIR/src/debug.cpp \
     $$TOP_SRC_DIR/src/dialog-request.cpp \
     $$TOP_SRC_DIR/src/dialog.cpp \
-    $$TOP_SRC_DIR/src/embed-manager.cpp \
     $$TOP_SRC_DIR/src/i18n.cpp \
     $$TOP_SRC_DIR/src/indicator-service.cpp \
     $$TOP_SRC_DIR/src/network-access-manager.cpp \
@@ -51,12 +50,17 @@ HEADERS += \
     $$TOP_SRC_DIR/src/cookie-jar-manager.h \
     $$TOP_SRC_DIR/src/dialog-request.h \
     $$TOP_SRC_DIR/src/dialog.h \
-    $$TOP_SRC_DIR/src/embed-manager.h \
     $$TOP_SRC_DIR/src/indicator-service.h \
     $$TOP_SRC_DIR/src/network-access-manager.h \
     $$TOP_SRC_DIR/src/reauthenticator.h \
     $$TOP_SRC_DIR/src/request.h \
     $$TOP_SRC_DIR/src/webcredentials_adaptor.h
+
+lessThan(QT_MAJOR_VERSION, 5) {
+    SOURCES += $$TOP_SRC_DIR/src/embed-manager.cpp
+    HEADERS += $$TOP_SRC_DIR/src/embed-manager.h
+}
+
 INCLUDEPATH += \
     . \
     $$TOP_SRC_DIR/src

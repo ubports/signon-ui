@@ -31,7 +31,6 @@ HEADERS = \
     debug.h \
     dialog-request.h \
     dialog.h \
-    embed-manager.h \
     errors.h \
     i18n.h \
     indicator-service.h \
@@ -48,7 +47,6 @@ SOURCES = \
     debug.cpp \
     dialog-request.cpp \
     dialog.cpp \
-    embed-manager.cpp \
     i18n.cpp \
     indicator-service.cpp \
     main.cpp \
@@ -58,6 +56,11 @@ SOURCES = \
     request.cpp \
     service.cpp \
     webcredentials_interface.cpp
+
+lessThan(QT_MAJOR_VERSION, 5) {
+    HEADERS += embed-manager.h
+    SOURCES += embed-manager.cpp
+}
 
 DEFINES += \
     DEBUG_ENABLED \

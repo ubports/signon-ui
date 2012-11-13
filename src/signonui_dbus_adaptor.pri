@@ -21,7 +21,7 @@ for(SIGNONUI_DBUS_INCLUDE, $$list($$unique(SIGNONUI_DBUS_INCLUDES))) {
 signonui_dbus_adaptor_header.commands = $$QMAKE_QDBUSXML2CPP -a ${QMAKE_FILE_OUT}: ${QMAKE_FILE_IN}
 signonui_dbus_adaptor_header.output_function = signonui_dbus_adaptor_header_output
 signonui_dbus_adaptor_header.name = DBUSXML2CPP ADAPTOR HEADER ${QMAKE_FILE_IN}
-signonui_dbus_adaptor_header.variable_out = DBUS_ADAPTOR_HEADERS
+signonui_dbus_adaptor_header.variable_out = SIGNONUI_DBUS_ADAPTOR_HEADERS
 signonui_dbus_adaptor_header.input = SIGNONUI_DBUS_ADAPTOR_LIST
 
 defineReplace(signonui_dbus_adaptor_header_output) {
