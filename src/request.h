@@ -45,6 +45,9 @@ public:
     static QString id(const QVariantMap &parameters);
     QString id() const;
 
+    uint identity() const;
+    QString method() const;
+    QString mechanism() const;
     WId windowId() const;
     bool embeddedUi() const;
 

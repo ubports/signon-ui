@@ -18,31 +18,45 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_TEST_H
-#define SIGNON_UI_TEST_H
+#ifndef SIGNON_UI_REAUTHENTICATOR_H
+#define SIGNON_UI_REAUTHENTICATOR_H
 
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QTest>
+#include <QList>
+#include <QObject>
+#include <QVariantMap>
 
-class SignOnUiTest: public QObject
+namespace SignOnUi {
+
+struct AuthData {
+    quint32 identity;
+    QString method;
+    QString mechanism;
+    QVariantMap sessionData;
+};
+
+class ReauthenticatorPrivate;
+class Reauthenticator: public QObject
 {
     Q_OBJECT
 
 public:
-    SignOnUiTest();
+    Reauthenticator(const QList<AuthData> &clientData,
+                    const QVariantMap &extraParameters,
+                    QObject *parent = 0);
+    ~Reauthenticator();
 
-private Q_SLOTS:
-    void initTestCase();
-    void testRequestObjects();
-    void testRequestWithIndicator();
+public Q_SLOTS:
+    void start();
 
-    void testReauthenticator();
-    void testIndicatorService();
+Q_SIGNALS:
+    void finished(bool success);
 
 private:
-    QDBusConnection m_dbusConnection;
-    QDBusMessage m_dbusMessage;
+    ReauthenticatorPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(Reauthenticator)
 };
 
-#endif // SIGNON_UI_TEST_H
+} // namespace
+
+#endif // SIGNON_UI_REAUTHENTICATOR_H
+

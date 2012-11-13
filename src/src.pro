@@ -31,10 +31,12 @@ HEADERS = \
     debug.h \
     dialog-request.h \
     dialog.h \
+    embed-manager.h \
     errors.h \
     i18n.h \
     indicator-service.h \
     network-access-manager.h \
+    reauthenticator.h \
     request.h \
     service.h \
     webcredentials_interface.h
@@ -46,11 +48,13 @@ SOURCES = \
     debug.cpp \
     dialog-request.cpp \
     dialog.cpp \
+    embed-manager.cpp \
     i18n.cpp \
     indicator-service.cpp \
     main.cpp \
     my-network-proxy-factory.cpp \
     network-access-manager.cpp \
+    reauthenticator.cpp \
     request.cpp \
     service.cpp \
     webcredentials_interface.cpp

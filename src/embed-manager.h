@@ -18,31 +18,35 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_TEST_H
-#define SIGNON_UI_TEST_H
+#ifndef SIGNON_UI_EMBED_H
+#define SIGNON_UI_EMBED_H
 
-#include <QDBusConnection>
-#include <QDBusMessage>
-#include <QTest>
+#include <QObject>
+#include <QX11EmbedWidget>
 
-class SignOnUiTest: public QObject
+namespace SignOnUi {
+
+class EmbedManagerPrivate;
+
+class EmbedManager: public QObject
 {
     Q_OBJECT
 
 public:
-    SignOnUiTest();
+    static EmbedManager *instance();
+    ~EmbedManager();
 
-private Q_SLOTS:
-    void initTestCase();
-    void testRequestObjects();
-    void testRequestWithIndicator();
+    QX11EmbedWidget *widgetFor(WId windowId);
 
-    void testReauthenticator();
-    void testIndicatorService();
+public:
+    EmbedManager(QObject *parent = 0);
 
 private:
-    QDBusConnection m_dbusConnection;
-    QDBusMessage m_dbusMessage;
+    EmbedManagerPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(EmbedManager)
 };
 
-#endif // SIGNON_UI_TEST_H
+} // namespace
+
+#endif // SIGNON_UI_EMBED_H
+
