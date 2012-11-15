@@ -205,7 +205,6 @@ class AuthenticatorTests(unittest.TestCase):
         extra_data = dbus.Dictionary({
             'ExtraKey': 'ExtraValue',
         }, signature='sv')
-        print('Account id: ', self.account_id)
         AuthenticatorTests.webcredentials.ReauthenticateAccount(self.account_id, extra_data,
                 reply_handler=reauthenticate_cb,
                 error_handler=self.failed_test)
