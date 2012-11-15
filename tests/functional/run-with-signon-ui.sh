@@ -2,7 +2,7 @@
 
 set -e
 
-qttasserver &
+export ACCOUNTS="/tmp"
 
 # start a local signon-ui
 dbus-test-runner -m 180 \

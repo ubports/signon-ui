@@ -1,7 +1,5 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS = \
+    functional \
     unit
-
-# Functional tests are disabled, because of some tdriver/ruby issues
-# SUBDIRS += functional
