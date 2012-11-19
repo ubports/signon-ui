@@ -1,5 +1,8 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 SUBDIRS = \
-    functional \
     unit
+
+CONFIG(medium-tests) {
+    SUBDIRS += functional
+}
