@@ -1,0 +1,128 @@
+signon-ui (0.12-0ubuntu1) raring; urgency=low
+
+  * Inline packaging metadata.
+
+ -- Robert Bruce Park <robert.park@canonical.com>  Tue, 20 Nov 2012 20:10:24 -0600
+
+signon-ui (0.11-0ubuntu1) quantal-proposed; urgency=low
+
+  * New upstream release.
+    - Do not instantiate invalid QDBusMessages (LP: #1040580)
+    - Do not allocate the proxy factory on the
+      stack (LP: #1053444) (LP: #1053454)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Tue, 25 Sep 2012 16:47:07 -0400
+
+signon-ui (0.10-0ubuntu1) quantal; urgency=low
+
+  * New upstream release.
+    - Fixed proxy support (LP: #1048590)
+    - Don't emit an OSD notification when accounts fail to
+      authenticate (LP: #1049140)
+  * debian/control
+    - build depend on libproxy-dev
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 19 Sep 2012 15:06:38 -0400
+
+signon-ui (0.9-0ubuntu1) quantal; urgency=low
+
+  * New upstream release.
+    - Early terminate successful requests with no UI (LP: #1049207)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 12 Sep 2012 09:36:58 -0400
+
+signon-ui (0.8-0ubuntu1) quantal; urgency=low
+
+  * New upstream release.
+    - Successfully terminate the browser request as soon as we are requested
+      to load the final URL.  This fixes spawning a bunch of instances of
+      external browser instances (LP: #1048177) (LP: #1047588)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Mon, 10 Sep 2012 09:08:27 -0400
+
+signon-ui (0.7-0ubuntu1) quantal; urgency=low
+
+  * New upstream release.
+    - protect webkit from untrusted content, only allow https (LP: #1039084)
+  * -debian/patches/unit_tests_only.patch, merged upstream
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 07 Sep 2012 09:33:56 -0400
+
+signon-ui (0.6-0ubuntu1) quantal; urgency=low
+
+  * New upstream release.
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 17 Aug 2012 16:53:56 -0400
+
+signon-ui (0.5-0ubuntu1) quantal; urgency=low
+
+  * New upstream release
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 02 Aug 2012 14:40:56 -0400
+
+signon-ui (0.4+bzr47-0quantal1) quantal; urgency=low
+
+  * New snapshot rev 47
+  * common-project-config.pri
+    - fixed FTBFS by including X11 in pkgconfg
+  * tests/test.pro
+    - Only run unit tests
+  * debian/control
+    - added build depends for libxext-dev, gdb, xvfb, dbus-test-runner
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 01 Aug 2012 17:03:13 -0400
+
+signon-ui (0.4+bzr46-0quantal1) quantal; urgency=low
+
+  * rebuild for quantal
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Mon, 16 Jul 2012 09:59:56 -0400
+
+signon-ui (0.4+bzr46-0precise2) precise; urgency=low
+
+  * no change rebuild
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 15 Jun 2012 16:53:26 -0400
+
+signon-ui (0.4+bzr46-0precise1) precise; urgency=low
+
+  * new snapshot tag 0.4+bzr46
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 01 Jun 2012 14:43:03 -0400
+
+signon-ui (0.3+bzr43-0precise1) precise; urgency=low
+
+  * new snapshot tag 0.3+bzr43
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 04 Apr 2012 15:03:37 -0400
+
+signon-ui (0.3+bzr34-0precise2) precise; urgency=low
+
+  * rebased on trunk
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 30 Mar 2012 12:01:03 -0400
+
+signon-ui (0.3+bzr34-0precise1) precise; urgency=low
+
+  * new snapshot tag 0.3+bzr40
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 29 Mar 2012 14:34:00 -0400
+
+signon-ui (0.2+bzr37-0precise1) precise; urgency=low
+
+  * New snapshot r37
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Mon, 19 Mar 2012 12:27:12 -0400
+
+signon-ui (0.2-0precise2) precise; urgency=low
+
+  * debian/control
+    - added build depends on libx11-dev
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 05 Jan 2012 12:55:17 -0500
+
+signon-ui (0.2-0precise1) precise; urgency=low
+
+  * Initial release
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 05 Jan 2012 10:32:27 -0500
