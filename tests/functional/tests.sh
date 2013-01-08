@@ -10,12 +10,4 @@ export HOME="$SRCDIR/tests/functional"
 export SSOUI_DAEMON_TIMEOUT=10
 
 "$SRCDIR/tests/functional/run-with-signon-ui.sh" \
-	./dialog.rb
-
-# Web tests
-./server.rb &
-SERVER_PID="$!"
-"$SRCDIR/tests/functional/run-with-signon-ui.sh" \
-	./webpage.rb
-kill "$SERVER_PID"
-
+	./reauthenticator.py

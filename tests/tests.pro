@@ -3,5 +3,6 @@ CONFIG += ordered
 SUBDIRS = \
     unit
 
-# Functional tests are disabled, because of some tdriver/ruby issues
-# SUBDIRS += functional
+CONFIG(medium-tests) {
+    SUBDIRS += functional
+}
