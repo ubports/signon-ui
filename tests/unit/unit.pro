@@ -75,5 +75,5 @@ DEFINES += \
 
 RESOURCES += $$TOP_SRC_DIR/src/animationlabel.qrc
 
-check.commands = "xvfb-run dbus-test-runner -t ./signon-ui-unittest"
+check.commands = "xvfb-run -a dbus-test-runner -t ./signon-ui-unittest"
 QMAKE_EXTRA_TARGETS += check
