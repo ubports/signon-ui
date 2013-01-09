@@ -1,8 +1,10 @@
-signon-ui (0.12-0ubuntu1) raring; urgency=low
+signon-ui (0.12bzr13.01.09-0ubuntu1) UNRELEASED; urgency=low
 
   * Inline packaging metadata.
+  * Fix typo in proxy detection algorithm (LP: #1095254) [mardy]
+  * Tests: add functional test for the reauthenticator [mardy]
 
- -- Robert Bruce Park <robert.park@canonical.com>  Tue, 20 Nov 2012 20:10:24 -0600
+ -- Robert Bruce Park <robert.park@canonical.com>  Wed, 09 Jan 2013 14:55:15 -0800
 
 signon-ui (0.11-0ubuntu1) quantal-proposed; urgency=low
 
