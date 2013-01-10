@@ -1,3 +1,9 @@
+signon-ui (0.13-0ubuntu1) UNRELEASED; urgency=low
+
+  * Automatic snapshot from revision 73 (bootstrap)
+
+ -- Robert Bruce Park <robert.park@canonical.com>  Thu, 10 Jan 2013 11:21:01 -0800
+
 signon-ui (0.12bzr13.01.09-0ubuntu1) raring; urgency=low
 
   * Inline packaging metadata.
