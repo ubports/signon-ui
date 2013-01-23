@@ -227,7 +227,7 @@ void SignOnUiTest::testIndicatorService()
 
     // Report the first failure
     service->reportFailure(firstFailure, QVariantMap());
-    QCOMPARE(FakeLibNotify::notificationCount(), 0);
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
     QCOMPARE(service->errorStatus(), true);
     QCOMPARE(service->failures().count(), 1);
     QVERIFY(service->failures().contains(firstFailure));
@@ -238,7 +238,7 @@ void SignOnUiTest::testIndicatorService()
     foreach (uint id, moreFailures) {
         service->reportFailure(id, QVariantMap());
     }
-    QCOMPARE(FakeLibNotify::notificationCount(), 0);
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
     QCOMPARE(service->errorStatus(), true);
     QCOMPARE(service->failures().count(), 1 + moreFailures.count());
 
@@ -248,7 +248,7 @@ void SignOnUiTest::testIndicatorService()
     service->removeFailures(removedFailures);
     QSet<uint> remainingFailures;
     remainingFailures << 412 << 1 << 144;
-    QCOMPARE(FakeLibNotify::notificationCount(), 0);
+    QCOMPARE(FakeLibNotify::notificationCount(), 1);
     QCOMPARE(service->errorStatus(), true);
     QCOMPARE(service->failures(), remainingFailures);
 
@@ -259,7 +259,7 @@ void SignOnUiTest::testIndicatorService()
 
     // Send one more failure
     service->reportFailure(3, QVariantMap());
-    QCOMPARE(FakeLibNotify::notificationCount(), 0);
+    QCOMPARE(FakeLibNotify::notificationCount(), 2);
     QCOMPARE(service->errorStatus(), true);
 
     delete service;

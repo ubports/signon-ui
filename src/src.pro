@@ -21,6 +21,7 @@ QT += \
 PKGCONFIG += \
     accounts-qt \
     signon-plugins-common \
+    libnotify \
     libproxy-1.0 \
     libsignon-qt
 

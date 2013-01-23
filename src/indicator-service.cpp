@@ -25,7 +25,11 @@
 #include "reauthenticator.h"
 #include "webcredentials_adaptor.h"
 
+#include <QByteArray>
 #include <QDBusContext>
+#undef signals
+#include <libnotify/notification.h>
+#include <libnotify/notify.h>
 
 using namespace SignOnUi;
 
@@ -79,7 +83,7 @@ public Q_SLOTS:
                                const QVariantMap &extraParameters);
 
 private:
-    void setErrorStatus();
+    void showNotification(const QVariantMap &parameters);
     void notifyPropertyChanged(const char *propertyName);
 
 private Q_SLOTS:
@@ -104,6 +108,7 @@ IndicatorServicePrivate::IndicatorServicePrivate(IndicatorService *service):
     m_errorStatus(false)
 {
     qDBusRegisterMetaType< QSet<uint> >();
+    notify_init("webcredentials-indicator");
 }
 
 void IndicatorServicePrivate::ClearErrorStatus()
@@ -147,7 +152,7 @@ void IndicatorServicePrivate::ReportFailure(uint accountId,
 
     notifyPropertyChanged("Failures");
 
-    setErrorStatus();
+    showNotification(notification);
 }
 
 bool IndicatorServicePrivate::ReauthenticateAccount(uint accountId,
@@ -188,7 +193,7 @@ bool IndicatorServicePrivate::ReauthenticateAccount(uint accountId,
     return true; // ignored, see setDelayedReply() above.
 }
 
-void IndicatorServicePrivate::setErrorStatus()
+void IndicatorServicePrivate::showNotification(const QVariantMap &parameters)
 {
     /* Don't show more than one notification, until the error status is
      * cleared */
@@ -196,6 +201,35 @@ void IndicatorServicePrivate::setErrorStatus()
 
     m_errorStatus = true;
     notifyPropertyChanged("ErrorStatus");
+
+    QString applicationName = parameters.value("DisplayName").toString();
+
+    QString summary;
+    if (applicationName.isEmpty()) {
+        summary = _("Applications can no longer access "
+                    "some of your Online Accounts");
+    } else {
+        summary = _("Applications can no longer access "
+                    "your %1 Online Account").arg(applicationName);
+    }
+
+    QString message = _("Choose <b>Online Accounts</b> from the user "
+                        "menu to reinstate access to this account.");
+
+    QByteArray summaryUtf8 = summary.toUtf8();
+    QByteArray messageUtf8 = message.toUtf8();
+    NotifyNotification *notification =
+        notify_notification_new(summaryUtf8.constData(),
+                                messageUtf8.constData(),
+                                NULL);
+
+    GError *error = NULL;
+    if (!notify_notification_show(notification, &error)) {
+        BLAME() << "Couldn't show notification:" << error->message;
+        g_clear_error(&error);
+    }
+
+    g_object_unref(notification);
 }
 
 void IndicatorServicePrivate::notifyPropertyChanged(const char *propertyName)
