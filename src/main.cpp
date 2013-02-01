@@ -51,8 +51,17 @@ int main(int argc, char **argv)
             setLoggingLevel(value);
     }
 
-    int daemonTimeout =
-        environment.value(QLatin1String("SSOUI_DAEMON_TIMEOUT")).toInt();
+    /* default daemonTimeout to 30 */
+    int daemonTimeout = 30;
+
+    /* override daemonTimeout if SSOUI_DAEMON_TIMEOUT is set */
+    if (environment.contains(QLatin1String("SSOUI_DAEMON_TIMEOUT"))) {
+        bool isOk;
+        int value = environment.value(
+            QLatin1String("SSOUI_DAEMON_TIMEOUT")).toInt(&isOk);
+        if (isOk)
+            daemonTimeout = value;
+    }
 
     QSettings::setPath(QSettings::NativeFormat, QSettings::SystemScope,
                        QLatin1String("/etc"));
