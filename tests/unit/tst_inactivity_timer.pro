@@ -32,6 +32,6 @@ DEFINES += \
     DEBUG_ENABLED \
     UNIT_TESTS
 
-check.commands = "./$$TARGET"
+check.commands = "xvfb-run -a ./$$TARGET"
 check.depends = $$TARGET
 QMAKE_EXTRA_TARGETS += check
