@@ -23,7 +23,6 @@
 #include "debug.h"
 #include "request.h"
 
-#include <QTimer>
 #include <QQueue>
 
 using namespace SignOnUi;
@@ -41,24 +40,16 @@ public:
     ServicePrivate(Service *service);
     ~ServicePrivate();
 
-    void setTimeout(int timeout);
-
     RequestQueue &queueForWindowId(WId windowId);
     void enqueue(Request *request);
     void runQueue(RequestQueue &queue);
     void cancelUiRequest(const QString &requestId);
 
-private:
-    void resetTimer();
-
 private Q_SLOTS:
     void onRequestCompleted();
-    void onTimeout();
 
 private:
     mutable Service *q_ptr;
-    QTimer m_timer;
-    int m_timeout;
     /* each window Id has a different queue */
     QMap<WId,RequestQueue> m_requests;
 };
@@ -67,39 +58,12 @@ private:
 
 ServicePrivate::ServicePrivate(Service *service):
     QObject(service),
-    q_ptr(service),
-    m_timeout(0)
+    q_ptr(service)
 {
-    m_timer.setSingleShot(true);
-    QObject::connect(&m_timer, SIGNAL(timeout()),
-                     this, SLOT(onTimeout()));
 }
 
 ServicePrivate::~ServicePrivate()
 {
-}
-
-void ServicePrivate::setTimeout(int timeout)
-{
-    m_timeout = timeout * 1000;
-    resetTimer();
-}
-
-void ServicePrivate::resetTimer()
-{
-    m_timer.stop();
-    if (m_timeout > 0) {
-        m_timer.start(m_timeout);
-    }
-}
-
-void ServicePrivate::onTimeout()
-{
-    Q_Q(Service);
-
-    if (m_requests.isEmpty()) {
-        Q_EMIT q->idleTimeout();
-    }
 }
 
 RequestQueue &ServicePrivate::queueForWindowId(WId windowId)
@@ -113,12 +77,17 @@ RequestQueue &ServicePrivate::queueForWindowId(WId windowId)
 
 void ServicePrivate::enqueue(Request *request)
 {
-    resetTimer();
+    Q_Q(Service);
+    bool wasIdle = q->isIdle();
 
     WId windowId = request->windowId();
 
     RequestQueue &queue = queueForWindowId(windowId);
     queue.enqueue(request);
+
+    if (wasIdle) {
+        Q_EMIT q->isIdleChanged();
+    }
 
     runQueue(queue);
 }
@@ -140,7 +109,7 @@ void ServicePrivate::runQueue(RequestQueue &queue)
 
 void ServicePrivate::onRequestCompleted()
 {
-    resetTimer();
+    Q_Q(Service);
 
     Request *request = qobject_cast<Request*>(sender());
     WId windowId = request->windowId();
@@ -159,6 +128,10 @@ void ServicePrivate::onRequestCompleted()
     } else {
         /* start the next request */
         runQueue(queue);
+    }
+
+    if (q->isIdle()) {
+        Q_EMIT q->isIdleChanged();
     }
 }
 
@@ -193,10 +166,10 @@ Service::~Service()
 {
 }
 
-void Service::setTimeout(int timeout)
+bool Service::isIdle() const
 {
-    Q_D(Service);
-    d->setTimeout(timeout);
+    Q_D(const Service);
+    return d->m_requests.isEmpty();
 }
 
 QVariantMap Service::queryDialog(const QVariantMap &parameters)

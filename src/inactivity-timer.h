@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2011 Canonical Ltd.
+ * Copyright (C) 2013 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,43 +18,41 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_SERVICE_H
-#define SIGNON_UI_SERVICE_H
+#ifndef SIGNON_UI_INACTIVITY_TIMER_H
+#define SIGNON_UI_INACTIVITY_TIMER_H
 
-#include <QDBusContext>
+#include <QList>
 #include <QObject>
-#include <QVariantMap>
+#include <QTimer>
 
 namespace SignOnUi {
 
-class ServicePrivate;
-
-class Service: public QObject, protected QDBusContext
+class InactivityTimer: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool isIdle READ isIdle NOTIFY isIdleChanged)
-    Q_CLASSINFO("D-Bus Interface", "com.nokia.singlesignonui")
 
 public:
-    explicit Service(QObject *parent = 0);
-    ~Service();
+    InactivityTimer(int interval, QObject *parent = 0);
+    ~InactivityTimer() {}
 
-    bool isIdle() const;
-
-public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
+    void watchObject(QObject *object);
 
 Q_SIGNALS:
-    void isIdleChanged();
+    void timeout();
+
+private Q_SLOTS:
+    void onIdleChanged();
+    void onTimeout();
 
 private:
-    ServicePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(Service)
+    bool allObjectsAreIdle() const;
+
+private:
+    QList<QObject*> m_watchedObjects;
+    QTimer m_timer;
+    int m_interval;
 };
 
 } // namespace
 
-#endif // SIGNON_UI_SERVICE_H
-
+#endif // SIGNON_UI_INACTIVITY_TIMER_H

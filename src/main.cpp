@@ -20,6 +20,7 @@
 
 #include "debug.h"
 #include "i18n.h"
+#include "inactivity-timer.h"
 #include "indicator-service.h"
 #include "my-network-proxy-factory.h"
 #include "service.h"
@@ -75,23 +76,25 @@ int main(int argc, char **argv)
     QNetworkProxyFactory::setApplicationProxyFactory(proxyFactory);
 
     Service *service = new Service();
-    if (daemonTimeout > 0)
-        service->setTimeout(daemonTimeout);
     QDBusConnection connection = QDBusConnection::sessionBus();
     connection.registerService(QLatin1String(serviceName));
     connection.registerObject(QLatin1String(objectPath),
                               service,
                               QDBusConnection::ExportAllContents);
-    /* FIXME: before quitting we should check if the IndicatorService is idle
-     * too. However, since this feature is used for unit tests only, for the
-     * time being this is fine.
-     */
-    QObject::connect(service, SIGNAL(idleTimeout()), &app, SLOT(quit()));
 
     IndicatorService *indicatorService = new IndicatorService();
     connection.registerService(QLatin1String(WEBCREDENTIALS_BUS_NAME));
     connection.registerObject(QLatin1String(WEBCREDENTIALS_OBJECT_PATH),
                               indicatorService->serviceObject());
+
+    InactivityTimer *inactivityTimer = 0;
+    if (daemonTimeout > 0) {
+        inactivityTimer = new InactivityTimer(daemonTimeout * 1000);
+        inactivityTimer->watchObject(service);
+        inactivityTimer->watchObject(indicatorService);
+        QObject::connect(inactivityTimer, SIGNAL(timeout()),
+                         &app, SLOT(quit()));
+    }
 
     int ret = app.exec();
 
@@ -102,6 +105,8 @@ int main(int argc, char **argv)
     connection.unregisterService(QLatin1String(serviceName));
     connection.unregisterObject(QLatin1String(objectPath));
     delete service;
+
+    delete inactivityTimer;
 
     return ret;
 }

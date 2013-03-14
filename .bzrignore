@@ -13,6 +13,7 @@ builddir
 core
 debian/
 Makefile
+Makefile.*
 moc_*
 qrc_*.cpp
 signon-ui-test
@@ -20,6 +21,7 @@ src/signon-ui
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*
 tests/unit/signon-ui-unittest
+tests/unit/tst_inactivity_timer
 tests/.config/Trolltech.conf
 tests/functional/.cache/
 tests/functional/.config/
