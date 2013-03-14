@@ -121,14 +121,23 @@ void IndicatorServicePrivate::ClearErrorStatus()
 
 void IndicatorServicePrivate::RemoveFailures(const QSet<uint> &accountIds)
 {
+    Q_Q(IndicatorService);
     m_failures.subtract(accountIds);
     notifyPropertyChanged("Failures");
+    if (q->isIdle()) {
+        Q_EMIT q->isIdleChanged();
+    }
 }
 
 void IndicatorServicePrivate::ReportFailure(uint accountId,
                                             const QVariantMap &notification)
 {
+    Q_Q(IndicatorService);
+    bool wasIdle = q->isIdle();
     m_failures.insert(accountId);
+    if (wasIdle) {
+        Q_EMIT q->isIdleChanged();
+    }
 
     /* If the original client data is provided, we remember it: it can
      * be used to replay the authentication later.
@@ -249,6 +258,8 @@ void IndicatorServicePrivate::notifyPropertyChanged(const char *propertyName)
 
 void IndicatorServicePrivate::onReauthenticatorFinished(bool success)
 {
+    Q_Q(IndicatorService);
+
     Reauthenticator *reauthenticator =
         qobject_cast<Reauthenticator*>(sender());
 
@@ -277,6 +288,7 @@ void IndicatorServicePrivate::onReauthenticatorFinished(bool success)
 
         if (m_failures.isEmpty()) {
             ClearErrorStatus();
+            Q_EMIT q->isIdleChanged();
         }
     }
 
@@ -340,6 +352,12 @@ bool IndicatorService::errorStatus() const
 {
     Q_D(const IndicatorService);
     return d->m_errorStatus;
+}
+
+bool IndicatorService::isIdle() const
+{
+    Q_D(const IndicatorService);
+    return d->m_failures.isEmpty();
 }
 
 #include "indicator-service.moc"

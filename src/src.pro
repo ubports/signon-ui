@@ -34,6 +34,7 @@ HEADERS = \
     dialog.h \
     errors.h \
     i18n.h \
+    inactivity-timer.h \
     indicator-service.h \
     network-access-manager.h \
     reauthenticator.h \
@@ -49,6 +50,7 @@ SOURCES = \
     dialog-request.cpp \
     dialog.cpp \
     i18n.cpp \
+    inactivity-timer.cpp \
     indicator-service.cpp \
     main.cpp \
     my-network-proxy-factory.cpp \

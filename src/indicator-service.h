@@ -36,6 +36,7 @@ class IndicatorServicePrivate;
 class IndicatorService: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isIdle READ isIdle NOTIFY isIdleChanged)
 
 public:
 
@@ -52,6 +53,10 @@ public:
 
     QSet<uint> failures() const;
     bool errorStatus() const;
+    bool isIdle() const;
+
+Q_SIGNALS:
+    void isIdleChanged();
 
 private:
     IndicatorServicePrivate *d_ptr;
