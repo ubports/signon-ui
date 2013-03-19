@@ -1,3 +1,9 @@
+signon-ui (0.14~-0ubuntu1) UNRELEASED; urgency=low
+
+  * Automatic snapshot from revision 79 (bootstrap)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Tue, 19 Mar 2013 12:18:12 -0400
+
 signon-ui (0.13bzr13.03.19-0ubuntu1) raring; urgency=low
 
   * Do not quit if some accounts are failing (LP: #1135038)
