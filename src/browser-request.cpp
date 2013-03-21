@@ -48,6 +48,8 @@ using namespace SignOnUi;
 namespace SignOnUi {
 
 static const QString keyPreferredWidth = QString("PreferredWidth");
+static const QString keyHorizontalScrollBar = QString("HorizontalScrollBar");
+static const QString keyVerticalScrollBar = QString("VerticalScrollBar");
 static const QString keyTextSizeMultiplier = QString("TextSizeMultiplier");
 static const QString keyUserAgent = QString("UserAgent");
 static const QString keyViewportWidth = QString("ViewportWidth");
@@ -59,6 +61,8 @@ static const QString keyLoginButton = QString("LoginButton");
 static const QString keyInternalLinksPattern = QString("InternalLinksPattern");
 static const QString keyExternalLinksPattern = QString("ExternalLinksPattern");
 static const QString keyAllowedUrls = QString("AllowedUrls");
+static const QString valueAlwaysOn = QString("alwaysOn");
+static const QString valueAlwaysOff = QString("alwaysOff");
 
 /* Additional session-data keys we support. */
 static const QString keyCookies = QString("Cookies");
@@ -579,6 +583,18 @@ void BrowserRequestPrivate::showDialog()
     q->setWidget(m_dialog);
 }
 
+static Qt::ScrollBarPolicy scrollPolicyFromValue(const QVariant &value)
+{
+    QString stringValue = value.toString();
+    if (stringValue == valueAlwaysOn) {
+        return Qt::ScrollBarAlwaysOn;
+    } else if (stringValue == valueAlwaysOff) {
+        return Qt::ScrollBarAlwaysOff;
+    } else {
+        return Qt::ScrollBarAsNeeded;
+    }
+}
+
 void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
 {
     QString host = url.host();
@@ -615,6 +631,18 @@ void BrowserRequestPrivate::setupViewForUrl(const QUrl &url)
 
     if (m_settings->contains(keyZoomFactor)) {
         m_webView->setZoomFactor(m_settings->value(keyZoomFactor).toReal());
+    }
+
+    if (m_settings->contains(keyHorizontalScrollBar)) {
+        Qt::ScrollBarPolicy policy =
+            scrollPolicyFromValue(m_settings->value(keyHorizontalScrollBar));
+        page->mainFrame()->setScrollBarPolicy(Qt::Horizontal, policy);
+    }
+
+    if (m_settings->contains(keyVerticalScrollBar)) {
+        Qt::ScrollBarPolicy policy =
+            scrollPolicyFromValue(m_settings->value(keyVerticalScrollBar));
+        page->mainFrame()->setScrollBarPolicy(Qt::Vertical, policy);
     }
 
     page->setExternalLinksPattern(m_settings->value(keyExternalLinksPattern).
