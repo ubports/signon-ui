@@ -1,8 +1,11 @@
-signon-ui (0.14~-0ubuntu1) UNRELEASED; urgency=low
+signon-ui (0.14-0ubuntu1) UNRELEASED; urgency=low
 
-  * Automatic snapshot from revision 79 (bootstrap)
+  * New upstream release.
+    - Fix page scrolling for some websites (LP: #1158173)
+    - Prevent a double deletion of the browser dialog (LP: #1111507)
+    - Tests: don't use any libnotify methods.
 
- -- Ken VanDine <ken.vandine@canonical.com>  Tue, 19 Mar 2013 12:18:12 -0400
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Thu, 21 Mar 2013 14:46:48 +0200
 
 signon-ui (0.13bzr13.03.19-0ubuntu1) raring; urgency=low
 
