@@ -22,6 +22,7 @@
 #include "embed-manager.h"
 
 #include <QApplication>
+#include <QPointer>
 #include <QX11Info>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -40,7 +41,7 @@ public:
 
 private:
     friend class EmbedManager;
-    QMap<WId,QX11EmbedWidget*> m_embedWidgets;
+    QMap<WId,QPointer<QX11EmbedWidget> > m_embedWidgets;
 };
 
 } // namespace
@@ -121,9 +122,10 @@ QX11EmbedWidget *EmbedManager::widgetFor(WId windowId)
 {
     Q_D(EmbedManager);
 
-    if (!d->m_embedWidgets.contains(windowId)) {
+    QX11EmbedWidget *embed = d->m_embedWidgets.value(windowId, 0);
+    if (embed == 0) {
         /* Create a new embed widget */
-        QX11EmbedWidget *embed = new QX11EmbedWidget;
+        embed = new QX11EmbedWidget;
         QObject::connect(embed, SIGNAL(containerClosed()),
                          embed, SLOT(deleteLater()));
         embed->embedInto(windowId);
@@ -131,5 +133,5 @@ QX11EmbedWidget *EmbedManager::widgetFor(WId windowId)
         d->m_embedWidgets[windowId] = embed;
     }
 
-    return d->m_embedWidgets[windowId];
+    return embed;
 }
