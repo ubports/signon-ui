@@ -116,7 +116,8 @@ void RemoteRequestPrivate::start()
     }
     env.insert("HOME", homeDir.absolutePath());
     m_process.setProcessEnvironment(env);
-    m_process.start(m_processName);
+    /* FIXME the second parameter is a temporary workaround */
+    m_process.start(m_processName, QStringList("--desktop-file-hint=/usr/share/applications/signon-ui-browser-process.desktop"));
 }
 
 void RemoteRequestPrivate::onStarted()
