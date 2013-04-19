@@ -21,7 +21,11 @@
 #define HAS_XEMBED (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include "request.h"
 
+#ifdef NO_WIDGETS
+#include "remote-request.h"
+#else
 #include "browser-request.h"
+#endif
 #include "debug.h"
 #include "dialog-request.h"
 #if HAS_XEMBED
@@ -286,7 +290,12 @@ Request *Request::newRequest(const QDBusConnection &connection,
                              QObject *parent)
 {
     if (parameters.contains(SSOUI_KEY_OPENURL)) {
+#ifdef NO_WIDGETS
+        return new RemoteRequest("browser-process",
+                                 connection, message, parameters, parent);
+#else
         return new BrowserRequest(connection, message, parameters, parent);
+#endif
     } else {
         return new DialogRequest(connection, message, parameters, parent);
     }

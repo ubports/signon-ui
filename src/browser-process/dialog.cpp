@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2012 Canonical Ltd.
+ * Copyright (C) 2011 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -17,15 +17,46 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_ERRORS_H
-#define SIGNON_UI_ERRORS_H
 
-#define SIGNON_UI_ERROR_PREFIX "com.canonical.SignonUi"
+#include "dialog.h"
 
-#define SIGNON_UI_ERROR_EMBEDDING_FAILED \
-    SIGNON_UI_ERROR_PREFIX ".EmbeddingFailed"
-#define SIGNON_UI_ERROR_INTERNAL \
-    SIGNON_UI_ERROR_PREFIX ".InternalError"
+#include "debug.h"
 
-#endif // SIGNON_UI_ERRORS_H
+#include <QEvent>
 
+using namespace SignOnUi;
+
+Dialog::Dialog(QWindow *parent):
+    QQuickView(parent)
+{
+    setResizeMode(QQuickView::SizeRootObjectToView);
+    setWindowState(Qt::WindowFullScreen);
+}
+
+Dialog::~Dialog()
+{
+}
+
+void Dialog::accept()
+{
+    done(Dialog::Accepted);
+}
+
+void Dialog::reject()
+{
+    done(Dialog::Rejected);
+}
+
+void Dialog::done(int result)
+{
+    setVisible(false);
+    Q_EMIT finished(result);
+}
+
+bool Dialog::event(QEvent *e)
+{
+    if (e->type() == QEvent::Close) {
+        reject();
+    }
+    return QQuickView::event(e);
+}
