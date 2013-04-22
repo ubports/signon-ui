@@ -156,6 +156,7 @@ bool IpcHandler::waitWelcomeMessage()
         int skip = (found >= 0) ? found : buffer.length() - welcomeMessage.length();
         if (found >= 0) {
             buffer = m_readChannel->read(skip + welcomeMessage.length());
+            m_gotWelcomeMessage = true;
             return true;
         }
         if (skip > 0) {

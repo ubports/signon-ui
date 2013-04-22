@@ -69,7 +69,6 @@ RemoteRequestPrivate::RemoteRequestPrivate(const QString &processName,
     q_ptr(request)
 {
     m_process.setReadChannel(QProcess::StandardOutput);
-    m_client.setChannels(&m_process, &m_process);
 
     QObject::connect(&m_process, SIGNAL(started()),
                      this, SLOT(onStarted()));
@@ -124,6 +123,7 @@ void RemoteRequestPrivate::onStarted()
 {
     Q_Q(RemoteRequest);
     TRACE();
+    m_client.setChannels(&m_process, &m_process);
     m_client.start(q->parameters());
 }
 
