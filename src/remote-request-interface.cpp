@@ -31,6 +31,8 @@ using namespace SignOnUi;
 
 namespace SignOnUi {
 
+static const QByteArray welcomeMessage = "SsoUi";
+
 class IpcHandler: public QObject
 {
     Q_OBJECT
@@ -56,9 +58,13 @@ private Q_SLOTS:
     void onReadyRead();
 
 private:
+    bool waitWelcomeMessage();
+
+private:
     QIODevice *m_readChannel;
     QIODevice *m_writeChannel;
     int m_expectedLength;
+    bool m_gotWelcomeMessage;
     QByteArray m_readBuffer;
 };
 
@@ -68,7 +74,8 @@ IpcHandler::IpcHandler():
     QObject(),
     m_readChannel(0),
     m_writeChannel(0),
-    m_expectedLength(0)
+    m_expectedLength(0),
+    m_gotWelcomeMessage(false)
 {
 }
 
@@ -92,6 +99,10 @@ void IpcHandler::setChannels(QIODevice *readChannel, QIODevice *writeChannel)
                          this, SLOT(onReadyRead()));
     }
     onReadyRead();
+
+    if (m_writeChannel != 0) {
+        m_writeChannel->write(welcomeMessage);
+    }
 }
 
 void IpcHandler::write(const QByteArray &data)
@@ -106,6 +117,10 @@ void IpcHandler::onReadyRead()
     while (true) {
         if (m_expectedLength == 0) {
             /* We are beginning a new read */
+
+            /* skip all noise */
+            if (!waitWelcomeMessage()) break;
+
             int length;
             int bytesRead = m_readChannel->read((char *)&length,
                                                 sizeof(length));
@@ -123,6 +138,34 @@ void IpcHandler::onReadyRead()
             m_expectedLength = 0;
         }
     }
+}
+
+bool IpcHandler::waitWelcomeMessage()
+{
+    if (m_gotWelcomeMessage) return true;
+
+    /* All Qt applications on the Nexus 4 write some just to stdout when
+     * starting. So, skip all input until a well-defined welcome message is
+     * found */
+
+    QByteArray buffer;
+    int startCheckIndex = 0;
+    do {
+        buffer = m_readChannel->peek(40);
+        int found = buffer.indexOf(welcomeMessage, startCheckIndex);
+        int skip = (found >= 0) ? found : buffer.length() - welcomeMessage.length();
+        if (found >= 0) {
+            buffer = m_readChannel->read(skip + welcomeMessage.length());
+            return true;
+        }
+        if (skip > 0) {
+            buffer = m_readChannel->read(skip);
+        } else {
+            buffer.clear();
+        }
+    } while (!buffer.isEmpty());
+
+    return false;
 }
 
 namespace SignOnUi {
