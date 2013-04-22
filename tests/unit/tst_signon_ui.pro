@@ -18,10 +18,21 @@ QT += \
     webkit
 
 PKGCONFIG += \
-    accounts-qt \
     signon-plugins-common \
-    libnotify \
-    libsignon-qt
+    libnotify
+
+lessThan(QT_MAJOR_VERSION, 5) {
+    PKGCONFIG += \
+        accounts-qt \
+        libsignon-qt
+} else {
+    QT += \
+        webkitwidgets \
+        widgets
+    PKGCONFIG += \
+        accounts-qt5 \
+        libsignon-qt5
+}
 
 SOURCES += \
     fake-libnotify.cpp \
