@@ -238,6 +238,7 @@ public:
 
 private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
+    void onLoadProgress();
     void onLoadFinished(bool ok);
     void onFailTimer();
     void onFinished();
@@ -325,6 +326,11 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     }
 
     setupViewForUrl(url);
+}
+
+void BrowserRequestPrivate::onLoadProgress()
+{
+    m_failTimer.stop();
 }
 
 void BrowserRequestPrivate::onLoadFinished(bool ok)
@@ -457,6 +463,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     setupViewForUrl(url);
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));
+    QObject::connect(m_webView, SIGNAL(loadProgress(int)),
+                     this, SLOT(onLoadProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
     m_webViewLayout->addWidget(m_webView);
