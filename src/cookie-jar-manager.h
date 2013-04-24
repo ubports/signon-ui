@@ -70,6 +70,7 @@ public:
     static CookieJarManager *instance();
 
     CookieJar *cookieJarForIdentity(uint id);
+    void removeForIdentity(uint id);
 
 public Q_SLOTS:
     void saveAll();

@@ -45,6 +45,7 @@ public Q_SLOTS:
     QVariantMap queryDialog(const QVariantMap &parameters);
     QVariantMap refreshDialog(const QVariantMap &newParameters);
     Q_NOREPLY void cancelUiRequest(const QString &requestId);
+    void removeIdentityData(quint32 id);
 
 Q_SIGNALS:
     void isIdleChanged();

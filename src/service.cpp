@@ -20,6 +20,7 @@
 
 #include "service.h"
 
+#include "cookie-jar-manager.h"
 #include "debug.h"
 #include "request.h"
 
@@ -44,6 +45,7 @@ public:
     void enqueue(Request *request);
     void runQueue(RequestQueue &queue);
     void cancelUiRequest(const QString &requestId);
+    void removeIdentityData(quint32 id);
 
 private Q_SLOTS:
     void onRequestCompleted();
@@ -156,6 +158,14 @@ void ServicePrivate::cancelUiRequest(const QString &requestId)
     }
 }
 
+void ServicePrivate::removeIdentityData(quint32 id)
+{
+    /* Remove any data associated with the given identity. */
+
+    /* The BrowserRequest class uses CookieJarManager to store the cookies */
+    CookieJarManager::instance()->removeForIdentity(id);
+}
+
 Service::Service(QObject *parent):
     QObject(parent),
     d_ptr(new ServicePrivate(this))
@@ -202,6 +212,12 @@ void Service::cancelUiRequest(const QString &requestId)
 {
     Q_D(Service);
     d->cancelUiRequest(requestId);
+}
+
+void Service::removeIdentityData(quint32 id)
+{
+    Q_D(Service);
+    d->removeIdentityData(id);
 }
 
 #include "service.moc"

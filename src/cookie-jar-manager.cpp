@@ -194,6 +194,15 @@ CookieJar *CookieJarManager::cookieJarForIdentity(uint id)
     }
 }
 
+void CookieJarManager::removeForIdentity(uint id)
+{
+    Q_D(CookieJarManager);
+
+    TRACE() << id;
+    QString fileName = QString::fromLatin1("%1.jar").arg(id);
+    d->cookieDir.remove(fileName);
+}
+
 void CookieJarManager::saveAll()
 {
     Q_D(CookieJarManager);
