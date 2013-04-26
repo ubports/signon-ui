@@ -1,9 +1,13 @@
 signon-ui (0.14-0ubuntu2) UNRELEASED; urgency=low
 
+  [ Alberto Mardegan ]
   * Fix a crash potentially happening when the XEmbed container reused the 
     same X window ID from a previous one.
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Fri, 05 Apr 2013 18:24:38 +0300
+  [ Ken VanDine ]
+  * Automatic snapshot from revision 84 (bootstrap)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Fri, 26 Apr 2013 14:26:41 -0400
 
 signon-ui (0.14-0ubuntu1) raring; urgency=low
 
