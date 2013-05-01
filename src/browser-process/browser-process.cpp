@@ -52,6 +52,13 @@ public:
     QUrl startUrl() const { return m_startUrl; }
     QUrl finalUrl() const { return m_finalUrl; }
     QUrl responseUrl() const { return m_responseUrl; }
+    WId windowId() const {
+        return m_clientData[SSOUI_KEY_WINDOWID].toUInt();
+    }
+    bool embeddedUi() const {
+        return m_clientData[SSOUI_KEY_EMBEDDED].toBool();
+    }
+
 
 public Q_SLOTS:
     void onLoadFinished(bool ok);
@@ -66,6 +73,7 @@ private:
 
 private:
     Dialog *m_dialog;
+    QVariantMap m_clientData;
     QUrl m_currentUrl;
     QUrl m_startUrl;
     QUrl m_finalUrl;
@@ -130,7 +138,9 @@ void BrowserProcessPrivate::onLoadFinished(bool ok)
 
     if (!m_dialog->isVisible()) {
         if (m_responseUrl.isEmpty()) {
-            m_dialog->show();
+            Dialog::ShowMode mode = (windowId() == 0) ? Dialog::TopLevel :
+                embeddedUi() ? Dialog::Embedded : Dialog::Transient;
+            m_dialog->show(windowId(), mode);
         } else {
             onFinished();
         }
@@ -140,6 +150,9 @@ void BrowserProcessPrivate::onLoadFinished(bool ok)
 void BrowserProcessPrivate::start(const QVariantMap &params)
 {
     TRACE() << params;
+    if (params.contains(SSOUI_KEY_CLIENT_DATA)) {
+        m_clientData = params[SSOUI_KEY_CLIENT_DATA].toMap();
+    }
     m_finalUrl = params.value(SSOUI_KEY_FINALURL).toString();
     m_startUrl = params.value(SSOUI_KEY_OPENURL).toString();
     buildDialog(params);

@@ -40,6 +40,10 @@ DEFINES += \
     DEBUG_ENABLED \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
+CONFIG(force-foreign-qwindow) {
+    DEFINES += FORCE_FOREIGN_QWINDOW
+}
+
 OTHER_FILES += \
     webview.qml \
     KeyboardRectangle.qml \

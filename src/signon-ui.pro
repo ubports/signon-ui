@@ -34,6 +34,9 @@ lessThan(QT_MAJOR_VERSION, 5) {
     PKGCONFIG += \
         accounts-qt5 \
         libsignon-qt5
+    CONFIG(force-foreign-qwindow) {
+        DEFINES += FORCE_FOREIGN_QWINDOW
+    }
 }
 
 HEADERS = \
