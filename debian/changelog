@@ -1,4 +1,4 @@
-signon-ui (0.14-0ubuntu2) UNRELEASED; urgency=low
+signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Alberto Mardegan ]
   * Fix a crash potentially happening when the XEmbed container reused the 
@@ -7,7 +7,14 @@ signon-ui (0.14-0ubuntu2) UNRELEASED; urgency=low
   [ Ken VanDine ]
   * Automatic snapshot from revision 84 (bootstrap)
 
- -- Ken VanDine <ken.vandine@canonical.com>  Fri, 26 Apr 2013 14:26:41 -0400
+  [ Alberto Mardegan ]
+  * po/Makefile is missing from released tarballs (LP: #1162296)
+  * Cannot log in to Google apps domain + Ubuntu SSO (LP: #1171853)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 90 (ubuntu-unity/next)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 01 May 2013 07:53:33 +0000
 
 signon-ui (0.14-0ubuntu1) raring; urgency=low
 
