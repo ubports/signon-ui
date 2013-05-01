@@ -37,6 +37,7 @@
 #include <QRegExp>
 #include <QSettings>
 #include <QStackedLayout>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWebElement>
 #include <QWebFrame>
@@ -237,7 +238,9 @@ public:
 
 private Q_SLOTS:
     void onUrlChanged(const QUrl &url);
+    void onLoadProgress();
     void onLoadFinished(bool ok);
+    void onFailTimer();
     void onFinished();
     void startProgress();
     void stopProgress();
@@ -277,6 +280,7 @@ private:
     QString m_username;
     QString m_password;
     int m_loginCount;
+    QTimer m_failTimer;
 };
 
 } // namespace
@@ -291,6 +295,10 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_settings(0),
     m_loginCount(0)
 {
+    m_failTimer.setSingleShot(true);
+    m_failTimer.setInterval(3000);
+    QObject::connect(&m_failTimer, SIGNAL(timeout()),
+                     this, SLOT(onFailTimer()));
 }
 
 BrowserRequestPrivate::~BrowserRequestPrivate()
@@ -303,6 +311,7 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     Q_Q(BrowserRequest);
 
     TRACE() << "Url changed:" << url;
+    m_failTimer.stop();
 
     if (url.host() == finalUrl.host() &&
         url.path() == finalUrl.path()) {
@@ -319,12 +328,17 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     setupViewForUrl(url);
 }
 
+void BrowserRequestPrivate::onLoadProgress()
+{
+    m_failTimer.stop();
+}
+
 void BrowserRequestPrivate::onLoadFinished(bool ok)
 {
     TRACE() << "Load finished" << ok;
 
     if (!ok) {
-        notifyLoadFailed();
+        m_failTimer.start();
         return;
     }
 
@@ -343,6 +357,11 @@ void BrowserRequestPrivate::onLoadFinished(bool ok)
             onFinished();
         }
     }
+}
+
+void BrowserRequestPrivate::onFailTimer()
+{
+    notifyLoadFailed();
 }
 
 void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
@@ -444,6 +463,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     setupViewForUrl(url);
     QObject::connect(m_webView, SIGNAL(urlChanged(const QUrl&)),
                      this, SLOT(onUrlChanged(const QUrl&)));
+    QObject::connect(m_webView, SIGNAL(loadProgress(int)),
+                     this, SLOT(onLoadProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
     m_webViewLayout->addWidget(m_webView);

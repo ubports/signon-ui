@@ -1,15 +1,20 @@
-signon-ui (0.14-0ubuntu2) UNRELEASED; urgency=low
+signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Alberto Mardegan ]
   * Fix a crash potentially happening when the XEmbed container reused the 
     same X window ID from a previous one.
-  * Optionally use WebKit2 in Qt5
 
   [ Ken VanDine ]
-  * debian/control
-    - Updated build depends
+  * Automatic snapshot from revision 84 (bootstrap)
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Fri, 05 Apr 2013 18:24:38 +0300
+  [ Alberto Mardegan ]
+  * po/Makefile is missing from released tarballs (LP: #1162296)
+  * Cannot log in to Google apps domain + Ubuntu SSO (LP: #1171853)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 90 (ubuntu-unity/next)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 01 May 2013 07:53:33 +0000
 
 signon-ui (0.14-0ubuntu1) raring; urgency=low
 
