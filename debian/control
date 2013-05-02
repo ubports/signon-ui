@@ -33,7 +33,7 @@ Homepage: https://launchpad.net/signon-ui
 Vcs-Bzr: https://code.launchpad.net/~online-accounts/signon-ui/trunk
 
 Package: signon-ui
-Architecture: any
+Architecture: amd64 i386 armhf
 Depends: ${misc:Depends},
          ${shlibs:Depends},
 Description: Single Sign-on UI

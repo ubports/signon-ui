@@ -4,6 +4,13 @@ signon-ui (0.14daily13.05.02ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
  -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 02 May 2013 07:36:29 +0000
 
+signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu2) UNRELEASED; urgency=low
+
+  * debian/control
+    - don't build for powerpc, qtsensors5-dev isn't available
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 02 May 2013 01:16:37 -0700
+
 signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Alberto Mardegan ]
