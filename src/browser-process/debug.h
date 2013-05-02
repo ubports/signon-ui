@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2012 Canonical Ltd.
+ * Copyright (C) 2011 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -17,15 +17,21 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_ERRORS_H
-#define SIGNON_UI_ERRORS_H
+#ifndef SIGNON_UI_DEBUG_H
+#define SIGNON_UI_DEBUG_H
 
-#define SIGNON_UI_ERROR_PREFIX "com.canonical.SignonUi"
+#include <QDebug>
 
-#define SIGNON_UI_ERROR_EMBEDDING_FAILED \
-    SIGNON_UI_ERROR_PREFIX ".EmbeddingFailed"
-#define SIGNON_UI_ERROR_INTERNAL \
-    SIGNON_UI_ERROR_PREFIX ".InternalError"
 
-#endif // SIGNON_UI_ERRORS_H
+#ifdef DEBUG_ENABLED
+    #define TRACE() \
+        qDebug() << __FILE__ << __LINE__ << __func__
+    #define BLAME() \
+        qCritical() << __FILE__ << __LINE__ << __func__
+#else
+    #define TRACE() while (0) qDebug()
+    #define BLAME() while (0) qDebug()
+#endif
+
+#endif // SIGNON_UI_DEBUG_H
 

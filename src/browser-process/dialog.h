@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2012 Canonical Ltd.
+ * Copyright (C) 2011 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -17,15 +17,47 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_ERRORS_H
-#define SIGNON_UI_ERRORS_H
 
-#define SIGNON_UI_ERROR_PREFIX "com.canonical.SignonUi"
+#ifndef SIGNON_UI_DIALOG_H
+#define SIGNON_UI_DIALOG_H
 
-#define SIGNON_UI_ERROR_EMBEDDING_FAILED \
-    SIGNON_UI_ERROR_PREFIX ".EmbeddingFailed"
-#define SIGNON_UI_ERROR_INTERNAL \
-    SIGNON_UI_ERROR_PREFIX ".InternalError"
+#include <QObject>
+#include <QQuickView>
 
-#endif // SIGNON_UI_ERRORS_H
+namespace SignOnUi {
+
+class Dialog: public QQuickView
+{
+    Q_OBJECT
+
+public:
+    enum DialogCode {
+        Rejected = 0,
+        Accepted,
+    };
+    enum ShowMode {
+        TopLevel = 0,
+        Transient,
+        Embedded,
+    };
+    explicit Dialog(QWindow *parent = 0);
+    ~Dialog();
+
+    void show(WId parent, ShowMode mode);
+
+public Q_SLOTS:
+    void accept();
+    void reject();
+    void done(int result);
+
+Q_SIGNALS:
+    void finished(int result);
+
+protected:
+    bool event(QEvent *e);
+};
+
+} // namespace
+
+#endif // SIGNON_UI_DIALOG_H
 

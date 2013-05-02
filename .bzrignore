@@ -17,6 +17,8 @@ Makefile.*
 moc_*
 qrc_*.cpp
 signon-ui-test
+src/browser-process/browser-process
+src/browser-process/signon-ui-browser-process.desktop
 src/signon-ui
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*

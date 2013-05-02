@@ -71,6 +71,7 @@ protected:
 
     void setWidget(QWidget *widget);
 
+protected Q_SLOTS:
     void fail(const QString &name, const QString &message);
     void setCanceled();
     void setResult(const QVariantMap &result);

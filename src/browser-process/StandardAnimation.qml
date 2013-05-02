@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2012 Canonical Ltd.
+ * Copyright (C) 2013 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -17,15 +17,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SIGNON_UI_ERRORS_H
-#define SIGNON_UI_ERRORS_H
 
-#define SIGNON_UI_ERROR_PREFIX "com.canonical.SignonUi"
+import QtQuick 2.0
 
-#define SIGNON_UI_ERROR_EMBEDDING_FAILED \
-    SIGNON_UI_ERROR_PREFIX ".EmbeddingFailed"
-#define SIGNON_UI_ERROR_INTERNAL \
-    SIGNON_UI_ERROR_PREFIX ".InternalError"
-
-#endif // SIGNON_UI_ERRORS_H
-
+NumberAnimation {
+    duration: 300
+    easing.type: Easing.InOutQuad
+}
