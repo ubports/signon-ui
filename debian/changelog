@@ -1,3 +1,9 @@
+signon-ui (0.14daily13.05.02ubuntu.unity.next-0ubuntu1) raring; urgency=low
+
+  * Automatic snapshot from revision 92 (ubuntu-unity/next)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 02 May 2013 07:36:29 +0000
+
 signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Alberto Mardegan ]
