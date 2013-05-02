@@ -23,11 +23,10 @@
                              defined(FORCE_FOREIGN_QWINDOW))
 #include "request.h"
 
-#ifdef NO_WIDGETS
+#ifdef USE_WEBKIT2
 #include "remote-request.h"
-#else
-#include "browser-request.h"
 #endif
+#include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
 #if HAS_XEMBED
@@ -311,12 +310,17 @@ Request *Request::newRequest(const QDBusConnection &connection,
                              QObject *parent)
 {
     if (parameters.contains(SSOUI_KEY_OPENURL)) {
-#ifdef NO_WIDGETS
-        return new RemoteRequest("browser-process",
-                                 connection, message, parameters, parent);
-#else
-        return new BrowserRequest(connection, message, parameters, parent);
+#ifdef USE_WEBKIT2
+        TRACE() << "Platform:" << QGuiApplication::platformName();
+        /* We need to use the RemoteRequest implementation in UbuntuTouch,
+         * because displaying of QtWidgets is not working there. This is a
+         * workaround which can be revisited later. */
+        if (QGuiApplication::platformName() != "xcb") {
+            return new RemoteRequest("browser-process",
+                                     connection, message, parameters, parent);
+        }
 #endif
+        return new BrowserRequest(connection, message, parameters, parent);
     } else {
         return new DialogRequest(connection, message, parameters, parent);
     }
