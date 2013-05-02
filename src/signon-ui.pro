@@ -79,8 +79,8 @@ lessThan(QT_MAJOR_VERSION, 5) {
     SOURCES += embed-manager.cpp
 }
 
-CONFIG(no-widgets) {
-    DEFINES += NO_WIDGETS
+CONFIG(use-webkit2) {
+    DEFINES += USE_WEBKIT2
     HEADERS += \
         remote-request-interface.h \
         remote-request.h
