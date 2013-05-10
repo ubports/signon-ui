@@ -30,12 +30,14 @@
 #include <QDesktopServices>
 #include <QLabel>
 #include <QNetworkCookie>
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPointer>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QRegExp>
 #include <QSettings>
+#include <QSslError>
 #include <QStackedLayout>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -68,6 +70,7 @@ static const QString valueAlwaysOff = QString("alwaysOff");
 /* Additional session-data keys we support. */
 static const QString keyCookies = QString("Cookies");
 static const QString keyAllowedSchemes = QString("AllowedSchemes");
+static const QString keyIgnoreSslErrors = QString("IgnoreSslErrors");
 
 class WebPage: public QWebPage
 {
@@ -237,6 +240,7 @@ public:
     void start();
 
 private Q_SLOTS:
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onUrlChanged(const QUrl &url);
     void onLoadProgress();
     void onLoadFinished(bool ok);
@@ -280,6 +284,7 @@ private:
     QString m_username;
     QString m_password;
     int m_loginCount;
+    bool m_ignoreSslErrors;
     QTimer m_failTimer;
 };
 
@@ -293,7 +298,8 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_webView(0),
     m_animationLabel(0),
     m_settings(0),
-    m_loginCount(0)
+    m_loginCount(0),
+    m_ignoreSslErrors(false)
 {
     m_failTimer.setSingleShot(true);
     m_failTimer.setInterval(3000);
@@ -304,6 +310,15 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
 BrowserRequestPrivate::~BrowserRequestPrivate()
 {
     delete m_dialog;
+}
+
+void BrowserRequestPrivate::onSslErrors(QNetworkReply *reply,
+                                        const QList<QSslError> &errors)
+{
+    TRACE() << errors;
+    if (m_ignoreSslErrors) {
+        reply->ignoreSslErrors();
+    }
 }
 
 void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
@@ -431,6 +446,9 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     WebPage *page = new WebPage(this);
     QObject::connect(page, SIGNAL(contentsChanged()),
                      this, SLOT(onContentsChanged()));
+    QObject::connect(page->networkAccessManager(),
+                     SIGNAL(sslErrors(QNetworkReply*,const QList<QSslError> &)),
+                     this, SLOT(onSslErrors(QNetworkReply*,const QList<QSslError> &)));
     m_webView->setPage(page);
 
     /* The following couple of lines serve to instruct the QWebPage not to load
@@ -458,6 +476,8 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
         /* by default, allow only https */
         page->setAllowedSchemes(QStringList("https"));
     }
+
+    m_ignoreSslErrors = clientData.value(keyIgnoreSslErrors, false).toBool();
 
     QUrl url(params.value(SSOUI_KEY_OPENURL).toString());
     setupViewForUrl(url);
