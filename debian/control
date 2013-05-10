@@ -5,14 +5,25 @@ Maintainer: Ubuntu Desktop Team <ubuntu-desktop@lists.ubuntu.com>
 Build-Depends: dbus-test-runner,
                debhelper (>= 9),
                gdb,
-               libaccounts-qt-dev,
+               libaccounts-qt5-dev,
+               libgl1-mesa-dev [!armel !armhf] | libgl-dev [!armel !armhf],
+               libgles2-mesa-dev [armel armhf] | libgles2-dev [armel armhf],
+               libgstreamer-plugins-base0.10-dev,
                libnotify-dev,
                libproxy-dev,
-               libqtwebkit-dev,
-               libsignon-qt-dev,
+               libqt5opengl5-dev,
+               libqt5webkit5-dev,
+               libsignon-qt5-dev,
+               libsqlite3-dev,
                libx11-dev,
                libxext-dev,
+               libxslt1-dev,
                pkg-config,
+               qt5-default,
+               qtbase5-dev,
+               qtdeclarative5-dev,
+               qtlocation5-dev,
+               qtsensors5-dev,
                signon-plugins-dev,
                xvfb,
 Standards-Version: 3.9.3
@@ -22,7 +33,7 @@ Homepage: https://launchpad.net/signon-ui
 Vcs-Bzr: https://code.launchpad.net/~online-accounts/signon-ui/trunk
 
 Package: signon-ui
-Architecture: any
+Architecture: amd64 i386 armhf
 Depends: ${misc:Depends},
          ${shlibs:Depends},
 Description: Single Sign-on UI

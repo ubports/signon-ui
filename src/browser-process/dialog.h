@@ -18,44 +18,46 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_SERVICE_H
-#define SIGNON_UI_SERVICE_H
+#ifndef SIGNON_UI_DIALOG_H
+#define SIGNON_UI_DIALOG_H
 
-#include <QDBusContext>
 #include <QObject>
-#include <QVariantMap>
+#include <QQuickView>
 
 namespace SignOnUi {
 
-class ServicePrivate;
-
-class Service: public QObject, protected QDBusContext
+class Dialog: public QQuickView
 {
     Q_OBJECT
-    Q_PROPERTY(bool isIdle READ isIdle NOTIFY isIdleChanged)
-    Q_CLASSINFO("D-Bus Interface", "com.nokia.singlesignonui")
 
 public:
-    explicit Service(QObject *parent = 0);
-    ~Service();
+    enum DialogCode {
+        Rejected = 0,
+        Accepted,
+    };
+    enum ShowMode {
+        TopLevel = 0,
+        Transient,
+        Embedded,
+    };
+    explicit Dialog(QWindow *parent = 0);
+    ~Dialog();
 
-    bool isIdle() const;
+    void show(WId parent, ShowMode mode);
 
 public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
-    void removeIdentityData(quint32 id);
+    void accept();
+    void reject();
+    void done(int result);
 
 Q_SIGNALS:
-    void isIdleChanged();
+    void finished(int result);
 
-private:
-    ServicePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(Service)
+protected:
+    bool event(QEvent *e);
 };
 
 } // namespace
 
-#endif // SIGNON_UI_SERVICE_H
+#endif // SIGNON_UI_DIALOG_H
 

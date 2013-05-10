@@ -20,9 +20,11 @@
 
 #include "service.h"
 
+#include "cookie-jar-manager.h"
 #include "debug.h"
 #include "request.h"
 
+#include <QDBusArgument>
 #include <QQueue>
 
 using namespace SignOnUi;
@@ -30,6 +32,37 @@ using namespace SignOnUi;
 namespace SignOnUi {
 
 typedef QQueue<Request*> RequestQueue;
+
+static QVariant dbusValueToVariant(const QDBusArgument &argument)
+{
+    QVariant ret;
+
+    /* Note: this function should operate recursively, but it doesn't. */
+    if (argument.currentType() == QDBusArgument::MapType) {
+        /* Assume that all maps are a{sv} */
+        ret = qdbus_cast<QVariantMap>(argument);
+    } else {
+        /* We don't know how to handle other types */
+        ret = argument.asVariant();
+    }
+    return ret;
+}
+
+static QVariantMap expandDBusArguments(const QVariantMap &dbusMap)
+{
+    QVariantMap map;
+    QMapIterator<QString, QVariant> it(dbusMap);
+    while (it.hasNext()) {
+        it.next();
+        if (qstrcmp(it.value().typeName(), "QDBusArgument") == 0) {
+            QDBusArgument dbusValue = it.value().value<QDBusArgument>();
+            map.insert(it.key(), dbusValueToVariant(dbusValue));
+        } else {
+            map.insert(it.key(), it.value());
+        }
+    }
+    return map;
+}
 
 class ServicePrivate: public QObject
 {
@@ -44,6 +77,7 @@ public:
     void enqueue(Request *request);
     void runQueue(RequestQueue &queue);
     void cancelUiRequest(const QString &requestId);
+    void removeIdentityData(quint32 id);
 
 private Q_SLOTS:
     void onRequestCompleted();
@@ -156,6 +190,14 @@ void ServicePrivate::cancelUiRequest(const QString &requestId)
     }
 }
 
+void ServicePrivate::removeIdentityData(quint32 id)
+{
+    /* Remove any data associated with the given identity. */
+
+    /* The BrowserRequest class uses CookieJarManager to store the cookies */
+    CookieJarManager::instance()->removeForIdentity(id);
+}
+
 Service::Service(QObject *parent):
     QObject(parent),
     d_ptr(new ServicePrivate(this))
@@ -176,10 +218,11 @@ QVariantMap Service::queryDialog(const QVariantMap &parameters)
 {
     Q_D(Service);
 
-    TRACE() << "Got request:" << parameters;
+    QVariantMap cleanParameters = expandDBusArguments(parameters);
+    TRACE() << "Got request:" << cleanParameters;
     Request *request = Request::newRequest(connection(),
                                            message(),
-                                           parameters,
+                                           cleanParameters,
                                            this);
     d->enqueue(request);
 
@@ -190,7 +233,8 @@ QVariantMap Service::queryDialog(const QVariantMap &parameters)
 
 QVariantMap Service::refreshDialog(const QVariantMap &newParameters)
 {
-    QString requestId = Request::id(newParameters);
+    QVariantMap cleanParameters = expandDBusArguments(newParameters);
+    QString requestId = Request::id(cleanParameters);
     // TODO find the request and update it
 
     /* The following line tells QtDBus not to generate a reply now */
@@ -202,6 +246,12 @@ void Service::cancelUiRequest(const QString &requestId)
 {
     Q_D(Service);
     d->cancelUiRequest(requestId);
+}
+
+void Service::removeIdentityData(quint32 id)
+{
+    Q_D(Service);
+    d->removeIdentityData(id);
 }
 
 #include "service.moc"

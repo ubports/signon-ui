@@ -19,8 +19,13 @@
  */
 
 #define HAS_XEMBED (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+#define HAS_FOREIGN_QWINDOW (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) || \
+                             defined(FORCE_FOREIGN_QWINDOW))
 #include "request.h"
 
+#ifdef USE_WEBKIT2
+#include "remote-request.h"
+#endif
 #include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
@@ -42,6 +47,9 @@
 #include <QVBoxLayout>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QX11Info>
+#endif
+#if HAS_FOREIGN_QWINDOW
+#include <QWindow>
 #endif
 #include <SignOn/uisessiondata.h>
 #include <SignOn/uisessiondata_priv.h>
@@ -151,6 +159,15 @@ void RequestPrivate::setWidget(QWidget *widget)
         return;
     }
 #endif
+#if HAS_FOREIGN_QWINDOW
+    if (embeddedUi() && windowId() != 0) {
+        TRACE() << "Requesting window embedding";
+        QWindow *host = QWindow::fromWinId(windowId());
+        widget->show();
+        widget->windowHandle()->setParent(host);
+        return;
+    }
+#endif
 
     /* If the window has no parent and the webcredentials indicator service is
      * up, dispatch the request to it. */
@@ -166,6 +183,13 @@ void RequestPrivate::setWidget(QWidget *widget)
         XSetTransientForHint(QX11Info::display(),
                              widget->effectiveWinId(),
                              windowId());
+    }
+#endif
+#if HAS_FOREIGN_QWINDOW
+    if (windowId() != 0) {
+        TRACE() << "Requesting window reparenting";
+        QWindow *parent = QWindow::fromWinId(windowId());
+        widget->windowHandle()->setTransientParent(parent);
     }
 #endif
 }
@@ -286,6 +310,16 @@ Request *Request::newRequest(const QDBusConnection &connection,
                              QObject *parent)
 {
     if (parameters.contains(SSOUI_KEY_OPENURL)) {
+#ifdef USE_WEBKIT2
+        TRACE() << "Platform:" << QGuiApplication::platformName();
+        /* We need to use the RemoteRequest implementation in UbuntuTouch,
+         * because displaying of QtWidgets is not working there. This is a
+         * workaround which can be revisited later. */
+        if (QGuiApplication::platformName() != "xcb") {
+            return new RemoteRequest("browser-process",
+                                     connection, message, parameters, parent);
+        }
+#endif
         return new BrowserRequest(connection, message, parameters, parent);
     } else {
         return new DialogRequest(connection, message, parameters, parent);

@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2011 Canonical Ltd.
+ * Copyright (C) 2013 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,44 +18,38 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_SERVICE_H
-#define SIGNON_UI_SERVICE_H
+#ifndef SIGNON_UI_REMOTE_REQUEST_H
+#define SIGNON_UI_REMOTE_REQUEST_H
 
-#include <QDBusContext>
+#include "request.h"
+
 #include <QObject>
-#include <QVariantMap>
 
 namespace SignOnUi {
 
-class ServicePrivate;
+class RemoteRequestPrivate;
 
-class Service: public QObject, protected QDBusContext
+class RemoteRequest: public Request
 {
     Q_OBJECT
-    Q_PROPERTY(bool isIdle READ isIdle NOTIFY isIdleChanged)
-    Q_CLASSINFO("D-Bus Interface", "com.nokia.singlesignonui")
 
 public:
-    explicit Service(QObject *parent = 0);
-    ~Service();
+    explicit RemoteRequest(const QString &processName,
+                           const QDBusConnection &connection,
+                           const QDBusMessage &message,
+                           const QVariantMap &parameters,
+                           QObject *parent = 0);
+    ~RemoteRequest();
 
-    bool isIdle() const;
-
-public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
-    void removeIdentityData(quint32 id);
-
-Q_SIGNALS:
-    void isIdleChanged();
+    // reimplemented virtual methods
+    void start();
 
 private:
-    ServicePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(Service)
+    RemoteRequestPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(RemoteRequest)
 };
 
 } // namespace
 
-#endif // SIGNON_UI_SERVICE_H
+#endif // SIGNON_UI_REMOTE_REQUEST_H
 

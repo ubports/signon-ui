@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2011 Canonical Ltd.
+ * Copyright (C) 2013 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,44 +18,33 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_SERVICE_H
-#define SIGNON_UI_SERVICE_H
+#ifndef SIGNON_UI_BROWSER_PROCESS_H
+#define SIGNON_UI_BROWSER_PROCESS_H
 
-#include <QDBusContext>
 #include <QObject>
-#include <QVariantMap>
 
 namespace SignOnUi {
 
-class ServicePrivate;
-
-class Service: public QObject, protected QDBusContext
+class BrowserProcessPrivate;
+class BrowserProcess: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool isIdle READ isIdle NOTIFY isIdleChanged)
-    Q_CLASSINFO("D-Bus Interface", "com.nokia.singlesignonui")
 
 public:
-    explicit Service(QObject *parent = 0);
-    ~Service();
+    BrowserProcess(QObject *parent = 0);
+    ~BrowserProcess();
 
-    bool isIdle() const;
-
-public Q_SLOTS:
-    QVariantMap queryDialog(const QVariantMap &parameters);
-    QVariantMap refreshDialog(const QVariantMap &newParameters);
-    Q_NOREPLY void cancelUiRequest(const QString &requestId);
-    void removeIdentityData(quint32 id);
+    void processClientRequest();
 
 Q_SIGNALS:
-    void isIdleChanged();
+    void finished();
 
 private:
-    ServicePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(Service)
+    BrowserProcessPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(BrowserProcess)
 };
 
 } // namespace
 
-#endif // SIGNON_UI_SERVICE_H
+#endif // SIGNON_UI_BROWSER_PROCESS_H
 
