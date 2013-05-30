@@ -45,6 +45,15 @@ signon-ui (0.14daily13.05.01.1ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
  -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 01 May 2013 07:53:33 +0000
 
+signon-ui (0.14-0ubuntu2) saucy; urgency=low
+
+  [ Alberto Mardegan ]
+  * Fix a crash potentially happening when the XEmbed container reused the 
+    same X window ID from a previous one. (LP: #1158969)
+  * Fixed Cannot log in to Google apps domain + Ubuntu SSO (LP: #1171853)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Wed, 29 May 2013 10:37:43 -0400
+
 signon-ui (0.14-0ubuntu1) raring; urgency=low
 
   * New upstream release.
