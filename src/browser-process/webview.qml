@@ -39,10 +39,10 @@ FocusScope {
         }
         focus: true
         experimental.userAgent: {
-            // FIXME: using iOS 5.0â€™s iPhone/iPad user-agent strings
+            // FIXME: using iOS 5.0's iPhone/iPad user-agent strings
             // (source: http://stackoverflow.com/questions/7825873/what-is-the-ios-5-0-user-agent-string),
             // this should be changed to a more neutral user-agent in the
-            // future as we donâ€™t want websites to recommend installing
+            // future as we don't want websites to recommend installing
             // their iPhone/iPad apps.
             if (browser.formFactor === formFactor.phone) {
                 return "Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3"
