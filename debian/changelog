@@ -1,3 +1,10 @@
+signon-ui (0.14daily13.05.14ubuntu.unity.next-0ubuntu2) UNRELEASED; urgency=low
+
+  * Add some more logic for the webview, based on Ubuntu.Browser for better 
+    support on phablet
+
+ -- phablet <phablet@ubuntu-phablet>  Thu, 16 May 2013 20:00:59 +0000
+
 signon-ui (0.14daily13.05.14ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
   [ Alberto Mardegan ]
