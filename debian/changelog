@@ -1,9 +1,67 @@
-signon-ui (0.14daily13.05.14ubuntu.unity.next-0ubuntu2) UNRELEASED; urgency=low
+signon-ui (0.14daily13.06.05.1-0ubuntu1) saucy; urgency=low
 
+  [ phablet ]
   * Add some more logic for the webview, based on Ubuntu.Browser for better 
     support on phablet
 
- -- phablet <phablet@ubuntu-phablet>  Thu, 16 May 2013 20:00:59 +0000
+  [ Ken VanDine ]
+  * Optionally use WebKit2 in Qt5 Add a configuration option ("qmake
+    CONFIG+=no-widgets") to disable using the QtWidgets based QWebView
+    and use QtQuick's WebView, which is based on WebKit2. Another
+    configuration option ("CONFIG+=force-foreign-qwindow") can be used
+    to enable window embedding/reparenting with Qt5, which otherwise
+    would only be enabled with Qt 5.1 or later. Note that the "no-
+    widgets" option is not activated in debian/rules; that bit should go
+    into a separate branch. The WebView implementation is mostly based
+    on Ken Vandine's "phablet-rebased" branch; the big difference here
+    is that the WebView is opened in a separate process, which is
+    spawned by signon-ui with a hacked $HOME variable which will force
+    WebKit2 to store all its data (cookies and form completions) into a
+    different location depending on the identity being authenticated.
+    The process separation is needed in order not to share the same
+    WebKit's WebProcess among the WebViews, which would defeat the trick
+    of changing $HOME.
+
+  [ Alberto Mardegan ]
+  * Use bzr-export to implement the "make dist" command This includes
+    the po/Makefile file, which was previously being excluded by
+    mistake. . (LP: #1162296)
+  * Wait 3 seconds before reporting a page load failure When logging in
+    to Google with an Ubuntu SSO account, the browser is briefly
+    redirected to a page which fails to load; however, the
+    authentication then continues successfully. In order not to stop the
+    authentication process, wait three seconds before terminating the
+    authentication with an error, and abort the timer if another URL is
+    queued. . (LP: #1171853)
+  * Cancel fail timer when a load is in progress If a page is loading,
+    don't make the request fail. . (LP: #1171853)
+  * Implement removeIdentityData signond will call this method when an
+    identity is removed or being signed out. .
+  * Optionally use WebKit2 in Qt5 Add a configuration option ("qmake
+    CONFIG+=no-widgets") to disable using the QtWidgets based QWebView
+    and use QtQuick's WebView, which is based on WebKit2. Another
+    configuration option ("CONFIG+=force-foreign-qwindow") can be used
+    to enable window embedding/reparenting with Qt5, which otherwise
+    would only be enabled with Qt 5.1 or later. Note that the "no-
+    widgets" option is not activated in debian/rules; that bit should go
+    into a separate branch. The WebView implementation is mostly based
+    on Ken Vandine's "phablet-rebased" branch; the big difference here
+    is that the WebView is opened in a separate process, which is
+    spawned by signon-ui with a hacked $HOME variable which will force
+    WebKit2 to store all its data (cookies and form completions) into a
+    different location depending on the identity being authenticated.
+    The process separation is needed in order not to share the same
+    WebKit's WebProcess among the WebViews, which would defeat the trick
+    of changing $HOME.
+  * Runtime detection of browser handler Even if the "use-webkit2"
+    option is given at build time, allow using the qtwebkit1 interface
+    on xcb. This allows us to use the same signon-ui binary for desktop
+    and phone form factors. .
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 100
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 05 Jun 2013 18:49:08 +0000
 
 signon-ui (0.14daily13.05.14ubuntu.unity.next-0ubuntu1) raring; urgency=low
 
