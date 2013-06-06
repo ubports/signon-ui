@@ -156,6 +156,8 @@ private:
 };
 
 bool WebPage::urlIsBlocked(QUrl url) const {
+    if (url == QUrl("about:blank")) return false;
+
     if (!m_allowedSchemes.contains(url.scheme())) {
         TRACE() << "Scheme not allowed:" << url.scheme();
         return true;
