@@ -730,7 +730,9 @@ QWebElement BrowserRequestPrivate::initializeField(const QString &settingsKey,
         const QVariantMap &params = q->parameters();
         if (!paramKey.isEmpty() && params.contains(paramKey)) {
             QString value = params.value(paramKey).toString();
-            element.setAttribute("value", value);
+            if (!value.isEmpty()) {
+                element.setAttribute("value", value);
+            }
         }
     } else {
         BLAME() << "Couldn't find element:" << selector;
