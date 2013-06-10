@@ -19,6 +19,8 @@ qrc_*.cpp
 signon-ui-test
 src/browser-process/browser-process
 src/browser-process/signon-ui-browser-process.desktop
+src/com.canonical.indicators.webcredentials.service
+src/com.nokia.singlesignonui.service
 src/signon-ui
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*

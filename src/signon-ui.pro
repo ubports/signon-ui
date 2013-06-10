@@ -110,6 +110,10 @@ po.commands = xgettext -o $@ -d $${I18N_DOMAIN} --keyword=_ $^
 QMAKE_EXTRA_TARGETS += \
     po
 
+QMAKE_SUBSTITUTES += \
+    com.canonical.indicators.webcredentials.service.in \
+    com.nokia.singlesignonui.service.in
+
 service.path = $${INSTALL_PREFIX}/share/dbus-1/services
 service.files = \
     com.canonical.indicators.webcredentials.service \
