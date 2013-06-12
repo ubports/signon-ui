@@ -1,9 +1,14 @@
-signon-ui (0.15-0ubuntu1) UNRELEASED; urgency=low
+signon-ui (0.15daily13.06.12-0ubuntu1) saucy; urgency=low
 
+  [ Alberto Mardegan ]
   * Don't block the "about:blank" URL.
   * Don't empty the username field when the login form is re-presented.
+  * Do not hardcode the prefix in D-Bus service files.
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Mon, 10 Jun 2013 17:17:57 +0300
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 104
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 12 Jun 2013 04:31:57 +0000
 
 signon-ui (0.14daily13.06.05.1-0ubuntu1) saucy; urgency=low
 
