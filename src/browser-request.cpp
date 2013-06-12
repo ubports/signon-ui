@@ -28,10 +28,12 @@
 
 #include <QDBusArgument>
 #include <QDesktopServices>
+#include <QIcon>
 #include <QLabel>
 #include <QNetworkCookie>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPixmap>
 #include <QPointer>
 #include <QProgressBar>
 #include <QPushButton>
@@ -39,6 +41,7 @@
 #include <QSettings>
 #include <QSslError>
 #include <QStackedLayout>
+#include <QStatusBar>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWebElement>
@@ -276,6 +279,7 @@ private:
     QStackedLayout *m_webViewLayout;
     WebView *m_webView;
     AnimationLabel *m_animationLabel;
+    QStatusBar *m_statusBar;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -299,6 +303,7 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_webViewLayout(0),
     m_webView(0),
     m_animationLabel(0),
+    m_statusBar(0),
     m_settings(0),
     m_loginCount(0),
     m_ignoreSslErrors(false)
@@ -343,6 +348,7 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     }
 
     setupViewForUrl(url);
+    m_statusBar->setVisible(url.scheme() == "http");
 }
 
 void BrowserRequestPrivate::onLoadProgress()
@@ -428,13 +434,13 @@ void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
 void BrowserRequestPrivate::startProgress()
 {
     m_animationLabel->start();
-    m_webViewLayout->setCurrentWidget(m_animationLabel);
+    m_webViewLayout->setCurrentIndex(1);
 }
 
 void BrowserRequestPrivate::stopProgress()
 {
     m_animationLabel->stop();
-    m_webViewLayout->setCurrentWidget(m_webView);
+    m_webViewLayout->setCurrentIndex(0);
 }
 
 QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
@@ -489,7 +495,21 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onLoadProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
-    m_webViewLayout->addWidget(m_webView);
+    QWidget *webViewContainer = new QWidget;
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    webViewContainer->setLayout(vLayout);
+    vLayout->addWidget(m_webView);
+
+    m_statusBar = new QStatusBar;
+    m_statusBar->showMessage(_("This site uses an insecure connection."));
+    QLabel *alertLabel = new QLabel;
+    alertLabel->setPixmap(QIcon::fromTheme("security-low").pixmap(22));
+    m_statusBar->addPermanentWidget(alertLabel);
+    m_statusBar->setSizeGripEnabled(false);
+    m_statusBar->setVisible(false);
+    vLayout->addWidget(m_statusBar);
+
+    m_webViewLayout->addWidget(webViewContainer);
 
     m_animationLabel = new AnimationLabel(":/spinner-26.gif", 0);
     QObject::connect(m_webView, SIGNAL(loadStarted()),
