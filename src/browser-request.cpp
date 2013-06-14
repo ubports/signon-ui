@@ -24,6 +24,7 @@
 #include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
+#include "http-warning.h"
 #include "i18n.h"
 
 #include <QDBusArgument>
@@ -254,6 +255,7 @@ private Q_SLOTS:
     void startProgress();
     void stopProgress();
     void onContentsChanged();
+    void onHttpWarningMoreInfoNeeded();
 
 private:
     void showDialog();
@@ -279,7 +281,7 @@ private:
     QStackedLayout *m_webViewLayout;
     WebView *m_webView;
     AnimationLabel *m_animationLabel;
-    QStatusBar *m_statusBar;
+    HttpWarning *m_httpWarning;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -303,7 +305,7 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_webViewLayout(0),
     m_webView(0),
     m_animationLabel(0),
-    m_statusBar(0),
+    m_httpWarning(0),
     m_settings(0),
     m_loginCount(0),
     m_ignoreSslErrors(false)
@@ -348,7 +350,7 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     }
 
     setupViewForUrl(url);
-    m_statusBar->setVisible(url.scheme() == "http");
+    m_httpWarning->setVisible(url.scheme() == "http");
 }
 
 void BrowserRequestPrivate::onLoadProgress()
@@ -497,17 +499,15 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onLoadFinished(bool)));
     QWidget *webViewContainer = new QWidget;
     QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->setSpacing(0);
     webViewContainer->setLayout(vLayout);
     vLayout->addWidget(m_webView);
 
-    m_statusBar = new QStatusBar;
-    m_statusBar->showMessage(_("This site uses an insecure connection."));
-    QLabel *alertLabel = new QLabel;
-    alertLabel->setPixmap(QIcon::fromTheme("security-low").pixmap(22));
-    m_statusBar->addPermanentWidget(alertLabel);
-    m_statusBar->setSizeGripEnabled(false);
-    m_statusBar->setVisible(false);
-    vLayout->addWidget(m_statusBar);
+    m_httpWarning = new HttpWarning;
+    QObject::connect(m_httpWarning, SIGNAL(moreInfoNeeded()),
+                     this, SLOT(onHttpWarningMoreInfoNeeded()));
+    m_httpWarning->setVisible(false);
+    vLayout->addWidget(m_httpWarning);
 
     m_webViewLayout->addWidget(webViewContainer);
 
@@ -637,6 +637,11 @@ void BrowserRequestPrivate::onContentsChanged()
         m_password =
             m_passwordField.evaluateJavaScript("this.value").toString();
     }
+}
+
+void BrowserRequestPrivate::onHttpWarningMoreInfoNeeded()
+{
+    m_webView->setHtml(m_httpWarning->infoText());
 }
 
 void BrowserRequestPrivate::showDialog()
