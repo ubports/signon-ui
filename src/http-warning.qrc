@@ -1,6 +1,5 @@
 <RCC>
   <qresource prefix="/" >
     <file>security-low.png</file>
-    <file>http-warning.html</file>
   </qresource>
 </RCC>

@@ -123,3 +123,8 @@ service.files = \
     com.canonical.indicators.webcredentials.service \
     com.nokia.singlesignonui.service
 INSTALLS += service
+
+# Help file for HTTP authentication warning
+!isEmpty(HTTP_WARNING_HELP) {
+    DEFINES += HTTP_WARNING_HELP=\\\"$${HTTP_WARNING_HELP}\\\"
+}

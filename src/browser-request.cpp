@@ -255,7 +255,6 @@ private Q_SLOTS:
     void startProgress();
     void stopProgress();
     void onContentsChanged();
-    void onHttpWarningMoreInfoNeeded();
 
 private:
     void showDialog();
@@ -504,8 +503,6 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
     vLayout->addWidget(m_webView);
 
     m_httpWarning = new HttpWarning;
-    QObject::connect(m_httpWarning, SIGNAL(moreInfoNeeded()),
-                     this, SLOT(onHttpWarningMoreInfoNeeded()));
     m_httpWarning->setVisible(false);
     vLayout->addWidget(m_httpWarning);
 
@@ -637,11 +634,6 @@ void BrowserRequestPrivate::onContentsChanged()
         m_password =
             m_passwordField.evaluateJavaScript("this.value").toString();
     }
-}
-
-void BrowserRequestPrivate::onHttpWarningMoreInfoNeeded()
-{
-    m_webView->setHtml(m_httpWarning->infoText());
 }
 
 void BrowserRequestPrivate::showDialog()

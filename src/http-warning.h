@@ -33,14 +33,6 @@ class HttpWarning: public QWidget
 public:
     HttpWarning(QWidget *parent = 0);
     ~HttpWarning();
-
-    QString infoText() const;
-
-Q_SIGNALS:
-    void moreInfoNeeded();
-
-private:
-    mutable QString m_infoText;
 };
 
 } // namespace

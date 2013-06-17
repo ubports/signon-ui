@@ -1,9 +1,11 @@
-signon-ui (0.15-0ubuntu1) UNRELEASED; urgency=low
+signon-ui (0.15-0ubuntu2) UNRELEASED; urgency=low
 
   * Don't block the "about:blank" URL.
   * Don't empty the username field when the login form is re-presented.
+  * Show a worning message when authenticating with plain
+    HTTP. (LP: #1180297).
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Mon, 10 Jun 2013 17:17:57 +0300
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Mon, 17 Jun 2013 04:19:42 -0700
 
 signon-ui (0.14daily13.06.05.1-0ubuntu1) saucy; urgency=low
 

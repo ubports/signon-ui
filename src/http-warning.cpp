@@ -57,10 +57,13 @@ HttpWarning::HttpWarning(QWidget *parent):
 
     label = new QLabel;
     label->setTextFormat(Qt::RichText);
-    label->setText(_("This site uses an insecure connection. "
-                     "<a href=\".\">What does this mean?</a>"));
-    QObject::connect(label, SIGNAL(linkActivated(const QString&)),
-                     this, SIGNAL(moreInfoNeeded()));
+    QString text = _("This site uses an insecure connection.");
+#ifdef HTTP_WARNING_HELP
+    text.append(QString(" <a href=\"" HTTP_WARNING_HELP "\">%1</a>").
+                arg(_("What does this mean?")));
+#endif
+    label->setText(text);
+    label->setOpenExternalLinks(true);
     labelsLayout->addWidget(label);
 
     labelsLayout->addStretch();
@@ -68,14 +71,4 @@ HttpWarning::HttpWarning(QWidget *parent):
 
 HttpWarning::~HttpWarning()
 {
-}
-
-QString HttpWarning::infoText() const
-{
-    if (!m_infoText.isEmpty()) return m_infoText;
-
-    QFile htmlFile(":http-warning.html");
-    htmlFile.open(QIODevice::ReadOnly);
-    m_infoText = htmlFile.readAll();
-    return m_infoText;
 }
