@@ -1,11 +1,21 @@
-signon-ui (0.15-0ubuntu2) UNRELEASED; urgency=low
+signon-ui (0.15daily13.06.12-0ubuntu2) UNRELEASED; urgency=low
 
-  * Don't block the "about:blank" URL.
-  * Don't empty the username field when the login form is re-presented.
-  * Show a worning message when authenticating with plain
+  * Show a warning message when authenticating with plain
     HTTP. (LP: #1180297).
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Mon, 17 Jun 2013 04:19:42 -0700
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Tue, 18 Jun 2013 00:06:32 -0700
+
+signon-ui (0.15daily13.06.12-0ubuntu1) saucy; urgency=low
+
+  [ Alberto Mardegan ]
+  * Don't block the "about:blank" URL.
+  * Don't empty the username field when the login form is re-presented.
+  * Do not hardcode the prefix in D-Bus service files.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 104
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 12 Jun 2013 04:31:57 +0000
 
 signon-ui (0.14daily13.06.05.1-0ubuntu1) saucy; urgency=low
 
