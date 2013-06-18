@@ -24,14 +24,17 @@
 #include "cookie-jar-manager.h"
 #include "debug.h"
 #include "dialog.h"
+#include "http-warning.h"
 #include "i18n.h"
 
 #include <QDBusArgument>
 #include <QDesktopServices>
+#include <QIcon>
 #include <QLabel>
 #include <QNetworkCookie>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPixmap>
 #include <QPointer>
 #include <QProgressBar>
 #include <QPushButton>
@@ -39,6 +42,7 @@
 #include <QSettings>
 #include <QSslError>
 #include <QStackedLayout>
+#include <QStatusBar>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWebElement>
@@ -276,6 +280,7 @@ private:
     QStackedLayout *m_webViewLayout;
     WebView *m_webView;
     AnimationLabel *m_animationLabel;
+    HttpWarning *m_httpWarning;
     QUrl finalUrl;
     QUrl responseUrl;
     QString m_host;
@@ -299,6 +304,7 @@ BrowserRequestPrivate::BrowserRequestPrivate(BrowserRequest *request):
     m_webViewLayout(0),
     m_webView(0),
     m_animationLabel(0),
+    m_httpWarning(0),
     m_settings(0),
     m_loginCount(0),
     m_ignoreSslErrors(false)
@@ -343,6 +349,7 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     }
 
     setupViewForUrl(url);
+    m_httpWarning->setVisible(url.scheme() == "http");
 }
 
 void BrowserRequestPrivate::onLoadProgress()
@@ -428,13 +435,13 @@ void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
 void BrowserRequestPrivate::startProgress()
 {
     m_animationLabel->start();
-    m_webViewLayout->setCurrentWidget(m_animationLabel);
+    m_webViewLayout->setCurrentIndex(1);
 }
 
 void BrowserRequestPrivate::stopProgress()
 {
     m_animationLabel->stop();
-    m_webViewLayout->setCurrentWidget(m_webView);
+    m_webViewLayout->setCurrentIndex(0);
 }
 
 QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
@@ -489,7 +496,17 @@ QWidget *BrowserRequestPrivate::buildWebViewPage(const QVariantMap &params)
                      this, SLOT(onLoadProgress()));
     QObject::connect(m_webView, SIGNAL(loadFinished(bool)),
                      this, SLOT(onLoadFinished(bool)));
-    m_webViewLayout->addWidget(m_webView);
+    QWidget *webViewContainer = new QWidget;
+    QVBoxLayout *vLayout = new QVBoxLayout;
+    vLayout->setSpacing(0);
+    webViewContainer->setLayout(vLayout);
+    vLayout->addWidget(m_webView);
+
+    m_httpWarning = new HttpWarning;
+    m_httpWarning->setVisible(false);
+    vLayout->addWidget(m_httpWarning);
+
+    m_webViewLayout->addWidget(webViewContainer);
 
     m_animationLabel = new AnimationLabel(":/spinner-26.gif", 0);
     QObject::connect(m_webView, SIGNAL(loadStarted()),

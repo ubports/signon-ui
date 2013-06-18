@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/" >
+    <file>security-low.png</file>
+  </qresource>
+</RCC>

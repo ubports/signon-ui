@@ -1,3 +1,10 @@
+signon-ui (0.15daily13.06.12-0ubuntu2) UNRELEASED; urgency=low
+
+  * Show a warning message when authenticating with plain
+    HTTP. (LP: #1180297).
+
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Tue, 18 Jun 2013 00:06:32 -0700
+
 signon-ui (0.15daily13.06.12-0ubuntu1) saucy; urgency=low
 
   [ Alberto Mardegan ]

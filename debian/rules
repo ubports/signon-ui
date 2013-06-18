@@ -7,7 +7,8 @@ export DPKG_GENSYMBOLS_CHECK_LEVEL=4
 
 override_dh_auto_configure:
 	dh_auto_configure -- "CONFIG+=force-foreign-qwindow" \
-		"CONFIG+=use-webkit2"
+		"CONFIG+=use-webkit2" \
+		"HTTP_WARNING_HELP=help:web-credentials/http-warning"
 
 override_dh_install:
 	rm -f debian/*/usr/bin/signon-ui-unittest

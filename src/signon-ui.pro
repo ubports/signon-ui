@@ -47,6 +47,7 @@ HEADERS = \
     dialog-request.h \
     dialog.h \
     errors.h \
+    http-warning.h \
     i18n.h \
     inactivity-timer.h \
     indicator-service.h \
@@ -63,6 +64,7 @@ SOURCES = \
     debug.cpp \
     dialog-request.cpp \
     dialog.cpp \
+    http-warning.cpp \
     i18n.cpp \
     inactivity-timer.cpp \
     indicator-service.cpp \
@@ -94,7 +96,9 @@ DEFINES += \
     REMOTE_PROCESS_PATH=\\\"$${INSTALL_PREFIX}/libexec/signon-ui\\\" \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
-RESOURCES += animationlabel.qrc
+RESOURCES += \
+    animationlabel.qrc \
+    http-warning.qrc
 
 SIGNONUI_DBUS_ADAPTORS += \
     com.canonical.indicators.webcredentials.xml
@@ -119,3 +123,8 @@ service.files = \
     com.canonical.indicators.webcredentials.service \
     com.nokia.singlesignonui.service
 INSTALLS += service
+
+# Help file for HTTP authentication warning
+!isEmpty(HTTP_WARNING_HELP) {
+    DEFINES += HTTP_WARNING_HELP=\\\"$${HTTP_WARNING_HELP}\\\"
+}
