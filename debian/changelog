@@ -1,3 +1,16 @@
+signon-ui (0.15+13.10.20131003.1-0ubuntu1) saucy; urgency=low
+
+  [ Alberto Mardegan ]
+  * Add missing import line The lack of this line was causing the
+    "units.gu()" function to be undefined, and therefore the form factor
+    was undefined as well, and consequently also the user-agent. . (LP:
+    #1217792)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 108
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 03 Oct 2013 16:36:31 +0000
+
 signon-ui (0.15daily13.06.25-0ubuntu1) saucy; urgency=low
 
   [ Alberto Mardegan ]
