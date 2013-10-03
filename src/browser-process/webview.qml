@@ -17,6 +17,7 @@ MainView {
             ToolbarButton {
                 action: Action {
                     text: i18n.tr("Cancel")
+                    iconSource: "cancel.png"
                     onTriggered: request.cancel()
                 }
             }
