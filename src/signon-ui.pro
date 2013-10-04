@@ -93,7 +93,7 @@ CONFIG(use-webkit2) {
 
 DEFINES += \
     DEBUG_ENABLED \
-    REMOTE_PROCESS_PATH=\\\"$${INSTALL_PREFIX}/libexec/signon-ui\\\" \
+    REMOTE_PROCESS_PATH=\\\"$${LIBEXECDIR}/signon-ui\\\" \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
 RESOURCES += \
