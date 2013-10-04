@@ -13,15 +13,6 @@ MainView {
     height: units.gu(90)
 
     Page {
-        tools: ToolbarItems {
-            ToolbarButton {
-                action: Action {
-                    text: i18n.tr("Cancel")
-                    iconSource: "cancel.png"
-                    onTriggered: request.cancel()
-                }
-            }
-        }
 
         FocusScope {
             id: browser

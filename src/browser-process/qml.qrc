@@ -5,6 +5,5 @@
         <file>StandardAnimation.qml</file>
         <file>UserAgent.qml</file>
         <file>ua-overrides.js</file>
-        <file>cancel@30.png</file>
     </qresource>
 </RCC>
