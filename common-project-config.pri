@@ -30,3 +30,11 @@ isEmpty(PREFIX) {
     message("====")
     message("==== install prefix set to `$${INSTALL_PREFIX}'")
 }
+
+isEmpty(LIBDIR) {
+    LIBDIR = "$${INSTALL_PREFIX}/lib"
+}
+
+isEmpty(LIBEXECDIR) {
+    LIBEXECDIR = "$${INSTALL_PREFIX}/libexec"
+}
