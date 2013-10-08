@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <QDir>
 #include <QFile>
+#include <QTimer>
 
 using namespace SignOnUi;
 
@@ -63,11 +64,13 @@ public:
 
 
 public Q_SLOTS:
+    void onLoadStarted();
     void onLoadFinished(bool ok);
+    void cancel();
 
 private Q_SLOTS:
     void start(const QVariantMap &params);
-    void cancel();
+    void onFailTimer();
     void onFinished();
 
 private:
@@ -84,6 +87,7 @@ private:
     QFile m_input;
     QFile m_output;
     RemoteRequestServer m_server;
+    QTimer m_failTimer;
     mutable BrowserProcess *q_ptr;
 };
 
@@ -94,6 +98,10 @@ BrowserProcessPrivate::BrowserProcessPrivate(BrowserProcess *process):
     m_dialog(0),
     q_ptr(process)
 {
+    m_failTimer.setSingleShot(true);
+    m_failTimer.setInterval(3000);
+    QObject::connect(&m_failTimer, SIGNAL(timeout()),
+                     this, SLOT(onFailTimer()));
 }
 
 BrowserProcessPrivate::~BrowserProcessPrivate()
@@ -119,6 +127,7 @@ void BrowserProcessPrivate::processClientRequest()
 void BrowserProcessPrivate::setCurrentUrl(const QUrl &url)
 {
     TRACE() << "Url changed:" << url;
+    m_failTimer.stop();
 
     if (url.host() == m_finalUrl.host() &&
         url.path() == m_finalUrl.path()) {
@@ -134,9 +143,19 @@ void BrowserProcessPrivate::setCurrentUrl(const QUrl &url)
     }
 }
 
+void BrowserProcessPrivate::onLoadStarted()
+{
+    m_failTimer.stop();
+}
+
 void BrowserProcessPrivate::onLoadFinished(bool ok)
 {
     TRACE() << "Load finished" << ok;
+
+    if (!ok) {
+        m_failTimer.start();
+        return;
+    }
 
     if (!m_dialog->isVisible()) {
         if (m_responseUrl.isEmpty()) {
@@ -181,6 +200,18 @@ void BrowserProcessPrivate::cancel()
 
     TRACE() << "Client requested to cancel";
     m_server.setCanceled();
+    if (m_dialog) {
+        m_dialog->close();
+    }
+    Q_EMIT q->finished();
+}
+
+void BrowserProcessPrivate::onFailTimer()
+{
+    Q_Q(BrowserProcess);
+
+    TRACE() << "Page loading failed";
+    m_server.setResult(QVariantMap());
     if (m_dialog) {
         m_dialog->close();
     }
