@@ -45,10 +45,12 @@ CONFIG(force-foreign-qwindow) {
 }
 
 OTHER_FILES += \
-    webview.qml \
+    DefaultPage.qml \
     KeyboardRectangle.qml \
+    MainWindow.qml \
     StandardAnimation.qml \
     UserAgent.qml \
+    WebView.qml \
     ua-overrides.js
 
 RESOURCES += \
