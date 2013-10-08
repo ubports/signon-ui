@@ -28,6 +28,8 @@
 #include <QQmlContext>
 #include <SignOn/uisessiondata_priv.h>
 #include <stdio.h>
+#include <QDir>
+#include <QFile>
 
 using namespace SignOnUi;
 
@@ -160,8 +162,17 @@ void BrowserProcessPrivate::start(const QVariantMap &params)
     QObject::connect(m_dialog, SIGNAL(finished(int)),
                      this, SLOT(onFinished()));
 
+    QUrl webview("qrc:/webview.qml");
+    QDir qmlDir("/usr/share/signon-ui/qml");
+    if (qmlDir.exists())
+    {
+        QFileInfo qmlFile(qmlDir.absolutePath() + "/webview.qml");
+        if (qmlFile.exists())
+            webview.setUrl(qmlFile.absoluteFilePath());
+    }
+
     m_dialog->rootContext()->setContextProperty("request", this);
-    m_dialog->setSource(QUrl("qrc:/webview.qml"));
+    m_dialog->setSource(webview);
 }
 
 void BrowserProcessPrivate::cancel()
