@@ -315,7 +315,8 @@ Request *Request::newRequest(const QDBusConnection &connection,
         /* We need to use the RemoteRequest implementation in UbuntuTouch,
          * because displaying of QtWidgets is not working there. This is a
          * workaround which can be revisited later. */
-        if (QGuiApplication::platformName() != "xcb") {
+        if (QGuiApplication::platformName() != "xcb" ||
+            qgetenv("SSOUI_USE_WEBKIT2") == QByteArray("1")) {
             return new RemoteRequest("browser-process",
                                      connection, message, parameters, parent);
         }

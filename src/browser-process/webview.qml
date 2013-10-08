@@ -45,7 +45,8 @@ MainView {
                     top: parent.top
                     left: parent.left
                     right: parent.right
-                    bottom: osk.top
+                    bottom: cancelButton.top
+                    bottomMargin: Math.max(osk.height - cancelButton.height, 0)
                 }
                 focus: true
                 UserAgent {
@@ -63,12 +64,22 @@ MainView {
                     console.log("Loading changed")
                     if (loadRequest.status === WebView.LoadSucceededStatus) {
                         request.onLoadFinished(true)
-                    }
-                    else if (loadRequest.status === WebView.LoadFailedStatus) {
-                        request.cancel();
+                    } else if (loadRequest.status === WebView.LoadFailedStatus) {
+                        request.onLoadFinished(false)
+                    } else if (loadRequest.status === WebView.LoadStarted) {
+                        request.onLoadStarted()
                     }
                 }
                 onUrlChanged: request.currentUrl = url
+            }
+
+            Button {
+                id: cancelButton
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: i18n.dtr("ubuntu-system-settings-online-accounts", "Cancel")
+                width: parent.width - units.gu(4)
+                onClicked: request.cancel()
             }
 
             KeyboardRectangle {
