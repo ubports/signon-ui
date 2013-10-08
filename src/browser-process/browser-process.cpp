@@ -40,6 +40,7 @@ class BrowserProcessPrivate: public QObject
 {
     Q_OBJECT
     Q_DECLARE_PUBLIC(BrowserProcess)
+    Q_PROPERTY(QUrl pageComponentUrl READ pageComponentUrl CONSTANT)
     Q_PROPERTY(QUrl currentUrl READ currentUrl WRITE setCurrentUrl)
     Q_PROPERTY(QUrl startUrl READ startUrl CONSTANT)
     Q_PROPERTY(QUrl finalUrl READ finalUrl CONSTANT)
@@ -51,6 +52,7 @@ public:
     void processClientRequest();
 
     void setCurrentUrl(const QUrl &url);
+    QUrl pageComponentUrl() const;
     QUrl currentUrl() const { return m_currentUrl; }
     QUrl startUrl() const { return m_startUrl; }
     QUrl finalUrl() const { return m_finalUrl; }
@@ -107,6 +109,23 @@ BrowserProcessPrivate::BrowserProcessPrivate(BrowserProcess *process):
 BrowserProcessPrivate::~BrowserProcessPrivate()
 {
     delete m_dialog;
+}
+
+QUrl BrowserProcessPrivate::pageComponentUrl() const
+{
+    /* We define the X-PageComponent key to let the clients override the QML
+     * component to be used to build the authentication page.
+     * To prevent a malicious client to show it's own UI, we require that the
+     * file patth begins with "/usr/share/signon-ui/" (where Ubuntu click
+     * packages cannot install files).
+     */
+    QUrl providedUrl = m_clientData.value("X-PageComponent").toString();
+    if (providedUrl.isValid() && providedUrl.isLocalFile() &&
+        providedUrl.path().startsWith("/usr/share/signon-ui/")) {
+        return providedUrl;
+    } else {
+        return QStringLiteral("DefaultPage.qml");
+    }
 }
 
 void BrowserProcessPrivate::processClientRequest()
@@ -181,11 +200,11 @@ void BrowserProcessPrivate::start(const QVariantMap &params)
     QObject::connect(m_dialog, SIGNAL(finished(int)),
                      this, SLOT(onFinished()));
 
-    QUrl webview("qrc:/webview.qml");
+    QUrl webview("qrc:/MainWindow.qml");
     QDir qmlDir("/usr/share/signon-ui/qml");
     if (qmlDir.exists())
     {
-        QFileInfo qmlFile(qmlDir.absolutePath() + "/webview.qml");
+        QFileInfo qmlFile(qmlDir.absolutePath() + "/MainWindow.qml");
         if (qmlFile.exists())
             webview.setUrl(qmlFile.absoluteFilePath());
     }
