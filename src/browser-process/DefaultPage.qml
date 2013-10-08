@@ -2,7 +2,6 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 
 Page {
-
     Loader {
         id: loader
         anchors {
@@ -13,9 +12,5 @@ Page {
         }
         focus: true
         sourceComponent: browserComponent
-    }
-
-    KeyboardRectangle {
-        id: osk
     }
 }

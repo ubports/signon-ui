@@ -116,7 +116,7 @@ QUrl BrowserProcessPrivate::pageComponentUrl() const
     /* We define the X-PageComponent key to let the clients override the QML
      * component to be used to build the authentication page.
      * To prevent a malicious client to show it's own UI, we require that the
-     * file patth begins with "/usr/share/signon-ui/" (where Ubuntu click
+     * file path begins with "/usr/share/signon-ui/" (where Ubuntu click
      * packages cannot install files).
      */
     QUrl providedUrl = m_clientData.value("X-PageComponent").toString();
