@@ -1,3 +1,35 @@
+signon-ui (0.15+13.10.20131011-0ubuntu1) saucy; urgency=low
+
+  [ Ken VanDine ]
+  * Use a MainView and pull in the UserAgent logic used in the Browser
+    component. Using the correct useragent fixes things like facebook
+    suggesting users should install the facebook app for iphone (LP:
+    #1235259). (LP: #1235259)
+  * Allow overriding the QML files used by placing them in
+    /usr/share/signon-ui/qml If there is a webview.qml file in that
+    directory, load it instead of using the one built into the
+    resources. This is useful for debugging QML only changes on the
+    device without needing to rebuild and install signon-ui. It is
+    important to note, when overriding them you need to copy include the
+    .qml and .js files into that directory. .
+
+  [ Iain Lane ]
+  * Allow LIBDIR and LIBEXECDIR to be overridden; install in multiarch
+    path; set LIBEXECDIR=LIBDIR .
+
+  [ Alberto Mardegan ]
+  * Bump build dependency for XEmbed support .
+  * Allow the request to be cancelled from the UI. Clients can provide a
+    QML component to be used in order to create the authentication page,
+    and this gives them a way to add a cancel button there. (LP:
+    #1231691)
+  * Let the client override the Page component. . (LP: #1231691)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 115
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 11 Oct 2013 04:33:07 +0000
+
 signon-ui (0.15+13.10.20131003.1-0ubuntu1) saucy; urgency=low
 
   [ Alberto Mardegan ]
