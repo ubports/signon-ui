@@ -5,10 +5,8 @@ Page {
     Loader {
         id: loader
         anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-            bottom: osk.top
+            fill: parent
+            bottomMargin: osk.height
         }
         focus: true
         sourceComponent: browserComponent
