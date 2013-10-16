@@ -1,3 +1,14 @@
+signon-ui (0.15+13.10.20131016.2-0ubuntu1) saucy; urgency=low
+
+  [ Alberto Mardegan ]
+  * Do not anchor to the osk item (OnScreenKeyboard), as it's not a
+    sibling. . (LP: #1238485)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 117
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 16 Oct 2013 14:15:21 +0000
+
 signon-ui (0.15+13.10.20131011-0ubuntu1) saucy; urgency=low
 
   [ Ken VanDine ]
