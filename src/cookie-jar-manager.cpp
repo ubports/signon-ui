@@ -151,6 +151,7 @@ CookieJarManager::CookieJarManager(QObject *parent):
 {
     Q_D(CookieJarManager);
 
+    qRegisterMetaType<RawCookies>("RawCookies");
     qDBusRegisterMetaType<RawCookies>();
     qRegisterMetaTypeStreamOperators<QList<QNetworkCookie> >("QList<QNetworkCookie>");
 

@@ -25,6 +25,9 @@
 #include "request.h"
 
 #include <QDBusArgument>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QStandardPaths>
 #include <QQueue>
 
 using namespace SignOnUi;
@@ -78,6 +81,7 @@ public:
     void runQueue(RequestQueue &queue);
     void cancelUiRequest(const QString &requestId);
     void removeIdentityData(quint32 id);
+    RawCookies cookiesForIdentity(quint32 id) const;
 
 private Q_SLOTS:
     void onRequestCompleted();
@@ -94,6 +98,8 @@ ServicePrivate::ServicePrivate(Service *service):
     QObject(service),
     q_ptr(service)
 {
+    // This registers the RawCookies metatype with DBus
+    CookieJarManager::instance();
 }
 
 ServicePrivate::~ServicePrivate()
@@ -198,6 +204,29 @@ void ServicePrivate::removeIdentityData(quint32 id)
     CookieJarManager::instance()->removeForIdentity(id);
 }
 
+RawCookies ServicePrivate::cookiesForIdentity(quint32 id) const
+{
+    RawCookies cookies;
+
+    QString cachePath =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    QString cookiesDBFile =
+        QString("%1/id-%2/.local/share/browser-process/.QtWebKit/cookies.db")
+        .arg(cachePath).arg(id);
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(cookiesDBFile);
+    if (!db.open()) return cookies;
+
+    QSqlQuery q(db);
+    q.exec("SELECT cookieId, cookie FROM cookies;");
+    while (q.next()) {
+        cookies.insert(q.value(0).toString(), q.value(1).toString());
+    }
+
+    return cookies;
+}
+
 Service::Service(QObject *parent):
     QObject(parent),
     d_ptr(new ServicePrivate(this))
@@ -252,6 +281,12 @@ void Service::removeIdentityData(quint32 id)
 {
     Q_D(Service);
     d->removeIdentityData(id);
+}
+
+RawCookies Service::cookiesForIdentity(quint32 id)
+{
+    Q_D(const Service);
+    return d->cookiesForIdentity(id);
 }
 
 #include "service.moc"

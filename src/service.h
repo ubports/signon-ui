@@ -21,6 +21,8 @@
 #ifndef SIGNON_UI_SERVICE_H
 #define SIGNON_UI_SERVICE_H
 
+#include "cookie-jar-manager.h"
+
 #include <QDBusContext>
 #include <QObject>
 #include <QVariantMap>
@@ -46,6 +48,7 @@ public Q_SLOTS:
     QVariantMap refreshDialog(const QVariantMap &newParameters);
     Q_NOREPLY void cancelUiRequest(const QString &requestId);
     void removeIdentityData(quint32 id);
+    RawCookies cookiesForIdentity(quint32 id);
 
 Q_SIGNALS:
     void isIdleChanged();
