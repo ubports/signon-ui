@@ -25,6 +25,8 @@
 #include "request.h"
 
 #include <QDBusArgument>
+#include <QDateTime>
+#include <QFileInfo>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QStandardPaths>
@@ -81,7 +83,7 @@ public:
     void runQueue(RequestQueue &queue);
     void cancelUiRequest(const QString &requestId);
     void removeIdentityData(quint32 id);
-    RawCookies cookiesForIdentity(quint32 id) const;
+    RawCookies cookiesForIdentity(quint32 id, qint64 &timestamp) const;
 
 private Q_SLOTS:
     void onRequestCompleted();
@@ -204,15 +206,21 @@ void ServicePrivate::removeIdentityData(quint32 id)
     CookieJarManager::instance()->removeForIdentity(id);
 }
 
-RawCookies ServicePrivate::cookiesForIdentity(quint32 id) const
+RawCookies ServicePrivate::cookiesForIdentity(quint32 id,
+                                              qint64 &timestamp) const
 {
     RawCookies cookies;
+    timestamp = 0;
 
     QString cachePath =
         QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QString cookiesDBFile =
         QString("%1/id-%2/.local/share/browser-process/.QtWebKit/cookies.db")
         .arg(cachePath).arg(id);
+
+    QFileInfo fileInfo(cookiesDBFile);
+    if (!fileInfo.exists()) return cookies;
+    timestamp = fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(cookiesDBFile);
@@ -283,10 +291,11 @@ void Service::removeIdentityData(quint32 id)
     d->removeIdentityData(id);
 }
 
-RawCookies Service::cookiesForIdentity(quint32 id)
+void Service::cookiesForIdentity(quint32 id,
+                                 RawCookies &cookies, qint64 &timestamp)
 {
     Q_D(const Service);
-    return d->cookiesForIdentity(id);
+    cookies = d->cookiesForIdentity(id, timestamp);
 }
 
 #include "service.moc"

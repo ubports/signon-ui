@@ -48,7 +48,9 @@ public Q_SLOTS:
     QVariantMap refreshDialog(const QVariantMap &newParameters);
     Q_NOREPLY void cancelUiRequest(const QString &requestId);
     void removeIdentityData(quint32 id);
-    RawCookies cookiesForIdentity(quint32 id);
+    void cookiesForIdentity(quint32 id,
+                            // Output parameters
+                            RawCookies &cookies, qint64 &timestamp);
 
 Q_SIGNALS:
     void isIdleChanged();
