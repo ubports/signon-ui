@@ -48,6 +48,12 @@ public Q_SLOTS:
     QVariantMap refreshDialog(const QVariantMap &newParameters);
     Q_NOREPLY void cancelUiRequest(const QString &requestId);
     void removeIdentityData(quint32 id);
+
+    /*
+     * This is not officially part of the interface; it's an Ubuntu-specific
+     * experimental method, and we reserve the right to remove or change it in
+     * future releases.
+     */
     void cookiesForIdentity(quint32 id,
                             // Output parameters
                             RawCookies &cookies, qint64 &timestamp);
