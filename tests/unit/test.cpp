@@ -96,6 +96,7 @@ void SignOnUiTest::testRequestObjects()
 
 void SignOnUiTest::testRequestWithIndicator()
 {
+    QSKIP("Disabled until QTBUG-36475 is fixed");
     const uint signonId = 1234;
     const QString displayName = QLatin1String("Beautiful account");
 
