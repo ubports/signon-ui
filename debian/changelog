@@ -1,3 +1,9 @@
+signon-ui (0.16-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Tag version 0.16.
+
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Fri, 14 Feb 2014 16:52:17 +0200
+
 signon-ui (0.15+14.04.20131024.2-0ubuntu1) trusty; urgency=low
 
   [ Ken VanDine ]
