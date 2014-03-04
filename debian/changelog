@@ -1,8 +1,17 @@
-signon-ui (0.16-0ubuntu1) UNRELEASED; urgency=medium
+signon-ui (0.16+14.04.20140304-0ubuntu1) trusty; urgency=medium
 
+  [ Alberto Mardegan ]
   * Tag version 0.16.
+  * Add an experimental method to get the WebView cookies This is
+    intended to be used by the webapps container, in the attempt to
+    reduce the number of web logins required to the user.
+  * Disable failing test on QtDBus Q_ASSERT See https://bugreports.qt-
+    project.org/browse/QTBUG-36475 . (LP: #1271052)
 
- -- Alberto Mardegan <alberto.mardegan@canonical.com>  Fri, 14 Feb 2014 16:52:17 +0200
+  [ Alexandre Abreu ]
+  * Update UA overrides from the most recent ones .
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 04 Mar 2014 15:04:01 +0000
 
 signon-ui (0.15+14.04.20131024.2-0ubuntu1) trusty; urgency=low
 
