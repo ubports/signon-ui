@@ -18,7 +18,7 @@
 
 .pragma library
 
-// B2G’s list of overrides: https://hg.mozilla.org/mozilla-central/raw-file/tip/b2g/app/ua-update.json.in
+// B2G’s list of overrides: https://github.com/mozilla-b2g/gaia/blob/master/build/ua-override-prefs.js
 
 // List of user agent string overrides in the form of an object.
 // Each key is a domain name for which the default user agent string doesn’t
@@ -37,33 +37,9 @@
 // Android as a reference.
 
 var overrides = {
-    // Google+ is special, scroll doesn't work with an AppleWebkit personality
-    "plus.google.com": ["Mobile", "Android; Mobile"],
-
-    "google.com": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.co.in": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.de": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.co.uk": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.fr": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.com.br": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.co.jp": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.com.hk": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.ru": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.it": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.es": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.com.mx": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.ca": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.com.tr": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.com.au": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-    "google.pl": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-
-    "youtube.com": [/Mobile\) WebKit\/([.0-9]*)/, "Linux) WebKit/$1 (like Android 4.3) Ubuntu Mobile"],
-
-    "twitter.com": ["Mobile)", "Mobile) Firefox"],
-
-    // while this issue gets resolved (https://bugs.launchpad.net/ubuntu/+source/ubuntu-keyboard/+bug/1233207)
-    "login.ubuntu.com": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
-
+    "mail.google.com": [/Mobile\) WebKit\/[.0-9]*/, "Android 4.3) AppleWebKit Mobile Safari"],
+    "google.com": ["Mobile", "Android; Mobile"],
+    "youtube.com": ["Mobile", "Android; Mobile"],
     "yahoo.com": ["Mobile", "Android; Mobile"],
     "baidu.com": ["Mobile", "Android; Mobile"],
     "qq.com": [/WebKit\/[.0-9]*/, "Apple$& Mobile"],
@@ -71,21 +47,33 @@ var overrides = {
     "linkedin.com": ["Mobile", "Android; Mobile"],
     "blogspot.com": ["Mobile", "Android; Mobile"],
     "taobao.com": ["Mobile", "Android; Mobile"],
+    "google.co.in": ["Mobile", "Android; Mobile"],
     "bing.com": ["Mobile", "Android; Mobile"],
     "yahoo.co.jp": ["Ubuntu", "Linux; Android 4; Galaxy Build/"],
     "yandex.ru": ["Mobile", "Android; Mobile"],
     "sina.com.cn": ["Mobile", "Android; Mobile"],
     "ebay.com": ["Mobile", "Android; Mobile"],
+    "google.de": ["Mobile", "Android; Mobile"],
     "tumblr.com": ["Mobile", "Android; Mobile"],
+    "google.co.uk": ["Mobile", "Android; Mobile"],
     "msn.com": ["Mobile", "Android; Mobile"],
+    "google.fr": ["Mobile", "Android; Mobile"],
     "mail.ru": ["Ubuntu", "Linux; Android 4; Galaxy Build/"],
+    "google.com.br": ["Mobile", "Android; Mobile"],
+    "google.co.jp": ["Mobile", "Android; Mobile"],
     "hao123.com": ["Mobile", "Android; Mobile"],
     "ask.com": ["Mobile", "Android; Mobile"],
+    "google.com.hk": ["Mobile", "Android; Mobile"],
+    "google.ru": ["Mobile", "Android; Mobile"],
     "blogger.com": ["Mobile", "Android; Mobile"],
     "imdb.com": ["Mobile", "Android; Mobile"],
+    "google.it": ["Mobile", "Android; Mobile"],
+    "google.es": ["Mobile", "Android; Mobile"],
     "amazon.co.jp": ["Mobile", "Android; Mobile"],
     "tmall.com": ["Mobile", "Android; Mobile"],
     "fc2.com": ["Mobile", "Android; Mobile"],
+    "google.com.mx": ["Mobile", "Android; Mobile"],
+    "google.ca": ["Mobile", "Android; Mobile"],
     "soso.com": ["Mobile", "Android; Mobile"],
     "delta-search.com": ["Mobile", "Android; Mobile"],
     "odnoklassniki.ru": ["Mobile", "Android; Mobile"],
@@ -95,21 +83,17 @@ var overrides = {
     "blogspot.in": ["Mobile", "Android; Mobile"],
     "ifeng.com": ["Mobile", "Android; Mobile"],
     "360.cn": ["Mobile", "Android; Mobile"],
+    "google.com.tr": ["Mobile", "Android; Mobile"],
+    "google.com.au": ["Mobile", "Android; Mobile"],
     "youku.com": ["Mobile", "Android; Mobile"],
     "ebay.de": ["Mobile", "Android; Mobile"],
     "uol.com.br": ["Mobile", "Android; Mobile"],
     "aol.com": ["Mobile", "Android; Mobile"],
+    "google.pl": ["Mobile", "Android; Mobile"],
     "alipay.com": ["Mobile", "Android; Mobile"],
     "dailymotion.com": ["Mobile", "Android; Mobile Safari"],
     "amazon.co.uk": ["Mobile", "Android; Mobile"],
     "ebay.co.uk": ["Mobile", "Android; Mobile"],
-
-    "facebook.com": [/Mobile\) WebKit\/([.0-9]*)/, "Linux) WebKit/$1 (like Android 4.3) AppleWebKit/$1 Ubuntu Mobile"],
-    // Akamai serves images for Facebook
-    "akamaihd.net": [/Mobile\) WebKit\/([.0-9]*)/, "Linux) WebKit/$1 (like Android 4.3) AppleWebKit/$1 Ubuntu Mobile"],
-
+    "facebook.com": [/WebKit\/[.0-9]*/, "Apple$& Firefox/18"],
     "nytimes.com": ["Mobile", "Android; Mobile Safari"],
-
-    // http://pad.lv/1223937
-    "huffpost.com": ["Mobile)", "Mobile) Firefox"],
 };
