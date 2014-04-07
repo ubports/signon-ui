@@ -24,7 +24,7 @@
 #include "request.h"
 
 #ifdef USE_WEBKIT2
-#include "remote-request.h"
+#include "ubuntu-browser-request.h"
 #endif
 #include "browser-request.h"
 #include "debug.h"
@@ -317,8 +317,8 @@ Request *Request::newRequest(const QDBusConnection &connection,
          * workaround which can be revisited later. */
         if (QGuiApplication::platformName() != "xcb" ||
             qgetenv("SSOUI_USE_WEBKIT2") == QByteArray("1")) {
-            return new RemoteRequest("browser-process",
-                                     connection, message, parameters, parent);
+            return new UbuntuBrowserRequest(connection, message,
+                                            parameters, parent);
         }
 #endif
         return new BrowserRequest(connection, message, parameters, parent);

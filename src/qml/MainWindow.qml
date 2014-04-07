@@ -14,7 +14,7 @@ MainView {
 
         anchors.fill: parent
         focus: true
-        source: request.pageComponentUrl
+        source: signonRequest.pageComponentUrl
     }
 
     KeyboardRectangle {

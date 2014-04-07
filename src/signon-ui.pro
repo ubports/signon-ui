@@ -84,11 +84,19 @@ lessThan(QT_MAJOR_VERSION, 5) {
 CONFIG(use-webkit2) {
     DEFINES += USE_WEBKIT2
     HEADERS += \
-        remote-request-interface.h \
-        remote-request.h
+        qquick-dialog.h \
+        ubuntu-browser-request.h
     SOURCES += \
-        remote-request-interface.cpp \
-        remote-request.cpp
+        qquick-dialog.cpp \
+        ubuntu-browser-request.cpp
+    OTHER_FILES += \
+        qml/DefaultPage.qml \
+        qml/KeyboardRectangle.qml \
+        qml/MainWindow.qml \
+        qml/StandardAnimation.qml \
+        qml/WebView.qml
+    RESOURCES += \
+        qml/qml.qrc
 }
 
 DEFINES += \

@@ -4,8 +4,6 @@
         <file>KeyboardRectangle.qml</file>
         <file>MainWindow.qml</file>
         <file>StandardAnimation.qml</file>
-        <file>UserAgent.qml</file>
         <file>WebView.qml</file>
-        <file>ua-overrides.js</file>
     </qresource>
 </RCC>
