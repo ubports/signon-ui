@@ -82,7 +82,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
 }
 
 CONFIG(use-webkit2) {
-    DEFINES += USE_WEBKIT2
+    DEFINES += USE_UBUNTU_WEB_VIEW
     HEADERS += \
         qquick-dialog.h \
         ubuntu-browser-request.h
