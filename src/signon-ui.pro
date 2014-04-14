@@ -81,7 +81,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
     SOURCES += embed-manager.cpp
 }
 
-CONFIG(use-webkit2) {
+CONFIG(use-ubuntu-web-view) {
     DEFINES += USE_UBUNTU_WEB_VIEW
     HEADERS += \
         qquick-dialog.h \
