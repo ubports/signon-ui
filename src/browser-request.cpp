@@ -416,16 +416,7 @@ void BrowserRequestPrivate::addBrowserCookies(CookieJar *cookieJar)
     QList<QNetworkCookie> cookies;
     RawCookies::const_iterator i;
     for (i = rawCookies.constBegin(); i != rawCookies.constEnd(); i++) {
-        const QString &host = i.key();
-        QStringList cookieList = i.value().split(";");
-        foreach (const QString &cookieSpec, cookieList) {
-            int semicolon = cookieSpec.indexOf("=");
-            QNetworkCookie cookie(cookieSpec.left(semicolon).toUtf8(),
-                                  cookieSpec.mid(semicolon + 1).toUtf8());
-            cookie.setDomain(host);
-            cookie.setPath("/");
-            cookies.append(cookie);
-        }
+        cookies.append(QNetworkCookie::parseCookies(i.value().toUtf8()));
     }
 
     TRACE() << "cookies:" << cookies;
