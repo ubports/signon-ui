@@ -97,6 +97,12 @@ CONFIG(use-ubuntu-web-view) {
         qml/WebView.qml
     RESOURCES += \
         qml/qml.qrc
+
+    QMAKE_SUBSTITUTES += \
+        signon-ui.desktop.in
+    desktop.path = $${INSTALL_PREFIX}/share/applications
+    desktop.files += signon-ui.desktop
+    INSTALLS += desktop
 }
 
 DEFINES += \
