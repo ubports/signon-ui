@@ -81,6 +81,8 @@ lessThan(QT_MAJOR_VERSION, 5) {
     SOURCES += embed-manager.cpp
 }
 
+COMMANDLINE = ""
+
 CONFIG(use-ubuntu-web-view) {
     DEFINES += USE_UBUNTU_WEB_VIEW
     HEADERS += \
@@ -103,6 +105,8 @@ CONFIG(use-ubuntu-web-view) {
     desktop.path = $${INSTALL_PREFIX}/share/applications
     desktop.files += signon-ui.desktop
     INSTALLS += desktop
+
+    COMMANDLINE += " --desktop_file_hint=$${INSTALL_PREFIX}/share/applications/signon-ui.desktop"
 }
 
 DEFINES += \
