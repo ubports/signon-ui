@@ -5,6 +5,7 @@ MainView {
     id: root
     width: units.gu(60)
     height: units.gu(90)
+    property var signonRequest: request
 
     Loader {
         id: loader
@@ -14,7 +15,7 @@ MainView {
 
         anchors.fill: parent
         focus: true
-        source: signonRequest.pageComponentUrl
+        source: request.pageComponentUrl
     }
 
     KeyboardRectangle {

@@ -61,6 +61,7 @@ public:
     QUrl responseUrl() const { return m_responseUrl; }
 
 public Q_SLOTS:
+    void cancel();
     void onLoadStarted();
     void onLoadFinished(bool ok);
 
@@ -133,7 +134,7 @@ void UbuntuBrowserRequestPrivate::start()
             webview.setUrl(qmlFile.absoluteFilePath());
     }
 
-    m_dialog->rootContext()->setContextProperty("signonRequest", this);
+    m_dialog->rootContext()->setContextProperty("request", this);
     m_dialog->rootContext()->setContextProperty("rootDir",
                                                 QUrl::fromLocalFile(rootDir.absolutePath()));
     m_dialog->setSource(webview);
@@ -173,6 +174,17 @@ void UbuntuBrowserRequestPrivate::setCurrentUrl(const QUrl &url)
             /* TODO */
             m_dialog->accept();
         }
+    }
+}
+
+void UbuntuBrowserRequestPrivate::cancel()
+{
+    Q_Q(UbuntuBrowserRequest);
+
+    TRACE() << "Client requested to cancel";
+    q->setCanceled();
+    if (m_dialog) {
+        m_dialog->close();
     }
 }
 
