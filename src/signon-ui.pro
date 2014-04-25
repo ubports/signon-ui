@@ -111,7 +111,6 @@ CONFIG(use-ubuntu-web-view) {
 
 DEFINES += \
     DEBUG_ENABLED \
-    REMOTE_PROCESS_PATH=\\\"$${LIBEXECDIR}/signon-ui\\\" \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
 RESOURCES += \

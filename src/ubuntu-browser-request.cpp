@@ -36,8 +36,6 @@ using namespace SignOnUi::QQuick;
 
 namespace SignOnUi {
 
-static const QLatin1String remoteProcessPath(REMOTE_PROCESS_PATH);
-
 class UbuntuBrowserRequestPrivate: public QObject
 {
     Q_OBJECT
