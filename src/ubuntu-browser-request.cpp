@@ -76,9 +76,6 @@ private:
     QUrl m_startUrl;
     QUrl m_finalUrl;
     QUrl m_responseUrl;
-    QString m_host;
-    QFile m_input;
-    QFile m_output;
     QTimer m_failTimer;
     mutable UbuntuBrowserRequest *q_ptr;
 };
