@@ -1,3 +1,10 @@
+signon-ui (0.16+14.04.20140304.is.0.15+14.04.20140313-0ubuntu2) utopic; urgency=medium
+
+  * debian/control: remove arch constraints in gl/gles build-deps, not needed
+    as it follows what Qt uses
+
+ -- Ricardo Salveti de Araujo <ricardo.salveti@canonical.com>  Tue, 29 Apr 2014 10:57:43 -0700
+
 signon-ui (0.16+14.04.20140304.is.0.15+14.04.20140313-0ubuntu1) trusty; urgency=low
 
   * New rebuild forced
