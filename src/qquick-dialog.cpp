@@ -21,13 +21,13 @@
 #define HAS_FOREIGN_QWINDOW (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) || \
                              defined(FORCE_FOREIGN_QWINDOW))
 
-#include "dialog.h"
+#include "qquick-dialog.h"
 
 #include "debug.h"
 
 #include <QEvent>
 
-using namespace SignOnUi;
+using namespace SignOnUi::QQuick;
 
 Dialog::Dialog(QWindow *parent):
     QQuickView(parent)

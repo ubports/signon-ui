@@ -1,3 +1,9 @@
+signon-ui (0.16+14.04.20140505-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Use Oxide instead of WebKit2
+
+ -- Alberto Mardegan <alberto.mardegan@canonical.com>  Tue, 06 May 2014 14:52:52 +0300
+
 signon-ui (0.16+14.04.20140304.is.0.15+14.04.20140313-0ubuntu2) utopic; urgency=medium
 
   * debian/control: remove arch constraints in gl/gles build-deps, not needed

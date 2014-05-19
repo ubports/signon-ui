@@ -25,6 +25,7 @@ src/browser-process/signon-ui-browser-process.desktop
 src/com.canonical.indicators.webcredentials.service
 src/com.nokia.singlesignonui.service
 src/signon-ui
+src/signon-ui.desktop
 src/signon_ui_adaptor.*
 src/webcredentials_adaptor.*
 tests/unit/signon-ui-unittest
