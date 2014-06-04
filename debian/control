@@ -33,10 +33,13 @@ Homepage: https://launchpad.net/signon-ui
 # just go ahead.  ~online-accounts will notice and sync up the code again.
 Vcs-Bzr: https://code.launchpad.net/~online-accounts/signon-ui/trunk
 
-Package: signon-ui
+Package: signon-ui-x11
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          signon-ui-service
+Breaks: signon-ui (<< 0.17)
+Replaces: signon-ui (<< 0.17)
+Provides: signon-ui
 Description: Single Sign-on UI
  UI for the signond Single Signon service
