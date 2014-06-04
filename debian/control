@@ -38,8 +38,17 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          signon-ui-service
-Breaks: signon-ui (<< 0.17)
-Replaces: signon-ui (<< 0.17)
+Conflicts: signon-ui
+Replaces: signon-ui
 Provides: signon-ui
 Description: Single Sign-on UI
  UI for the signond Single Signon service
+
+Package: signon-ui-service
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Breaks: signon-ui (<< 0.17), ubuntu-system-settings-online-accounts (<< 0.4)
+Replaces: signon-ui (<< 0.17), ubuntu-system-settings-online-accounts (<< 0.4)
+Description: D-Bus service file for signon-ui
+ This D-Bus service is used to provide a UI for authenticating online accounts.

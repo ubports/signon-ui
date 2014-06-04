@@ -131,6 +131,16 @@ po.commands = xgettext -o $@ -d $${I18N_DOMAIN} --keyword=_ $^
 QMAKE_EXTRA_TARGETS += \
     po
 
+QMAKE_SUBSTITUTES += \
+    com.canonical.indicators.webcredentials.service.in \
+    com.nokia.singlesignonui.service.in
+
+service.path = $${INSTALL_PREFIX}/share/dbus-1/services
+service.files = \
+    com.canonical.indicators.webcredentials.service \
+    com.nokia.singlesignonui.service
+INSTALLS += service
+
 # Help file for HTTP authentication warning
 !isEmpty(HTTP_WARNING_HELP) {
     DEFINES += HTTP_WARNING_HELP=\\\"$${HTTP_WARNING_HELP}\\\"
