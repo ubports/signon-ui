@@ -14,7 +14,9 @@
 builddir
 core
 /debian/files
-/debian/signon-ui
+/debian/signon-ui-service
+/debian/signon-ui-x11
+/debian/tmp
 Makefile
 Makefile.*
 moc_*
