@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=com.nokia.singlesignonui
-Exec=$${INSTALL_PREFIX}/bin/signon-ui$${COMMANDLINE}

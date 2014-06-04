@@ -37,5 +37,6 @@ Package: signon-ui
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
+         signon-ui-service
 Description: Single Sign-on UI
  UI for the signond Single Signon service
