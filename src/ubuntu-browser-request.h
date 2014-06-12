@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2011 Canonical Ltd.
+ * Copyright (C) 2014 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,46 +18,37 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_DIALOG_H
-#define SIGNON_UI_DIALOG_H
+#ifndef SIGNON_UI_UBUNTU_BROWSER_REQUEST_H
+#define SIGNON_UI_UBUNTU_BROWSER_REQUEST_H
+
+#include "request.h"
 
 #include <QObject>
-#include <QQuickView>
 
 namespace SignOnUi {
 
-class Dialog: public QQuickView
+class UbuntuBrowserRequestPrivate;
+
+class UbuntuBrowserRequest: public Request
 {
     Q_OBJECT
 
 public:
-    enum DialogCode {
-        Rejected = 0,
-        Accepted,
-    };
-    enum ShowMode {
-        TopLevel = 0,
-        Transient,
-        Embedded,
-    };
-    explicit Dialog(QWindow *parent = 0);
-    ~Dialog();
+    explicit UbuntuBrowserRequest(const QDBusConnection &connection,
+                                  const QDBusMessage &message,
+                                  const QVariantMap &parameters,
+                                  QObject *parent = 0);
+    ~UbuntuBrowserRequest();
 
-    void show(WId parent, ShowMode mode);
+    // reimplemented virtual methods
+    void start();
 
-public Q_SLOTS:
-    void accept();
-    void reject();
-    void done(int result);
-
-Q_SIGNALS:
-    void finished(int result);
-
-protected:
-    bool event(QEvent *e);
+private:
+    UbuntuBrowserRequestPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(UbuntuBrowserRequest)
 };
 
 } // namespace
 
-#endif // SIGNON_UI_DIALOG_H
+#endif // SIGNON_UI_UBUNTU_BROWSER_REQUEST_H
 

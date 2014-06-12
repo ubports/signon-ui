@@ -81,19 +81,36 @@ lessThan(QT_MAJOR_VERSION, 5) {
     SOURCES += embed-manager.cpp
 }
 
-CONFIG(use-webkit2) {
-    DEFINES += USE_WEBKIT2
+COMMANDLINE = ""
+
+CONFIG(use-ubuntu-web-view) {
+    DEFINES += USE_UBUNTU_WEB_VIEW
     HEADERS += \
-        remote-request-interface.h \
-        remote-request.h
+        qquick-dialog.h \
+        ubuntu-browser-request.h
     SOURCES += \
-        remote-request-interface.cpp \
-        remote-request.cpp
+        qquick-dialog.cpp \
+        ubuntu-browser-request.cpp
+    OTHER_FILES += \
+        qml/DefaultPage.qml \
+        qml/KeyboardRectangle.qml \
+        qml/MainWindow.qml \
+        qml/StandardAnimation.qml \
+        qml/WebView.qml
+    RESOURCES += \
+        qml/qml.qrc
+
+    QMAKE_SUBSTITUTES += \
+        signon-ui.desktop.in
+    desktop.path = $${INSTALL_PREFIX}/share/applications
+    desktop.files += signon-ui.desktop
+    INSTALLS += desktop
+
+    COMMANDLINE += " --desktop_file_hint=$${INSTALL_PREFIX}/share/applications/signon-ui.desktop"
 }
 
 DEFINES += \
     DEBUG_ENABLED \
-    REMOTE_PROCESS_PATH=\\\"$${LIBEXECDIR}/signon-ui\\\" \
     I18N_DOMAIN=\\\"$${I18N_DOMAIN}\\\"
 
 RESOURCES += \

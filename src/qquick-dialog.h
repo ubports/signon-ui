@@ -1,7 +1,7 @@
 /*
  * This file is part of signon-ui
  *
- * Copyright (C) 2013 Canonical Ltd.
+ * Copyright (C) 2014 Canonical Ltd.
  *
  * Contact: Alberto Mardegan <alberto.mardegan@canonical.com>
  *
@@ -18,38 +18,50 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SIGNON_UI_REMOTE_REQUEST_H
-#define SIGNON_UI_REMOTE_REQUEST_H
-
-#include "request.h"
+#ifndef SIGNON_UI_QQUICK_DIALOG_H
+#define SIGNON_UI_QQUICK_DIALOG_H
 
 #include <QObject>
+#include <QQuickView>
 
 namespace SignOnUi {
 
-class RemoteRequestPrivate;
+namespace QQuick {
 
-class RemoteRequest: public Request
+class Dialog: public QQuickView
 {
     Q_OBJECT
 
 public:
-    explicit RemoteRequest(const QString &processName,
-                           const QDBusConnection &connection,
-                           const QDBusMessage &message,
-                           const QVariantMap &parameters,
-                           QObject *parent = 0);
-    ~RemoteRequest();
+    enum DialogCode {
+        Rejected = 0,
+        Accepted,
+    };
+    enum ShowMode {
+        TopLevel = 0,
+        Transient,
+        Embedded,
+    };
+    explicit Dialog(QWindow *parent = 0);
+    ~Dialog();
 
-    // reimplemented virtual methods
-    void start();
+    void show(WId parent, ShowMode mode);
 
-private:
-    RemoteRequestPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(RemoteRequest)
+public Q_SLOTS:
+    void accept();
+    void reject();
+    void done(int result);
+
+Q_SIGNALS:
+    void finished(int result);
+
+protected:
+    bool event(QEvent *e);
 };
 
 } // namespace
 
-#endif // SIGNON_UI_REMOTE_REQUEST_H
+} // namespace
+
+#endif // SIGNON_UI_QQUICK_DIALOG_H
 
