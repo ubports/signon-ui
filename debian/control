@@ -38,6 +38,8 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          signon-ui-service
+Breaks: signon-ui (<< 0.17)
+Replaces: signon-ui (<< 0.17)
 Description: Single Sign-on UI
  UI for the signond Single Signon service
 
