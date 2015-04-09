@@ -16,6 +16,7 @@ QT += \
     dbus \
     gui \
     network \
+    quick \
     webkit
 
 PKGCONFIG += \
