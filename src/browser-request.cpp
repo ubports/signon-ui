@@ -76,6 +76,14 @@ static const QString keyCookies = QString("Cookies");
 static const QString keyAllowedSchemes = QString("AllowedSchemes");
 static const QString keyIgnoreSslErrors = QString("IgnoreSslErrors");
 
+static bool pathsAreEqual(const QString &p1, const QString &p2)
+{
+    static QRegExp regExp("/*$");
+    QString p1copy(p1);
+    QString p2copy(p2);
+    return p1copy.remove(regExp) == p2copy.remove(regExp);
+}
+
 class WebPage: public QWebPage
 {
     Q_OBJECT
@@ -128,7 +136,7 @@ protected:
          * If this behaviour is not desired for some requests, then just avoid
          * calling setFinalUrl() */
         if (url.host() == m_finalUrl.host() &&
-            url.path() == m_finalUrl.path()) {
+            pathsAreEqual(url.path(), m_finalUrl.path())) {
             Q_EMIT finalUrlReached(url);
             return false;
         }
@@ -337,7 +345,7 @@ void BrowserRequestPrivate::onUrlChanged(const QUrl &url)
     m_failTimer.stop();
 
     if (url.host() == finalUrl.host() &&
-        url.path() == finalUrl.path()) {
+        pathsAreEqual(url.path(), finalUrl.path())) {
         responseUrl = url;
         if (q->embeddedUi() || !m_dialog->isVisible()) {
             /* Do not show the notification page. */
