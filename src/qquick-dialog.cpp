@@ -33,7 +33,6 @@ Dialog::Dialog(QWindow *parent):
     QQuickView(parent)
 {
     setResizeMode(QQuickView::SizeRootObjectToView);
-    //setWindowState(Qt::WindowFullScreen);
 }
 
 Dialog::~Dialog()
