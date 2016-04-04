@@ -226,6 +226,8 @@ void UbuntuBrowserRequestPrivate::onFinished()
     Q_Q(UbuntuBrowserRequest);
 
     TRACE() << "Browser dialog closed";
+    QObject::disconnect(m_dialog, SIGNAL(finished(int)),
+                        this, SLOT(onFinished()));
 
     QVariantMap reply;
     QUrl url = m_responseUrl.isEmpty() ? m_currentUrl : m_responseUrl;

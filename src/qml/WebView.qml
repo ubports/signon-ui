@@ -1,12 +1,11 @@
 import QtQuick 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.Extras.Browser 0.2
-import com.canonical.Oxide 1.0
+import Ubuntu.Components 1.3
+import Ubuntu.Web 0.2
 
-UbuntuWebView {
+WebView {
     Component.onCompleted: url = signonRequest.startUrl
 
-    onLoadingChanged: {
+    onLoadingStateChanged: {
         console.log("Loading changed")
         if (loading) {
             signonRequest.onLoadStarted()
@@ -18,7 +17,7 @@ UbuntuWebView {
     }
     onUrlChanged: signonRequest.currentUrl = url
 
-    context: UbuntuWebContext {
+    context: WebContext {
         dataPath: rootDir
     }
 }
