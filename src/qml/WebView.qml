@@ -33,5 +33,4 @@ WebView {
         visible: root.loading
         value: root.loadProgress / 100
     }
-
 }

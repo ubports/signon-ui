@@ -312,10 +312,8 @@ Request *Request::newRequest(const QDBusConnection &connection,
     if (parameters.contains(SSOUI_KEY_OPENURL)) {
 #ifdef USE_UBUNTU_WEB_VIEW
         TRACE() << "Platform:" << QGuiApplication::platformName();
-        /* We need to use the RemoteRequest implementation in UbuntuTouch,
-         * because displaying of QtWidgets is not working there. This is a
-         * workaround which can be revisited later. */
         if (QGuiApplication::platformName().startsWith("ubuntu") ||
+            qgetenv("XDG_CURRENT_DESKTOP") == QByteArray("Unity") ||
             qgetenv("SSOUI_USE_UBUNTU_WEB_VIEW") == QByteArray("1")) {
             return new UbuntuBrowserRequest(connection, message,
                                             parameters, parent);
