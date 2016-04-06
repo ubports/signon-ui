@@ -1,7 +1,7 @@
 import QtQuick 2.0
-import Ubuntu.Components 0.1
+import Ubuntu.Components 1.3
 
-MainView {
+Item {
     id: root
     width: units.gu(60)
     height: units.gu(90)
