@@ -80,7 +80,7 @@ private Q_SLOTS:
     void onIndicatorCallFinished(QDBusPendingCallWatcher *watcher);
 
 private:
-    void setWidget(QWidget *widget);
+    bool setWindow(QWindow *window);
     Accounts::Account *findAccount();
     bool dispatchToIndicator();
     void onIndicatorCallSucceeded();
@@ -93,7 +93,7 @@ private:
     QVariantMap m_clientData;
     bool m_inProgress;
     Accounts::Manager *m_accountManager;
-    QPointer<QWidget> m_widget;
+    QPointer<QWindow> m_window;
 };
 
 } // namespace
@@ -109,7 +109,7 @@ RequestPrivate::RequestPrivate(const QDBusConnection &connection,
     m_parameters(parameters),
     m_inProgress(false),
     m_accountManager(0),
-    m_widget(0)
+    m_window(0)
 {
     if (parameters.contains(SSOUI_KEY_CLIENT_DATA)) {
         QVariant variant = parameters[SSOUI_KEY_CLIENT_DATA];
@@ -123,40 +123,41 @@ RequestPrivate::~RequestPrivate()
 {
 }
 
-void RequestPrivate::setWidget(QWidget *widget)
+bool RequestPrivate::setWindow(QWindow *window)
 {
-    if (m_widget != 0) {
+    if (m_window != 0) {
         BLAME() << "Widget already set";
-        return;
+        return false;
     }
 
-    m_widget = widget;
+    m_window = window;
 
 #if HAS_FOREIGN_QWINDOW
     if (embeddedUi() && windowId() != 0) {
         TRACE() << "Requesting window embedding";
         QWindow *host = QWindow::fromWinId(windowId());
-        widget->show();
-        widget->windowHandle()->setParent(host);
-        return;
+        window->show();
+        window->setParent(host);
+        return true;
     }
 #endif
 
     /* If the window has no parent and the webcredentials indicator service is
      * up, dispatch the request to it. */
     if (windowId() == 0 && dispatchToIndicator()) {
-        return;
+        return false;
     }
 
-    widget->setWindowModality(Qt::WindowModal);
-    widget->show();
+    window->setModality(Qt::WindowModal);
+    window->show();
 #if HAS_FOREIGN_QWINDOW
     if (windowId() != 0) {
         TRACE() << "Requesting window reparenting";
         QWindow *parent = QWindow::fromWinId(windowId());
-        widget->windowHandle()->setTransientParent(parent);
+        window->setTransientParent(parent);
     }
 #endif
+    return true;
 }
 
 Accounts::Account *RequestPrivate::findAccount()
@@ -237,8 +238,8 @@ void RequestPrivate::onIndicatorCallFinished(QDBusPendingCallWatcher *watcher)
     if (watcher->isError()) {
         /* if the notification could not be delivered to the indicator, show
          * the widget. */
-        if (m_widget != 0)
-            m_widget->show();
+        if (m_window != 0)
+            m_window->show();
     } else {
         onIndicatorCallSucceeded();
     }
@@ -304,7 +305,15 @@ QString Request::id() const
 void Request::setWidget(QWidget *widget)
 {
     Q_D(Request);
-    d->setWidget(widget);
+    if (d->setWindow(widget->windowHandle())) {
+        widget->show();
+    }
+}
+
+void Request::setWindow(QWindow *window)
+{
+    Q_D(Request);
+    d->setWindow(window);
 }
 
 uint Request::identity() const

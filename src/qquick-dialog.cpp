@@ -18,9 +18,6 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define HAS_FOREIGN_QWINDOW (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) || \
-                             defined(FORCE_FOREIGN_QWINDOW))
-
 #include "qquick-dialog.h"
 
 #include "debug.h"
@@ -37,22 +34,6 @@ Dialog::Dialog(QWindow *parent):
 
 Dialog::~Dialog()
 {
-}
-
-void Dialog::show(WId parent, ShowMode mode)
-{
-    create();
-#if HAS_FOREIGN_QWINDOW
-    if (mode != TopLevel) {
-        QWindow *parentWindow = QWindow::fromWinId(parent);
-        if (mode == Transient) {
-            setTransientParent(parentWindow);
-        } else if (mode == Embedded) {
-            setParent(parentWindow);
-        }
-    }
-#endif
-    QQuickView::show();
 }
 
 void Dialog::accept()

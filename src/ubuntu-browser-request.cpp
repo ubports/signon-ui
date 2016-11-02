@@ -190,7 +190,7 @@ void UbuntuBrowserRequestPrivate::onLoadStarted()
 
 void UbuntuBrowserRequestPrivate::onLoadFinished(bool ok)
 {
-    Q_Q(const UbuntuBrowserRequest);
+    Q_Q(UbuntuBrowserRequest);
 
     TRACE() << "Load finished" << ok;
 
@@ -201,9 +201,7 @@ void UbuntuBrowserRequestPrivate::onLoadFinished(bool ok)
 
     if (!m_dialog->isVisible()) {
         if (m_responseUrl.isEmpty()) {
-            Dialog::ShowMode mode = (q->windowId() == 0) ? Dialog::TopLevel :
-                q->embeddedUi() ? Dialog::Embedded : Dialog::Transient;
-            m_dialog->show(q->windowId(), mode);
+            q->setWindow(m_dialog);
         } else {
             onFinished();
         }

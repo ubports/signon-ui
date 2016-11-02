@@ -70,6 +70,7 @@ protected:
                      QObject *parent = 0);
 
     void setWidget(QWidget *widget);
+    void setWindow(QWindow *window);
 
 protected Q_SLOTS:
     void fail(const QString &name, const QString &message);
