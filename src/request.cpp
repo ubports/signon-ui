@@ -18,7 +18,6 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define HAS_XEMBED (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #define HAS_FOREIGN_QWINDOW (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) || \
                              defined(FORCE_FOREIGN_QWINDOW))
 #include "request.h"
@@ -29,9 +28,6 @@
 #include "browser-request.h"
 #include "debug.h"
 #include "dialog-request.h"
-#if HAS_XEMBED
-#include "embed-manager.h"
-#endif
 #include "errors.h"
 #include "indicator-service.h"
 #ifndef UNIT_TESTS
@@ -81,9 +77,6 @@ public:
     }
 
 private Q_SLOTS:
-#if HAS_XEMBED
-    void onEmbedError();
-#endif
     void onIndicatorCallFinished(QDBusPendingCallWatcher *watcher);
 
 private:
@@ -139,26 +132,6 @@ void RequestPrivate::setWidget(QWidget *widget)
 
     m_widget = widget;
 
-#if HAS_XEMBED
-    if (embeddedUi() && windowId() != 0) {
-        TRACE() << "Requesting widget embedding";
-        QX11EmbedWidget *embed =
-            EmbedManager::instance()->widgetFor(windowId());
-        QObject::connect(embed, SIGNAL(error(QX11EmbedWidget::Error)),
-                         this, SLOT(onEmbedError()),
-                         Qt::UniqueConnection);
-        QObject::connect(embed, SIGNAL(containerClosed()),
-                         widget, SLOT(close()));
-        QVBoxLayout *layout = new QVBoxLayout;
-        layout->addWidget(widget);
-        widget->show();
-        /* Delete any previous layout */
-        delete embed->layout();
-        embed->setLayout(layout);
-        embed->show();
-        return;
-    }
-#endif
 #if HAS_FOREIGN_QWINDOW
     if (embeddedUi() && windowId() != 0) {
         TRACE() << "Requesting window embedding";
@@ -177,14 +150,6 @@ void RequestPrivate::setWidget(QWidget *widget)
 
     widget->setWindowModality(Qt::WindowModal);
     widget->show();
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    if (windowId() != 0) {
-        TRACE() << "Setting" << widget->effectiveWinId() << "transient for" << windowId();
-        XSetTransientForHint(QX11Info::display(),
-                             widget->effectiveWinId(),
-                             windowId());
-    }
-#endif
 #if HAS_FOREIGN_QWINDOW
     if (windowId() != 0) {
         TRACE() << "Requesting window reparenting";
@@ -193,19 +158,6 @@ void RequestPrivate::setWidget(QWidget *widget)
     }
 #endif
 }
-
-#if HAS_XEMBED
-void RequestPrivate::onEmbedError()
-{
-    Q_Q(Request);
-
-    QX11EmbedWidget *embed = qobject_cast<QX11EmbedWidget*>(sender());
-    TRACE() << "Embed error:" << embed->error();
-
-    q->fail(SIGNON_UI_ERROR_EMBEDDING_FAILED,
-            QString("Embedding signon UI failed: %1").arg(embed->error()));
-}
-#endif
 
 Accounts::Account *RequestPrivate::findAccount()
 {
