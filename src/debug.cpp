@@ -20,10 +20,18 @@
 
 #include "debug.h"
 
+Q_LOGGING_CATEGORY(DBG_SIGNON_UI, "signon", QtWarningMsg)
+
 int appLoggingLevel = 1; // criticals
 
 void setLoggingLevel(int level)
 {
+    if (level >= 1) {
+        QLoggingCategory::setFilterRules("signon.warning=true");
+        if (level >= 2) {
+            QLoggingCategory::setFilterRules("signon.debug=true");
+        }
+    }
     appLoggingLevel = level;
 }
 

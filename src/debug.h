@@ -20,20 +20,12 @@
 #ifndef SIGNON_UI_DEBUG_H
 #define SIGNON_UI_DEBUG_H
 
-#include <QDebug>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(DBG_SIGNON_UI)
 
 /* 0 - fatal, 1 - critical(default), 2 - info/debug */
 extern int appLoggingLevel;
-
-static inline bool debugEnabled()
-{
-    return appLoggingLevel >= 2;
-}
-
-static inline bool criticalsEnabled()
-{
-    return appLoggingLevel >= 1;
-}
 
 static inline int loggingLevel()
 {
@@ -42,15 +34,10 @@ static inline int loggingLevel()
 
 void setLoggingLevel(int level);
 
-#ifdef DEBUG_ENABLED
-    #define TRACE() \
-        if (debugEnabled()) qDebug() << __FILE__ << __LINE__ << __func__
-    #define BLAME() \
-        if (criticalsEnabled()) qCritical() << __FILE__ << __LINE__ << __func__
-#else
-    #define TRACE() while (0) qDebug()
-    #define BLAME() while (0) qDebug()
-#endif
+#define TRACE() \
+    qCDebug(DBG_SIGNON_UI) << __FILE__ << __LINE__ << __func__
+#define BLAME() \
+    qCWarning(DBG_SIGNON_UI) << __FILE__ << __LINE__ << __func__
 
 #endif // SIGNON_UI_DEBUG_H
 

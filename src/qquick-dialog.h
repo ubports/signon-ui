@@ -45,8 +45,6 @@ public:
     explicit Dialog(QWindow *parent = 0);
     ~Dialog();
 
-    void show(WId parent, ShowMode mode);
-
 public Q_SLOTS:
     void accept();
     void reject();
