@@ -266,7 +266,7 @@ Request *Request::newRequest(const QDBusConnection &connection,
 #ifdef USE_UBUNTU_WEB_VIEW
         TRACE() << "Platform:" << QGuiApplication::platformName();
         if (QGuiApplication::platformName().startsWith("ubuntu") ||
-            qgetenv("XDG_CURRENT_DESKTOP") == QByteArray("Unity") ||
+            qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity") ||
             qgetenv("SSOUI_USE_UBUNTU_WEB_VIEW") == QByteArray("1")) {
             return new UbuntuBrowserRequest(connection, message,
                                             parameters, parent);
