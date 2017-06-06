@@ -50,12 +50,3 @@ Breaks: signon-ui (<< 0.17), ubuntu-system-settings-online-accounts (<< 0.4)
 Replaces: signon-ui (<< 0.17), ubuntu-system-settings-online-accounts (<< 0.4)
 Description: D-Bus service file for signon-ui
  This D-Bus service is used to provide a UI for authenticating online accounts.
-
-Package: signon-ui
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends},
-         signon-ui-x11 | ubuntu-system-settings-online-accounts (>= 0.4)
-Description: Dummy transitional package for signon-ui
- Dummy package for transitioning signon-ui to signon-ui-x11 or
- ubuntu-system-settings-online-accounts.
