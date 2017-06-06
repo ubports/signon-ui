@@ -1,3 +1,9 @@
+signon-ui (0.17+17.10.20170606-0ubuntu1) artful; urgency=medium
+
+  * Drop transitional signon-ui package (package was renamed for Utopic)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 06 Jun 2017 01:05:08 +0000
+
 signon-ui (0.17+17.04.20170320-0ubuntu1) zesty; urgency=medium
 
   * Update for Unity7 session renaming. (LP: #1673984)
